@@ -1,0 +1,12 @@
+<settings>
+    <proxies>
+         <proxy>
+             <id>main-proxy</id>
+             <active>true</active>
+             <protocol>http</protocol>
+             <host>proxy.bbn.hp.com</host>
+             <port>8080</port>
+             <nonProxyHosts>localhost|10.0.2.15</nonProxyHosts>
+         </proxy>
+    </proxies>
+</settings>

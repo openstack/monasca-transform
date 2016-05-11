@@ -1,0 +1,9 @@
+{
+  "mon_metrics_kafka_metrics_0": {
+    "topic": "metrics",
+    "until_offset": 85081,
+    "partition": 0,
+    "app_name": "mon_metrics_kafka",
+    "from_offset": 84790
+  }
+}
