@@ -34,11 +34,11 @@ SPARK_VERSION=${SPARK_VERSION:-1.6.1}
 HADOOP_VERSION=${HADOOP_VERSION:-2.6}
 SPARK_HADOOP_VERSION=spark-$SPARK_VERSION-bin-hadoop$HADOOP_VERSION
 SPARK_TARBALL_NAME=${SPARK_HADOOP_VERSION}.tgz
-
-
+MAVEN_REPO=${MAVEN_REPO:-https://repo1.maven.org/maven2}
+APACHE_MIRROR=${APACHE_MIRROR:-http://archive.apache.org/dist}
 
 # Kafka deb consists of the version of scala plus the version of kafka
 BASE_KAFKA_VERSION=${BASE_KAFKA_VERSION:-0.8.1.1}
 SCALA_VERSION=${SCALA_VERSION:-2.10}
 KAFKA_VERSION=${KAFKA_VERSION:-${SCALA_VERSION}-${BASE_KAFKA_VERSION}}
-SPARK_JAVA_LIBS=("org/apache/kafka/kafka_2.10/0.8.1.1/kafka_2.10-0.8.1.1.jar" "org/scala-lang/scala-library/2.10.1/scala-library-2.10.1.jar" "com/yammer/metrics/metrics-core/2.2.0/metrics-core-2.2.0.jar" "org/apache/spark/spark-streaming-kafka_2.10/1.6.0/spark-streaming-kafka_2.10-1.6.0.jar")
+SPARK_JAVA_LIBS=("org/apache/kafka/kafka_2.10/0.8.1.1/kafka_2.10-0.8.1.1.jar" "org/scala-lang/scala-library/2.10.1/scala-library-2.10.1.jar" "com/yammer/metrics/metrics-core/2.2.0/metrics-core-2.2.0.jar" "org/apache/spark/spark-streaming-kafka_2.10/${SPARK_VERSION}/spark-streaming-kafka_2.10-${SPARK_VERSION}.jar")

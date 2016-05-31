@@ -370,6 +370,8 @@ class MonMetricsKafkaProcessor(object):
 
                 when(gen_mon_metrics_df.metric.dimensions.tenantId != '',
                      gen_mon_metrics_df.metric.dimensions.tenantId).when(
+                    gen_mon_metrics_df.metric.dimensions.tenant_id != '',
+                    gen_mon_metrics_df.metric.dimensions.tenant_id).when(
                     gen_mon_metrics_df.metric.dimensions.project_id != '',
                     gen_mon_metrics_df.metric.dimensions.project_id).otherwise(
                     'NA').alias("tenant_id"),

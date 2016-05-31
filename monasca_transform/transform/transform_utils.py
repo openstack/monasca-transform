@@ -213,8 +213,8 @@ class MonMetricUtils(TransformUtils):
                       "consumer_group", "device", "hostname",
                       "mode", "mount_point", "observer_host",
                       "process_name", "project_id", "service", "test_type",
-                      "tenantId", "topic", "url", "state", "state_description",
-                      "instanceId"]
+                      "tenantId", "tenant_id", "topic", "url", "state",
+                      "state_description", "instanceId"]
 
         dimensions_struct_fields = [
             StructField(field_name, StringType(), True)

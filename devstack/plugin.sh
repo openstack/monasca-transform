@@ -75,13 +75,11 @@ function install_mysql_connector {
 function install_java_libs {
 
     pushd /opt/spark/current/lib
-    #MAVEN_STUB="http://uk.maven.org/maven2"
-    MAVEN_STUB="https://repo1.maven.org/maven2"
     for SPARK_JAVA_LIB in "${SPARK_JAVA_LIBS[@]}"
     do
         SPARK_LIB_NAME=`echo ${SPARK_JAVA_LIB} | sed 's/.*\///'`
 
-        sudo -u spark curl ${MAVEN_STUB}/${SPARK_JAVA_LIB} -o ${SPARK_LIB_NAME}
+        sudo -u spark curl ${MAVEN_REPO}/${SPARK_JAVA_LIB} -o ${SPARK_LIB_NAME}
     done
     popd
 }
@@ -298,6 +296,7 @@ function copy_monasca_transform_files {
 
     sudo cp -f "${MONASCA_TRANSFORM_BASE}"/monasca-transform/devstack/files/monasca-transform/service_runner.py /opt/monasca/transform/lib/.
     sudo cp -f "${MONASCA_TRANSFORM_BASE}"/monasca-transform/devstack/files/monasca-transform/monasca-transform.conf /etc/.
+    sudo  sudo sed -i "s/brokers=192\.168\.15\.6:9092/brokers=${SERVICE_HOST}:9092/g" /etc/monasca-transform.conf
     sudo cp -f "${MONASCA_TRANSFORM_BASE}"/monasca-transform/devstack/files/monasca-transform/driver.py /opt/monasca/transform/lib/.
     ${MONASCA_TRANSFORM_BASE}/monasca-transform/scripts/create_zip.sh
     sudo cp -f "${MONASCA_TRANSFORM_BASE}"/monasca-transform/scripts/monasca-transform.zip /opt/monasca/transform/lib/.
@@ -343,7 +342,7 @@ function install_spark {
 
     if [ ! -f /opt/spark/download/${SPARK_TARBALL_NAME} ]
     then
-        sudo curl -m 300 http://apache.cs.utah.edu/spark/spark-${SPARK_VERSION}/${SPARK_TARBALL_NAME} -o /opt/spark/download/${SPARK_TARBALL_NAME}
+        sudo curl ${APACHE_MIRROR}/spark/spark-${SPARK_VERSION}/${SPARK_TARBALL_NAME} -o /opt/spark/download/${SPARK_TARBALL_NAME}
     fi
 
     sudo chown spark:spark /opt/spark/download/${SPARK_TARBALL_NAME}

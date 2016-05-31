@@ -114,7 +114,7 @@ class SparkTest(SparkContextTest):
         result = simple_count_transform(rdd_monasca_with_offsets)
 
         # Verify it worked
-        self.assertEqual(result, 307)
+        self.assertEqual(result, 320)
 
         # Call the primary method in mon_metrics_kafka
         MonMetricsKafkaProcessor.rdd_to_recordstore(
@@ -174,13 +174,13 @@ class SparkTest(SparkContextTest):
                          .get('aggregation_period'))
 
         self.assertEqual(4.0,
-                         total_mb_agg_metric.get('metric').get('value_meta')
+                         usable_mb_agg_metric.get('metric').get('value_meta')
                          .get('record_count'))
         self.assertEqual('2016-01-20 16:40:00',
-                         total_mb_agg_metric.get('metric').get('value_meta')
+                         usable_mb_agg_metric.get('metric').get('value_meta')
                          .get('firstrecord_timestamp'))
         self.assertEqual('2016-01-20 16:40:46',
-                         total_mb_agg_metric.get('metric').get('value_meta')
+                         usable_mb_agg_metric.get('metric').get('value_meta')
                          .get('lastrecord_timestamp'))
 
         vcpus_agg_metric = [
@@ -448,6 +448,193 @@ class SparkTest(SparkContextTest):
                          .get('value_meta').get('firstrecord_timestamp'))
         self.assertEqual('2016-05-17 15:14:44',
                          total_allocated_disk_agg_metric.get('metric')
+                         .get('value_meta').get('lastrecord_timestamp'))
+
+        disk_allocation_agg_metric = [
+            value for value in metrics
+            if value.get('metric').get('name') ==
+            'disk.allocation_agg' and
+            value.get('metric').get('dimensions').get('project_id') ==
+            'all'][0]
+
+        self.assertTrue(disk_allocation_agg_metric is not None)
+
+        self.assertEqual(140.0,
+                         disk_allocation_agg_metric
+                         .get('metric').get('value'))
+        self.assertEqual('useast',
+                         disk_allocation_agg_metric
+                         .get('meta').get('region'))
+
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+                         disk_allocation_agg_metric
+                         .get('meta').get('tenantId'))
+        self.assertEqual('all',
+                         disk_allocation_agg_metric
+                         .get('metric').get('dimensions').get('host'))
+        self.assertEqual('hourly',
+                         disk_allocation_agg_metric
+                         .get('metric').get('dimensions')
+                         .get('aggregation_period'))
+
+        self.assertEqual(9.0,
+                         disk_allocation_agg_metric
+                         .get('metric').get('value_meta').get('record_count'))
+        self.assertEqual('2016-01-20 16:40:00',
+                         disk_allocation_agg_metric
+                         .get('metric').get('value_meta')
+                         .get('firstrecord_timestamp'))
+        self.assertEqual('2016-01-20 16:40:46',
+                         disk_allocation_agg_metric
+                         .get('metric').get('value_meta')
+                         .get('lastrecord_timestamp'))
+
+        disk_allocation_agg_metric = [
+            value for value in metrics
+            if value.get('metric').get('name') ==
+            'disk.allocation_agg' and
+            value.get('metric').get('dimensions').get('project_id') ==
+            '5f681592f7084c5fbcd4e8a20a4fef15'][0]
+
+        self.assertTrue(disk_allocation_agg_metric is not None)
+
+        self.assertEqual(24.0,
+                         disk_allocation_agg_metric
+                         .get('metric').get('value'))
+        self.assertEqual('useast',
+                         disk_allocation_agg_metric
+                         .get('meta').get('region'))
+
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+                         disk_allocation_agg_metric
+                         .get('meta').get('tenantId'))
+        self.assertEqual('all',
+                         disk_allocation_agg_metric
+                         .get('metric').get('dimensions').get('host'))
+        self.assertEqual('hourly',
+                         disk_allocation_agg_metric
+                         .get('metric').get('dimensions')
+                         .get('aggregation_period'))
+
+        self.assertEqual(3.0,
+                         disk_allocation_agg_metric
+                         .get('metric').get('value_meta').get('record_count'))
+        self.assertEqual('2016-01-20 16:40:00',
+                         disk_allocation_agg_metric
+                         .get('metric').get('value_meta')
+                         .get('firstrecord_timestamp'))
+        self.assertEqual('2016-01-20 16:40:40',
+                         disk_allocation_agg_metric
+                         .get('metric').get('value_meta')
+                         .get('lastrecord_timestamp'))
+
+        disk_allocation_agg_metric = [
+            value for value in metrics
+            if value.get('metric').get('name') ==
+            'disk.allocation_agg' and
+            value.get('metric').get('dimensions').get('project_id') ==
+            '6f681592f7084c5fbcd4e8a20a4fef15'][0]
+
+        self.assertTrue(disk_allocation_agg_metric is not None)
+
+        self.assertEqual(116.0,
+                         disk_allocation_agg_metric
+                         .get('metric').get('value'))
+        self.assertEqual('useast',
+                         disk_allocation_agg_metric
+                         .get('meta').get('region'))
+
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+                         disk_allocation_agg_metric
+                         .get('meta').get('tenantId'))
+        self.assertEqual('all',
+                         disk_allocation_agg_metric
+                         .get('metric').get('dimensions').get('host'))
+        self.assertEqual('hourly',
+                         disk_allocation_agg_metric
+                         .get('metric').get('dimensions')
+                         .get('aggregation_period'))
+
+        self.assertEqual(6.0,
+                         disk_allocation_agg_metric
+                         .get('metric').get('value_meta').get('record_count'))
+        self.assertEqual('2016-01-20 16:40:00',
+                         disk_allocation_agg_metric
+                         .get('metric').get('value_meta')
+                         .get('firstrecord_timestamp'))
+        self.assertEqual('2016-01-20 16:40:46',
+                         disk_allocation_agg_metric
+                         .get('metric').get('value_meta')
+                         .get('lastrecord_timestamp'))
+
+        vm_cpu_util_perc_agg_metric = [
+            value for value in metrics
+            if value.get('metric').get('name') ==
+            'vm.cpu.utilization_perc_agg' and
+            value.get('metric').get('dimensions').get('project_id') ==
+            '817331145b804dc9a7accb6edfb0674d'][0]
+
+        self.assertEqual(55.0,
+                         vm_cpu_util_perc_agg_metric
+                         .get('metric').get('value'))
+        self.assertEqual('useast',
+                         vm_cpu_util_perc_agg_metric.get('meta')
+                         .get('region'))
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+                         vm_cpu_util_perc_agg_metric.get('meta')
+                         .get('tenantId'))
+        self.assertEqual('all',
+                         vm_cpu_util_perc_agg_metric.get('metric')
+                         .get('dimensions').get('host'))
+        self.assertEqual('817331145b804dc9a7accb6edfb0674d',
+                         vm_cpu_util_perc_agg_metric.get('metric')
+                         .get('dimensions').get('project_id'))
+        self.assertEqual('hourly',
+                         vm_cpu_util_perc_agg_metric.get('metric')
+                         .get('dimensions').get('aggregation_period'))
+        self.assertEqual(3.0,
+                         vm_cpu_util_perc_agg_metric.get('metric')
+                         .get('value_meta').get('record_count'))
+        self.assertEqual('2016-05-26 17:31:01',
+                         vm_cpu_util_perc_agg_metric.get('metric')
+                         .get('value_meta').get('firstrecord_timestamp'))
+        self.assertEqual('2016-05-26 17:31:36',
+                         vm_cpu_util_perc_agg_metric.get('metric')
+                         .get('value_meta').get('lastrecord_timestamp'))
+
+        vm_cpu_util_perc_agg_metric = [
+            value for value in metrics
+            if value.get('metric').get('name') ==
+            'vm.cpu.utilization_perc_agg' and
+            value.get('metric').get('dimensions').get('project_id') ==
+            '5d0e49bdc4534bb4b65909228aa040da'][0]
+
+        self.assertEqual(26.0,
+                         vm_cpu_util_perc_agg_metric
+                         .get('metric').get('value'))
+        self.assertEqual('useast',
+                         vm_cpu_util_perc_agg_metric.get('meta')
+                         .get('region'))
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+                         vm_cpu_util_perc_agg_metric.get('meta')
+                         .get('tenantId'))
+        self.assertEqual('all',
+                         vm_cpu_util_perc_agg_metric.get('metric')
+                         .get('dimensions').get('host'))
+        self.assertEqual('5d0e49bdc4534bb4b65909228aa040da',
+                         vm_cpu_util_perc_agg_metric.get('metric')
+                         .get('dimensions').get('project_id'))
+        self.assertEqual('hourly',
+                         vm_cpu_util_perc_agg_metric.get('metric')
+                         .get('dimensions').get('aggregation_period'))
+        self.assertEqual(1.0,
+                         vm_cpu_util_perc_agg_metric.get('metric')
+                         .get('value_meta').get('record_count'))
+        self.assertEqual('2016-05-26 17:30:27',
+                         vm_cpu_util_perc_agg_metric.get('metric')
+                         .get('value_meta').get('firstrecord_timestamp'))
+        self.assertEqual('2016-05-26 17:30:27',
+                         vm_cpu_util_perc_agg_metric.get('metric')
                          .get('value_meta').get('lastrecord_timestamp'))
 
 

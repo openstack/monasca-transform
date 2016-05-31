@@ -60,8 +60,16 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
             expected_agg_metric_name='vm.mem.total_mb_agg',
             transform_specs_dataframe=transform_specs_data_frame)
         self.check_metric(
-            metric_id='disk_allocated_all',
+            metric_id='nova_disk_total_allocated_gb_all',
             expected_agg_metric_name='nova.vm.disk.total_allocated_gb_agg',
+            transform_specs_dataframe=transform_specs_data_frame)
+        self.check_metric(
+            metric_id='disk_allocation_all',
+            expected_agg_metric_name='disk.allocation_agg',
+            transform_specs_dataframe=transform_specs_data_frame)
+        self.check_metric(
+            metric_id='vm_cpu_util_perc_project',
+            expected_agg_metric_name='vm.cpu.utilization_perc_agg',
             transform_specs_dataframe=transform_specs_data_frame)
 
     def check_metric(self, metric_id=None, expected_agg_metric_name=None,
@@ -88,7 +96,8 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
                      u'disk.total_used_space_mb', u'disk.total_space_mb',
                      u'cpu.total_logical_cores',
                      u'cpu.idle_perc', u'vcpus',
-                     u'vm.mem.total_mb', u'nova.vm.disk.total_allocated_gb']),
+                     u'vm.mem.total_mb', u'nova.vm.disk.total_allocated_gb',
+                     u'disk.allocation', u'vm.cpu.utilization_perc']),
             Counter([row.event_type for row in
                      pre_transform_specs_data_frame.collect()]))
 
@@ -211,7 +220,7 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
         self.check_list_field_for_row(
             row=disk_total_alloc_row,
             field_name='metric_id_list',
-            expected_list=['disk_allocated_all']
+            expected_list=['nova_disk_total_allocated_gb_all']
         )
         self.check_list_field_for_row(
             row=disk_total_alloc_row,
@@ -227,6 +236,63 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
                 "set_default_region_to": "W"})
         self.check_value_field_for_row(
             row=disk_total_alloc_row,
+            field_name='service_id',
+            expected_value='host_metrics'
+        )
+
+        # disk.allocation
+        event_type = 'disk.allocation'
+        disk_allocation_all_row = self.get_row_for_event_type(
+            event_type=event_type,
+            pre_transform_specs_data_frame=pre_transform_specs_data_frame)
+        self.check_list_field_for_row(
+            row=disk_allocation_all_row,
+            field_name='metric_id_list',
+            expected_list=['disk_allocation_all',
+                           'disk_allocation_project']
+        )
+        self.check_list_field_for_row(
+            row=disk_allocation_all_row,
+            field_name='required_raw_fields_list',
+            expected_list=['creation_time', 'tenantId'],
+        )
+        self.check_dict_field_for_row(
+            row=disk_allocation_all_row,
+            field_name='event_processing_params',
+            expected_dict={
+                "set_default_zone_to": "1",
+                "set_default_geolocation_to": "1",
+                "set_default_region_to": "W"})
+        self.check_value_field_for_row(
+            row=disk_allocation_all_row,
+            field_name='service_id',
+            expected_value='host_metrics'
+        )
+
+        # vm.cpu.utilization_perc
+        event_type = 'vm.cpu.utilization_perc'
+        vm_cpu_util_perc_row = self.get_row_for_event_type(
+            event_type=event_type,
+            pre_transform_specs_data_frame=pre_transform_specs_data_frame)
+        self.check_list_field_for_row(
+            row=vm_cpu_util_perc_row,
+            field_name='metric_id_list',
+            expected_list=['vm_cpu_util_perc_project']
+        )
+        self.check_list_field_for_row(
+            row=vm_cpu_util_perc_row,
+            field_name='required_raw_fields_list',
+            expected_list=['creation_time', 'tenant_id'],
+        )
+        self.check_dict_field_for_row(
+            row=vm_cpu_util_perc_row,
+            field_name='event_processing_params',
+            expected_dict={
+                "set_default_zone_to": "1",
+                "set_default_geolocation_to": "1",
+                "set_default_region_to": "W"})
+        self.check_value_field_for_row(
+            row=vm_cpu_util_perc_row,
             field_name='service_id',
             expected_value='host_metrics'
         )
