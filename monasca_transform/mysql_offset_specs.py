@@ -11,11 +11,11 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
+import datetime
 from oslo_config import cfg
 from sqlalchemy import create_engine
+from sqlalchemy import desc
 from sqlalchemy.ext.automap import automap_base
-from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm import sessionmaker
 
 from monasca_transform.offset_specs import OffsetSpec
@@ -25,8 +25,17 @@ Base = automap_base()
 
 
 class MySQLOffsetSpec(Base, OffsetSpec):
-
     __tablename__ = 'kafka_offsets'
+
+    def __str__(self):
+        return "%s,%s,%s,%s,%s,%s,%s,%s" % (str(self.id),
+                                            str(self.topic),
+                                            str(self.partition),
+                                            str(self.until_offset),
+                                            str(self.from_offset),
+                                            str(self.batch_time),
+                                            str(self.last_updated),
+                                            str(self.revision))
 
 
 class MySQLOffsetSpecs(OffsetSpecs):
@@ -41,8 +50,7 @@ class MySQLOffsetSpecs(OffsetSpecs):
             database_uid,
             database_pwd,
             database_server,
-            database_name
-        ), isolation_level="READ UNCOMMITTED")
+            database_name), isolation_level="READ UNCOMMITTED")
 
         db.echo = True
         # reflect the tables
@@ -51,36 +59,119 @@ class MySQLOffsetSpecs(OffsetSpecs):
         Session = sessionmaker(bind=db)
         self.session = Session()
 
-    def add(self, app_name, topic, partition,
-            from_offset, until_offset):
-        try:
-            offset_spec = self.session.query(MySQLOffsetSpec).filter_by(
-                app_name=app_name, topic=topic,
-                partition=partition).one()
-            offset_spec.from_offset = from_offset
-            offset_spec.until_offset = until_offset
-            self.session.commit()
+        # keep these many offset versions around
+        self.MAX_REVISIONS = cfg.CONF.repositories.offsets_max_revisions
 
-        except NoResultFound:
+    def _manage_offset_revisions(self):
+        """manage offset versions"""
+        distinct_offset_specs = self.session.query(
+            MySQLOffsetSpec).group_by(MySQLOffsetSpec.app_name,
+                                      MySQLOffsetSpec.topic,
+                                      MySQLOffsetSpec.partition
+                                      ).all()
+
+        for distinct_offset_spec in distinct_offset_specs:
+            ordered_versions = self.session.query(
+                MySQLOffsetSpec).filter_by(
+                    app_name=distinct_offset_spec.app_name,
+                    topic=distinct_offset_spec.topic,
+                    partition=distinct_offset_spec.partition).order_by(
+                        desc(MySQLOffsetSpec.id)).all()
+
+            revision = 1
+            for version_spec in ordered_versions:
+                version_spec.revision = revision
+                revision = revision + 1
+
+            self.session.query(MySQLOffsetSpec).filter(
+                MySQLOffsetSpec.revision > self.MAX_REVISIONS).delete(
+                    synchronize_session="fetch")
+
+    def get_kafka_offsets(self, app_name):
+        return {'%s_%s_%s' % (
+            offset.get_app_name(), offset.get_topic(), offset.get_partition()
+        ): offset for offset in self.session.query(MySQLOffsetSpec).filter(
+            MySQLOffsetSpec.app_name == app_name,
+            MySQLOffsetSpec.revision == 1).all()}
+
+    def delete_all_kafka_offsets(self, app_name):
+        try:
+            self.session.query(MySQLOffsetSpec).filter(
+                MySQLOffsetSpec.app_name == app_name).delete()
+            self.session.commit()
+        except Exception:
+            # Seems like there isn't much that can be done in this situation
+            pass
+
+    def add_all_offsets(self, app_name, offsets,
+                        batch_time_info):
+        """add offsets. """
+        try:
+
+            # batch time
+            batch_time = \
+                batch_time_info.strftime(
+                    '%Y-%m-%d %H:%M:%S')
+
+            # last updated
+            last_updated = \
+                datetime.datetime.now().strftime(
+                    '%Y-%m-%d %H:%M:%S')
+
+            NEW_REVISION_NO = -1
+
+            for o in offsets:
+                offset_spec = MySQLOffsetSpec(
+                    topic=o.topic,
+                    app_name=app_name,
+                    partition=o.partition,
+                    from_offset=o.fromOffset,
+                    until_offset=o.untilOffset,
+                    batch_time=batch_time,
+                    last_updated=last_updated,
+                    revision=NEW_REVISION_NO)
+                self.session.add(offset_spec)
+
+            # manage versions
+            self._manage_offset_revisions()
+
+            self.session.commit()
+        except Exception:
+            self.session.rollback()
+            raise
+
+    def add(self, app_name, topic, partition,
+            from_offset, until_offset, batch_time_info):
+        """add offset info. """
+        try:
+            # batch time
+            batch_time = \
+                batch_time_info.strftime(
+                    '%Y-%m-%d %H:%M:%S')
+
+            # last updated
+            last_updated = \
+                datetime.datetime.now().strftime(
+                    '%Y-%m-%d %H:%M:%S')
+
+            NEW_REVISION_NO = -1
+
             offset_spec = MySQLOffsetSpec(
                 topic=topic,
                 app_name=app_name,
                 partition=partition,
                 from_offset=from_offset,
-                until_offset=until_offset)
+                until_offset=until_offset,
+                batch_time=batch_time,
+                last_updated=last_updated,
+                revision=NEW_REVISION_NO)
+
             self.session.add(offset_spec)
+
+            # manage versions
+            self._manage_offset_revisions()
+
             self.session.commit()
-
-    def get_kafka_offsets(self):
-        return {'%s_%s_%s' % (
-            offset.get_app_name(), offset.get_topic(), offset.get_partition()
-        ): offset for offset in self.session.query(MySQLOffsetSpec).all()}
-
-    def delete_all_kafka_offsets(self):
-        try:
-            self.session.query(MySQLOffsetSpec).delete()
-            self.session.commit()
-
         except Exception:
-            # Seems like there isn't much that can be done in this situation
-            pass
+            self.session.rollback()
+            raise

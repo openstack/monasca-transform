@@ -13,12 +13,12 @@
 # under the License.
 
 from monasca_transform.component.insert import InsertComponent
-
 from oslo_config import cfg
+from tests.unit.messaging.adapter import DummyAdapter
 
 
 class DummyInsert(InsertComponent):
-    """Insert component that writes instance usage data
+    """Insert component that writes metric data to
     to kafka queue
     """
 
@@ -63,7 +63,7 @@ class DummyInsert(InsertComponent):
         #
 
         for instance_usage_row in instance_usage_df.collect():
-            InsertComponent._write_metric(instance_usage_row,
-                                          agg_params)
-
+            metric = InsertComponent._get_metric(instance_usage_row,
+                                                 agg_params)
+            DummyAdapter.send_metric(metric)
         return instance_usage_df

@@ -14,6 +14,7 @@
 
 from monasca_transform.component.insert import InsertComponent
 from monasca_transform.config.config_initializer import ConfigInitializer
+from monasca_transform.messaging.adapter import KafkaMessageAdapter
 
 
 class KafkaInsert(InsertComponent):
@@ -59,6 +60,7 @@ class KafkaInsert(InsertComponent):
         #
 
         for instance_usage_row in instance_usage_df.collect():
-            InsertComponent._write_metric(instance_usage_row, agg_params)
-
+            metric = InsertComponent._get_metric(
+                instance_usage_row, agg_params)
+            KafkaMessageAdapter.send_metric(metric)
         return instance_usage_df

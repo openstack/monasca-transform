@@ -12,9 +12,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-activate_this_file = "/opt/monasca/transform/venv/bin/activate_this.py"
-execfile(activate_this_file, dict(__file__=activate_this_file))
+import os
 
-from monasca_transform.driver.mon_metrics_kafka import invoke
 
-invoke()
+class DataProvider(object):
+
+    _resource_path = 'tests/unit/test_resources/metrics_pre_hourly_data/'
+
+    metrics_pre_hourly_data_path = os.path.join(_resource_path,
+                                                "metrics_pre_hourly_data.txt")

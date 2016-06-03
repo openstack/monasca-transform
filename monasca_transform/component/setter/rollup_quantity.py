@@ -52,7 +52,6 @@ class RollupQuantity(SetterComponent):
 
     @staticmethod
     def _rollup_quantity(instance_usage_df,
-                         transform_spec_df,
                          setter_rollup_group_by_list,
                          setter_rollup_operation):
 
@@ -202,7 +201,35 @@ class RollupQuantity(SetterComponent):
 
         # perform rollup operation
         instance_usage_json_rdd = RollupQuantity._rollup_quantity(
-            instance_usage_df, transform_spec_df,
+            instance_usage_df,
+            group_by_columns_list,
+            str(setter_rollup_operation))
+
+        sql_context = SQLContext.getOrCreate(instance_usage_df.rdd.context)
+        instance_usage_trans_df = InstanceUsageUtils.create_df_from_json_rdd(
+            sql_context,
+            instance_usage_json_rdd)
+
+        return instance_usage_trans_df
+
+    @staticmethod
+    def do_rollup(setter_rollup_group_by_list,
+                  aggregation_period,
+                  setter_rollup_operation,
+                  instance_usage_df):
+
+        # get aggregation period
+        group_by_period_list = \
+            ComponentUtils._get_instance_group_by_period_list(
+                aggregation_period)
+
+        # group by columns list
+        group_by_columns_list = group_by_period_list + \
+            setter_rollup_group_by_list
+
+        # perform rollup operation
+        instance_usage_json_rdd = RollupQuantity._rollup_quantity(
+            instance_usage_df,
             group_by_columns_list,
             str(setter_rollup_operation))
 

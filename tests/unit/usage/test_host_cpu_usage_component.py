@@ -11,21 +11,19 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
+import mock
 import unittest
 
 from oslo_config import cfg
 from pyspark.streaming.kafka import OffsetRange
 
-import mock
-
 from monasca_transform.config.config_initializer import ConfigInitializer
 from monasca_transform.driver.mon_metrics_kafka \
     import MonMetricsKafkaProcessor
-from monasca_transform.messaging.adapter import MessageAdapter
 from monasca_transform.transform import RddTransformContext
 from monasca_transform.transform import TransformContextUtils
 
+from tests.unit.messaging.adapter import DummyAdapter
 from tests.unit.spark_context_test import SparkContextTest
 from tests.unit.test_resources.cpu_kafka_data.data_provider import DataProvider
 from tests.unit.test_resources.mock_component_manager \
@@ -42,9 +40,9 @@ class SparkTest(SparkContextTest):
                 'tests/unit/test_resources/config/'
                 'test_config_with_dummy_messaging_adapter.conf'])
         # reset metric_id list dummy adapter
-        if not MessageAdapter.adapter_impl:
-            MessageAdapter.init()
-        MessageAdapter.adapter_impl.metric_list = []
+        if not DummyAdapter.adapter_impl:
+            DummyAdapter.init()
+        DummyAdapter.adapter_impl.metric_list = []
 
     @mock.patch('monasca_transform.transform.builder.'
                 'generic_transform_builder.GenericTransformBuilder.'
@@ -81,7 +79,9 @@ class SparkTest(SparkContextTest):
             OffsetRange("metrics", 1, 10, 20)]  # mimic rdd.offsetRanges()
 
         transform_context = TransformContextUtils.get_context(
-            offset_info=myOffsetRanges)
+            offset_info=myOffsetRanges,
+            batch_time_info=self.get_dummy_batch_time())
+
         rdd_monasca_with_offsets = rdd_monasca.map(
             lambda x: RddTransformContext(x, transform_context))
 
@@ -90,7 +90,7 @@ class SparkTest(SparkContextTest):
             rdd_monasca_with_offsets)
 
         # get the metrics that have been submitted to the dummy message adapter
-        metrics = MessageAdapter.adapter_impl.metric_list
+        metrics = DummyAdapter.adapter_impl.metric_list
 
         # Verify cpu.total_logical_cores_agg for all hosts
         total_cpu_logical_agg_metric = [

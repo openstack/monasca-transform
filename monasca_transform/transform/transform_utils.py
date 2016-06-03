@@ -15,7 +15,6 @@
 import logging
 
 from pyspark.sql import SQLContext
-
 from pyspark.sql.types import ArrayType
 from pyspark.sql.types import DoubleType
 from pyspark.sql.types import MapType
@@ -177,6 +176,12 @@ class TransformSpecsUtils(TransformUtils):
                                     StructField("setter_rollup_operation",
                                                 StringType(), True),
                                     StructField("aggregated_metric_name",
+                                                StringType(), True),
+                                    StructField("pre_hourly_group_by_list",
+                                                ArrayType(StringType(),
+                                                          containsNull=False),
+                                                True),
+                                    StructField("pre_hourly_operation",
                                                 StringType(), True),
                                     StructField("aggregation_pipeline",
                                                 StructType([source, usage,

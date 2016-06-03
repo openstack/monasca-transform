@@ -24,7 +24,7 @@ class PrepareData(InsertComponent):
         """write instance usage data to kafka"""
 
         #
-        # FIXME: add instance usage data validation
+        # TODO(someone) add instance usage data validation
         #
 
         return instance_usage_df

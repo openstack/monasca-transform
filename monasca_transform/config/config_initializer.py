@@ -23,6 +23,8 @@ class ConfigInitializer(object):
         ConfigInitializer.load_database_options()
         ConfigInitializer.load_messaging_options()
         ConfigInitializer.load_service_options()
+        ConfigInitializer.load_stage_processors_options()
+        ConfigInitializer.load_pre_hourly_processor_options()
         if not default_config_files:
             default_config_files = ['/etc/monasca-transform.conf',
                                     'etc/monasca-transform.conf']
@@ -43,7 +45,9 @@ class ConfigInitializer(object):
                 default='monasca_transform.data_driven_specs.'
                         'json_data_driven_specs_repo:JSONDataDrivenSpecsRepo',
                 help='Repository for metric and event data_driven_specs'
-            )
+            ),
+            cfg.IntOpt('offsets_max_revisions', default=10,
+                       help="Max revisions of offsets for each application")
         ]
         repo_group = cfg.OptGroup(name='repositories', title='repositories')
         cfg.CONF.register_group(repo_group)
@@ -76,7 +80,13 @@ class ConfigInitializer(object):
                        help='Messaging brokers'),
             cfg.StrOpt('publish_kafka_tenant_id',
                        default='111111',
-                       help='publish aggregated metrics tenant')
+                       help='publish aggregated metrics tenant'),
+            cfg.StrOpt('adapter_pre_hourly',
+                       default='monasca_transform.messaging.adapter:'
+                       'KafkaMessageAdapterPreHourly',
+                       help='Message adapter implementation'),
+            cfg.StrOpt('topic_pre_hourly', default='metrics_pre_hourly',
+                       help='Messaging topic pre hourly')
         ]
         messaging_group = cfg.OptGroup(name='messaging', title='messaging')
         cfg.CONF.register_group(messaging_group)
@@ -99,8 +109,31 @@ class ConfigInitializer(object):
             cfg.StrOpt('spark_python_files'),
             cfg.IntOpt('stream_interval'),
             cfg.StrOpt('work_dir'),
-            cfg.StrOpt('spark_home')
+            cfg.StrOpt('spark_home'),
+            cfg.BoolOpt('enable_record_store_df_cache'),
+            cfg.StrOpt('record_store_df_cache_storage_level')
         ]
         service_group = cfg.OptGroup(name='service', title='service')
         cfg.CONF.register_group(service_group)
         cfg.CONF.register_opts(service_opts, group=service_group)
+
+    @staticmethod
+    def load_stage_processors_options():
+        app_opts = [
+            cfg.BoolOpt('pre_hourly_processor_enabled'),
+        ]
+        app_group = cfg.OptGroup(name='stage_processors',
+                                 title='stage_processors')
+        cfg.CONF.register_group(app_group)
+        cfg.CONF.register_opts(app_opts, group=app_group)
+
+    @staticmethod
+    def load_pre_hourly_processor_options():
+        app_opts = [
+            cfg.BoolOpt('enable_instance_usage_df_cache'),
+            cfg.StrOpt('instance_usage_df_cache_storage_level')
+        ]
+        app_group = cfg.OptGroup(name='pre_hourly_processor',
+                                 title='pre_hourly_processor')
+        cfg.CONF.register_group(app_group)
+        cfg.CONF.register_opts(app_opts, group=app_group)

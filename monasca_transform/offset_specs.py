@@ -13,11 +13,11 @@
 # under the License.
 
 import abc
+import datetime
 import json
 import logging
 import os
 import six
-
 
 log = logging.getLogger(__name__)
 
@@ -25,12 +25,18 @@ log = logging.getLogger(__name__)
 class OffsetSpec(object):
 
     def __init__(self, app_name=None, topic=None, partition=None,
-                 from_offset=None, until_offset=None):
+                 from_offset=None, until_offset=None,
+                 batch_time=None, last_updated=None,
+                 revision=None):
+
         self.app_name = app_name
         self.topic = topic
         self.partition = partition
         self.from_offset = from_offset
         self.until_offset = until_offset
+        self.batch_time = batch_time
+        self.last_updated = last_updated
+        self.revision = revision
 
     def get_app_name(self):
         return self.app_name
@@ -47,6 +53,15 @@ class OffsetSpec(object):
     def get_until_offset(self):
         return self.until_offset
 
+    def get_batch_time(self):
+        return self.batch_time
+
+    def get_last_updated(self):
+        return self.last_updated
+
+    def get_revision(self):
+        return self.revision
+
 
 @six.add_metaclass(abc.ABCMeta)
 class OffsetSpecs(object):
@@ -56,20 +71,29 @@ class OffsetSpecs(object):
 
     @abc.abstractmethod
     def add(self, app_name, topic, partition,
-            from_offset, until_offset):
+            from_offset, until_offset, batch_time_info):
         raise NotImplementedError(
             "Class %s doesn't implement add(self, app_name, topic, "
-            "partition, from_offset, until_offset)"
+            "partition, from_offset, until_offset, batch_time,"
+            "last_updated, revision)"
             % self.__class__.__name__)
 
     @abc.abstractmethod
-    def get_kafka_offsets(self):
+    def add_all_offsets(self, app_name, offsets, batch_time_info):
+        raise NotImplementedError(
+            "Class %s doesn't implement add(self, app_name, topic, "
+            "partition, from_offset, until_offset, batch_time,"
+            "last_updated, revision)"
+            % self.__class__.__name__)
+
+    @abc.abstractmethod
+    def get_kafka_offsets(self, app_name):
         raise NotImplementedError(
             "Class %s doesn't implement get_kafka_offsets()"
             % self.__class__.__name__)
 
     @abc.abstractmethod
-    def delete_all_kafka_offsets(self):
+    def delete_all_kafka_offsets(self, app_name):
         raise NotImplementedError(
             "Class %s doesn't implement delete_all_kafka_offsets()"
             % self.__class__.__name__)
@@ -91,9 +115,12 @@ class JSONOffsetSpecs(OffsetSpecs):
                     self._kafka_offsets[key] = OffsetSpec(
                         app_name=value.get('app_name'),
                         topic=value.get('topic'),
-                        until_offset=value.get('until_offset'),
+                        partition=value.get('partition'),
                         from_offset=value.get('from_offset'),
-                        partition=value.get('partition')
+                        until_offset=value.get('until_offset'),
+                        batch_time=value.get('batch_time'),
+                        last_updated=value.get('last_updated'),
+                        revision=value.get('revision')
                     )
             except Exception:
                 log.info('Invalid or corrupts offsets file found at %s,'
@@ -122,10 +149,26 @@ class JSONOffsetSpecs(OffsetSpecs):
                 "topic": offset_value.get_topic(),
                 "partition": offset_value.get_partition(),
                 "from_offset": offset_value.get_from_offset(),
-                "until_offset": offset_value.get_until_offset()}
+                "until_offset": offset_value.get_until_offset(),
+                "batch_time": offset_value.get_batch_time(),
+                "last_updated": offset_value.get_last_updated(),
+                "revision": offset_value.get_revision()}
 
     def add(self, app_name, topic, partition,
-            from_offset, until_offset):
+            from_offset, until_offset, batch_time_info):
+
+        # batch time
+        batch_time = \
+            batch_time_info.strftime(
+                '%Y-%m-%d %H:%M:%S')
+
+        # last updated
+        last_updated = \
+            datetime.datetime.now().strftime(
+                '%Y-%m-%d %H:%M:%S')
+
+        NEW_REVISION_NO = 1
+
         key_name = "%s_%s_%s" % (
             app_name, topic, partition)
         offset = OffsetSpec(
@@ -133,7 +176,10 @@ class JSONOffsetSpecs(OffsetSpecs):
             topic=topic,
             partition=partition,
             from_offset=from_offset,
-            until_offset=until_offset
+            until_offset=until_offset,
+            batch_time=batch_time,
+            last_updated=last_updated,
+            revision=NEW_REVISION_NO
         )
         log.info('Adding offset %s for key %s to current offsets: %s' %
                  (offset, key_name, self._kafka_offsets))
@@ -141,9 +187,44 @@ class JSONOffsetSpecs(OffsetSpecs):
         log.info('Added so kafka offset is now  %s', self._kafka_offsets)
         self._save()
 
-    def get_kafka_offsets(self):
+    def get_kafka_offsets(self, app_name):
         return self._kafka_offsets
 
-    def delete_all_kafka_offsets(self):
+    def delete_all_kafka_offsets(self, app_name):
         log.info("Deleting json offsets file: %s", self.kafka_offset_spec_file)
         os.remove(self.kafka_offset_spec_file)
+
+    def add_all_offsets(self, app_name, offsets, batch_time_info):
+
+        # batch time
+        batch_time = \
+            batch_time_info.strftime(
+                '%Y-%m-%d %H:%M:%S')
+
+        # last updated
+        last_updated = \
+            datetime.datetime.now().strftime(
+                '%Y-%m-%d %H:%M:%S')
+
+        NEW_REVISION_NO = -1
+
+        for o in offsets:
+
+            key_name = "%s_%s_%s" % (
+                app_name, o.topic, o.partition)
+
+            offset = OffsetSpec(
+                topic=o.topic,
+                app_name=app_name,
+                partition=o.partition,
+                from_offset=o.fromOffset,
+                until_offset=o.untilOffset,
+                batch_time=batch_time,
+                last_updated=last_updated,
+                revision=NEW_REVISION_NO)
+
+            log.info('Adding offset %s for key %s to current offsets: %s' %
+                     (offset, key_name, self._kafka_offsets))
+            self._kafka_offsets[key_name] = offset
+            log.info('Added so kafka offset is now  %s', self._kafka_offsets)
+            self._save()

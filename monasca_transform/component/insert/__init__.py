@@ -16,7 +16,6 @@ import abc
 import time
 
 from monasca_transform.component import Component
-from monasca_transform.messaging.adapter import MessageAdapter
 
 from oslo_config import cfg
 
@@ -103,7 +102,7 @@ class InsertComponent(Component):
         return metric
 
     @staticmethod
-    def _write_metric(row, agg_params):
+    def _get_metric(row, agg_params):
         """write data to kafka. extracts and formats
         metric data and write s the data to kafka
         """
@@ -132,8 +131,46 @@ class InsertComponent(Component):
                                    row.aggregation_period}
         metric = InsertComponent._prepare_metric(instance_usage_dict,
                                                  agg_params)
+        return metric
 
-        MessageAdapter.send_metric(metric)
+    @staticmethod
+    def _get_instance_usage_pre_hourly(row,
+                                       metric_id):
+        """write data to kafka. extracts and formats
+        metric data and writes the data to kafka
+        """
+        # add transform spec metric id to processing meta
+        processing_meta = {"metric_id": metric_id}
+
+        instance_usage_dict = {"tenant_id": row.tenant_id,
+                               "user_id": row.user_id,
+                               "resource_uuid": row.resource_uuid,
+                               "geolocation": row.geolocation,
+                               "region": row.region,
+                               "zone": row.zone,
+                               "host": row.host,
+                               "project_id": row.project_id,
+                               "aggregated_metric_name":
+                                   row.aggregated_metric_name,
+                               "quantity": row.quantity,
+                               "firstrecord_timestamp":
+                                   row.firstrecord_timestamp_string,
+                               "lastrecord_timestamp":
+                                   row.lastrecord_timestamp_string,
+                               "firstrecord_timestamp_unix":
+                                   row.firstrecord_timestamp_unix,
+                               "lastrecord_timestamp_unix":
+                                   row.lastrecord_timestamp_unix,
+                               "record_count": row.record_count,
+                               "service_group": row.service_group,
+                               "service_id": row.service_id,
+                               "usage_date": row.usage_date,
+                               "usage_hour": row.usage_hour,
+                               "usage_minute": row.usage_minute,
+                               "aggregation_period":
+                                   row.aggregation_period,
+                               "processing_meta": processing_meta}
+        return instance_usage_dict
 
     @staticmethod
     def _write_metrics_from_partition(partlistiter):

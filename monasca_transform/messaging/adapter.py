@@ -22,20 +22,6 @@ import simport
 
 class MessageAdapter(object):
 
-    adapter_impl = None
-
-    @staticmethod
-    def init():
-        # object to keep track of offsets
-        MessageAdapter.adapter_impl = simport.load(
-            cfg.CONF.messaging.adapter)()
-
-    @staticmethod
-    def send_metric(metric):
-        if not MessageAdapter.adapter_impl:
-            MessageAdapter.init()
-        MessageAdapter.adapter_impl.do_send_metric(metric)
-
     @abc.abstractmethod
     def do_send_metric(self, metric):
         raise NotImplementedError(
@@ -45,13 +31,55 @@ class MessageAdapter(object):
 
 class KafkaMessageAdapter(MessageAdapter):
 
+    adapter_impl = None
+
     def __init__(self):
         client_for_writing = KafkaClient(cfg.CONF.messaging.brokers)
         self.producer = SimpleProducer(client_for_writing)
         self.topic = cfg.CONF.messaging.topic
+
+    @staticmethod
+    def init():
+        # object to keep track of offsets
+        KafkaMessageAdapter.adapter_impl = simport.load(
+            cfg.CONF.messaging.adapter)()
 
     def do_send_metric(self, metric):
         self.producer.send_messages(
             self.topic,
             json.dumps(metric, separators=(',', ':')))
         return
+
+    @staticmethod
+    def send_metric(metric):
+        if not KafkaMessageAdapter.adapter_impl:
+            KafkaMessageAdapter.init()
+        KafkaMessageAdapter.adapter_impl.do_send_metric(metric)
+
+
+class KafkaMessageAdapterPreHourly(MessageAdapter):
+
+    adapter_impl = None
+
+    def __init__(self):
+        client_for_writing = KafkaClient(cfg.CONF.messaging.brokers)
+        self.producer = SimpleProducer(client_for_writing)
+        self.topic = cfg.CONF.messaging.topic_pre_hourly
+
+    @staticmethod
+    def init():
+        # object to keep track of offsets
+        KafkaMessageAdapterPreHourly.adapter_impl = simport.load(
+            cfg.CONF.messaging.adapter_pre_hourly)()
+
+    def do_send_metric(self, metric):
+        self.producer.send_messages(
+            self.topic,
+            json.dumps(metric, separators=(',', ':')))
+        return
+
+    @staticmethod
+    def send_metric(metric):
+        if not KafkaMessageAdapterPreHourly.adapter_impl:
+            KafkaMessageAdapterPreHourly.init()
+        KafkaMessageAdapterPreHourly.adapter_impl.do_send_metric(metric)

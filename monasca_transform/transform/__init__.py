@@ -18,7 +18,8 @@ from collections import namedtuple
 TransformContextBase = namedtuple("TransformContext",
                                   ["config_info",
                                    "offset_info",
-                                   "transform_spec_df_info"])
+                                   "transform_spec_df_info",
+                                   "batch_time_info"])
 
 
 class TransformContext(TransformContextBase):
@@ -32,6 +33,7 @@ class TransformContext(TransformContextBase):
     offset_info - current kafka offset information
     transform_spec_df - processing information from
                         transform_spec aggregation driver table
+    batch_datetime_info -  current batch processing datetime
     """
 
 RddTransformContextBase = namedtuple("RddTransformContext",
@@ -56,12 +58,14 @@ class TransformContextUtils(object):
     def get_context(transform_context_info=None,
                     config_info=None,
                     offset_info=None,
-                    transform_spec_df_info=None):
+                    transform_spec_df_info=None,
+                    batch_time_info=None):
 
         if transform_context_info is None:
             return TransformContext(config_info,
                                     offset_info,
-                                    transform_spec_df_info)
+                                    transform_spec_df_info,
+                                    batch_time_info)
         else:
             if config_info is None or config_info == "":
                 # get from passed in transform_context
@@ -77,6 +81,13 @@ class TransformContextUtils(object):
                 transform_spec_df_info = \
                     transform_context_info.transform_spec_df_info
 
+            if batch_time_info is None or \
+                    batch_time_info == "":
+                # get from passed in transform_context
+                batch_time_info = \
+                    transform_context_info.batch_time_info
+
             return TransformContext(config_info,
                                     offset_info,
-                                    transform_spec_df_info)
+                                    transform_spec_df_info,
+                                    batch_time_info)

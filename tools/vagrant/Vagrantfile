@@ -28,7 +28,6 @@ Vagrant.configure(2) do |config|
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
   config.vm.network "private_network", ip: "192.168.15.6"
-
   # Create a public network, which generally matched to bridged network.
   # Bridged networks make the machine appear as another physical device on
   # your network.
@@ -62,7 +61,7 @@ Vagrant.configure(2) do |config|
 
   #   # Customize the amount of memory on the VM:
      vb.memory = "16384"
-     vb.cpus = "2"
+     vb.cpus = "4"
   end
   if ENV['http_proxy'] && !ENV['http_proxy'].empty?
       # we need to configure a proxy for maven also
@@ -70,6 +69,10 @@ Vagrant.configure(2) do |config|
         destination: "settings.xml"
       config.vm.provision "shell", path: "setup_maven_proxy.sh"
   end
+  config.vm.network "forwarded_port", guest: 18080, host: 18080
+  config.vm.network "forwarded_port", guest: 18081, host: 18081
+  config.vm.network "forwarded_port", guest: 4040, host: 4040
+
   #  install dependencies for our process
   config.vm.provision "shell", path: "install.sh"
   # provision the environments

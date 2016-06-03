@@ -11,7 +11,6 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
 import mock
 from pyspark.sql import SQLContext
 
@@ -67,7 +66,8 @@ class TransformBuilderTest(SparkContextTest):
             sql_context, metric_proc_json_path)
 
         transform_context = TransformContextUtils.get_context(
-            transform_spec_df_info=transform_spec_df)
+            transform_spec_df_info=transform_spec_df,
+            batch_time_info=self.get_dummy_batch_time())
 
         # invoke the generic transformation builder
         instance_usage_df = GenericTransformBuilder.do_transform(

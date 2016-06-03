@@ -92,4 +92,9 @@ class MockComponentManager(object):
                       'DummyInsert',
                       DummyInsert(),
                       None),
+            Extension('insert_data_pre_hourly',
+                      'monasca_transform.component.insert.dummy_insert:'
+                      'DummyInsert',
+                      DummyInsert(),
+                      None),
         ])

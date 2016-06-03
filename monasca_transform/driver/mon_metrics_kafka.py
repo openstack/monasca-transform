@@ -41,7 +41,10 @@ from monasca_transform.data_driven_specs.data_driven_specs_repo \
 from monasca_transform.data_driven_specs.data_driven_specs_repo \
     import DataDrivenSpecsRepoFactory
 
+from monasca_transform.processor.pre_hourly_processor import PreHourlyProcessor
+
 from monasca_transform.transform import RddTransformContext
+from monasca_transform.transform.storage_utils import StorageUtils
 from monasca_transform.transform.transform_utils import MonMetricUtils
 from monasca_transform.transform import TransformContextUtils
 
@@ -65,7 +68,7 @@ class MonMetricsKafkaProcessor(object):
         log.debug(message)
 
     @staticmethod
-    def store_offset_ranges(rdd):
+    def store_offset_ranges(batch_time, rdd):
         if rdd.isEmpty():
             MonMetricsKafkaProcessor.log_debug(
                 "storeOffsetRanges: nothing to process...")
@@ -73,7 +76,9 @@ class MonMetricsKafkaProcessor(object):
         else:
             my_offset_ranges = rdd.offsetRanges()
             transform_context = \
-                TransformContextUtils.get_context(offset_info=my_offset_ranges)
+                TransformContextUtils.get_context(offset_info=my_offset_ranges,
+                                                  batch_time_info=batch_time
+                                                  )
             rdd_transform_context = \
                 rdd.map(lambda x: RddTransformContext(x, transform_context))
             return rdd_transform_context
@@ -87,8 +92,8 @@ class MonMetricsKafkaProcessor(object):
     @staticmethod
     def get_kafka_stream(topic, streaming_context):
         offset_specifications = simport.load(cfg.CONF.repositories.offsets)()
-        saved_offset_spec = offset_specifications.get_kafka_offsets()
         app_name = streaming_context.sparkContext.appName
+        saved_offset_spec = offset_specifications.get_kafka_offsets(app_name)
         if len(saved_offset_spec) < 1:
 
             MonMetricsKafkaProcessor.log_debug(
@@ -157,25 +162,29 @@ class MonMetricsKafkaProcessor(object):
         counts.pprint(9999)
 
     @staticmethod
-    def save_kafka_offsets(current_offsets, app_name):
+    def save_kafka_offsets(current_offsets, app_name,
+                           batch_time_info):
         """save current offsets to offset specification."""
-        # get the offsets from global var
+
         offset_specs = simport.load(cfg.CONF.repositories.offsets)()
 
         for o in current_offsets:
             MonMetricsKafkaProcessor.log_debug(
-                "adding offset: topic:{%s}, partition:{%s}, fromOffset:{%s}, "
-                "untilOffset:{%s}" % (
-                    o.topic, o.partition, o.fromOffset, o.untilOffset))
-            offset_specs.add(
-                app_name, o.topic, o.partition, o.fromOffset, o.untilOffset)
+                "saving: OffSetRanges: %s %s %s %s, "
+                "batch_time_info: %s" % (
+                    o.topic, o.partition, o.fromOffset, o.untilOffset,
+                    str(batch_time_info)))
+        # add new offsets, update revision
+        offset_specs.add_all_offsets(app_name,
+                                     current_offsets,
+                                     batch_time_info)
 
     @staticmethod
-    def reset_kafka_offsets():
+    def reset_kafka_offsets(app_name):
         """delete all offsets from the offset specification."""
         # get the offsets from global var
         offset_specs = simport.load(cfg.CONF.repositories.offsets)()
-        offset_specs.delete_all_kafka_offsets()
+        offset_specs.delete_all_kafka_offsets(app_name)
 
     @staticmethod
     def _validate_raw_mon_metrics(row):
@@ -438,23 +447,46 @@ class MonMetricsKafkaProcessor(object):
             transform_context = rdd_transform_context.transform_context_info
 
             #
+            # cache record store rdd
+            #
+            if cfg.CONF.service.enable_record_store_df_cache:
+                storage_level_prop = \
+                    cfg.CONF.service.record_store_df_cache_storage_level
+                storage_level = StorageUtils.get_storage_level(
+                    storage_level_prop)
+                record_store_df.persist(storage_level)
+
+            #
             # start processing metrics available in record_store data
             #
             MonMetricsKafkaProcessor.process_metrics(transform_context,
                                                      record_store_df)
 
-            #
-            # extract kafka offsets stored in rdd and save
-            #
+            # remove df from cache
+            if cfg.CONF.service.enable_record_store_df_cache:
+                record_store_df.unpersist()
 
+            #
+            # extract kafka offsets and batch processing time
+            # stored in transform_context and save offsets
+            #
             offsets = transform_context.offset_info
 
-            for o in offsets:
-                MonMetricsKafkaProcessor.log_debug(
-                    "going to save: OffSetRanges: %s %s %s %s" % (
-                        o.topic, o.partition, o.fromOffset, o.untilOffset))
+            # batch time
+            batch_time_info = \
+                transform_context.batch_time_info
+
             MonMetricsKafkaProcessor.save_kafka_offsets(
-                offsets, rdd_transform_context_rdd.context.appName)
+                offsets, rdd_transform_context_rdd.context.appName,
+                batch_time_info)
+
+            # call pre hourly processor, if its time to run
+            if (cfg.CONF.stage_processors.pre_hourly_processor_enabled
+                    is True and PreHourlyProcessor.is_time_to_run(
+                        batch_time_info)):
+                PreHourlyProcessor.run_processor(
+                    record_store_df.rdd.context,
+                    batch_time_info)
 
     @staticmethod
     def transform_to_recordstore(kvs):
@@ -526,9 +558,13 @@ def invoke():
         # One exception that can occur here is the result of the saved
         # kafka offsets being obsolete/out of range.  Delete the saved
         # offsets to improve the chance of success on the next execution.
+
+        # TODO(someone) prevent deleting all offsets for an application,
+        # but just the latest revision
         MonMetricsKafkaProcessor.log_debug(
             "Deleting saved offsets for chance of success on next execution")
-        MonMetricsKafkaProcessor.reset_kafka_offsets()
+
+        MonMetricsKafkaProcessor.reset_kafka_offsets(application_name)
 
 if __name__ == "__main__":
     invoke()

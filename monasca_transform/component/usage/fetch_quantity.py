@@ -261,15 +261,15 @@ class FetchQuantity(UsageComponent):
                                            Component.
                                            DEFAULT_UNAVAILABLE_VALUE),
                                "usage_date":
-                                   getattr(row, "usage_date",
+                                   getattr(row, "event_date",
                                            Component.
                                            DEFAULT_UNAVAILABLE_VALUE),
                                "usage_hour":
-                                   getattr(row, "usage_hour",
+                                   getattr(row, "event_hour",
                                            Component.
                                            DEFAULT_UNAVAILABLE_VALUE),
                                "usage_minute":
-                                   getattr(row, "usage_minute",
+                                   getattr(row, "event_minute",
                                            Component.
                                            DEFAULT_UNAVAILABLE_VALUE),
                                "aggregation_period":

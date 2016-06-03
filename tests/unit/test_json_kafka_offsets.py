@@ -11,7 +11,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
+import datetime
 import json
 import os
 import random
@@ -33,11 +33,18 @@ class TestJSONOffsetSpecs(unittest.TestCase):
     def tearDown(self):
         pass
 
+    def get_dummy_batch_time(self):
+        """get a batch time for all tests."""
+        my_batch_time = datetime.datetime.strptime('2016-01-01 00:00:00',
+                                                   '%Y-%m-%d %H:%M:%S')
+        return my_batch_time
+
     def test_read_offsets_on_start(self):
         json_offset_specs = JSONOffsetSpecs(
             path=self.test_resources_path,
             filename='test_read_offsets_on_start.json')
-        kafka_offsets = json_offset_specs.get_kafka_offsets()
+        app_name = "mon_metrics_kafka"
+        kafka_offsets = json_offset_specs.get_kafka_offsets(app_name)
         self.assertEqual(1, len(kafka_offsets))
         offset_key_0 = kafka_offsets.iterkeys().next()
         self.assertEqual('mon_metrics_kafka_metrics_0', offset_key_0)
@@ -45,7 +52,7 @@ class TestJSONOffsetSpecs(unittest.TestCase):
         self.assertEqual('metrics', offset_value_0.get_topic())
         self.assertEqual(85081, offset_value_0.get_until_offset())
         self.assertEqual(0, offset_value_0.get_partition())
-        self.assertEqual('mon_metrics_kafka', offset_value_0.get_app_name())
+        self.assertEqual(app_name, offset_value_0.get_app_name())
         self.assertEqual(84790, offset_value_0.get_from_offset())
 
     def test_write_offsets_each_add(self):
@@ -60,11 +67,13 @@ class TestJSONOffsetSpecs(unittest.TestCase):
         until_offset_1 = random.randint(0, sys.maxsize)
         from_offset_1 = random.randint(0, sys.maxsize)
         app_name_1 = str(uuid.uuid4())
+        my_batch_time = self.get_dummy_batch_time()
 
         used_values = {}
         json_offset_specs.add(topic=topic_1, partition=partition_1,
                               app_name=app_name_1, from_offset=from_offset_1,
-                              until_offset=until_offset_1)
+                              until_offset=until_offset_1,
+                              batch_time_info=my_batch_time)
 
         kafka_offset_dict = self.load_offset_file_as_json(file_path)
         offset_key_1 = "%s_%s_%s" % (app_name_1, topic_1, partition_1)
@@ -83,7 +92,8 @@ class TestJSONOffsetSpecs(unittest.TestCase):
         app_name_2 = str(uuid.uuid4())
         json_offset_specs.add(topic=topic_2, partition=partition_2,
                               app_name=app_name_2, from_offset=from_offset_2,
-                              until_offset=until_offset_2)
+                              until_offset=until_offset_2,
+                              batch_time_info=my_batch_time)
         offset_key_2 = "%s_%s_%s" % (app_name_2, topic_2, partition_2)
         used_values[offset_key_2] = {
             "topic": topic_2, "partition": partition_2, "app_name": app_name_2,
@@ -127,10 +137,13 @@ class TestJSONOffsetSpecs(unittest.TestCase):
         until_offset_1 = random.randint(0, sys.maxsize)
         from_offset_1 = random.randint(0, sys.maxsize)
         app_name_1 = str(uuid.uuid4())
+        my_batch_time = self.get_dummy_batch_time()
+
         used_values = {}
         json_offset_specs.add(topic=topic_1, partition=partition_1,
                               app_name=app_name_1, from_offset=from_offset_1,
-                              until_offset=until_offset_1)
+                              until_offset=until_offset_1,
+                              batch_time_info=my_batch_time)
         offset_key_1 = "%s_%s_%s" % (app_name_1, topic_1, partition_1)
         used_values[offset_key_1] = {
             "topic": topic_1, "partition": partition_1, "app_name": app_name_1,
@@ -143,7 +156,8 @@ class TestJSONOffsetSpecs(unittest.TestCase):
         app_name_2 = str(uuid.uuid4())
         json_offset_specs.add(topic=topic_2, partition=partition_2,
                               app_name=app_name_2, from_offset=from_offset_2,
-                              until_offset=until_offset_2)
+                              until_offset=until_offset_2,
+                              batch_time_info=my_batch_time)
         offset_key_2 = "%s_%s_%s" % (app_name_2, topic_2, partition_2)
         used_values[offset_key_2] = {
             "topic": topic_2, "partition": partition_2, "app_name": app_name_2,
@@ -152,12 +166,20 @@ class TestJSONOffsetSpecs(unittest.TestCase):
         # now create a new JSONOffsetSpecs
         json_offset_specs_2 = JSONOffsetSpecs(self.test_resources_path,
                                               filename)
-        found_offsets = json_offset_specs_2.get_kafka_offsets()
+        found_offsets = json_offset_specs_2.get_kafka_offsets(app_name_2)
         json_found_offsets = {key: JSONOffsetSpecs.as_dict(value)
                               for key, value in found_offsets.items()}
         for key, value in used_values.items():
             found_value = json_found_offsets.get(key)
-            self.assertEqual(value, found_value)
+            self.assertEqual(value.get("app_name"),
+                             found_value.get("app_name"))
+            self.assertEqual(value.get("topic"), found_value.get("topic"))
+            self.assertEqual(value.get("partition"),
+                             found_value.get("partition"))
+            self.assertEqual(value.get("from_offset"),
+                             found_value.get("from_offset"))
+            self.assertEqual(value.get("until_offset"),
+                             found_value.get("until_offset"))
 
         os.remove(os.path.join(self.test_resources_path, filename))
 
@@ -173,11 +195,13 @@ class TestJSONOffsetSpecs(unittest.TestCase):
         until_offset_1 = random.randint(0, sys.maxsize)
         from_offset_1 = random.randint(0, sys.maxsize)
         app_name_1 = str(uuid.uuid4())
+        my_batch_time = self.get_dummy_batch_time()
 
         used_values = {}
         json_offset_specs.add(topic=topic_1, partition=partition_1,
                               app_name=app_name_1, from_offset=from_offset_1,
-                              until_offset=until_offset_1)
+                              until_offset=until_offset_1,
+                              batch_time_info=my_batch_time)
 
         kafka_offset_dict = self.load_offset_file_as_json(file_path)
         offset_key_1 = "%s_%s_%s" % (app_name_1, topic_1, partition_1)
@@ -199,7 +223,8 @@ class TestJSONOffsetSpecs(unittest.TestCase):
 
         json_offset_specs.add(topic=topic_1, partition=partition_1,
                               app_name=app_name_1, from_offset=from_offset_2,
-                              until_offset=until_offset_2)
+                              until_offset=until_offset_2,
+                              batch_time_info=my_batch_time)
 
         kafka_offset_dict = self.load_offset_file_as_json(file_path)
         offset_value_updated = kafka_offset_dict.get(offset_key_1)

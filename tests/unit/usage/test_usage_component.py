@@ -11,7 +11,6 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
 from pyspark.sql import SQLContext
 
 from monasca_transform.component.usage.fetch_quantity \
@@ -40,9 +39,9 @@ class UsageComponentTest(SparkContextTest):
             self.sql_context,
             DataProvider.transform_spec_path)
 
-        transform_context = \
-            TransformContextUtils.get_context(
-                transform_spec_df_info=transform_spec_df)
+        transform_context = TransformContextUtils.get_context(
+            transform_spec_df_info=transform_spec_df,
+            batch_time_info=self.get_dummy_batch_time())
 
         instance_usage_df = FetchQuantity.usage(
             transform_context, record_store_df)

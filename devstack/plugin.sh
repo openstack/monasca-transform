@@ -278,6 +278,8 @@ function install_monasca_transform {
 
     create_and_populate_monasca_transform_database
 
+    # create metrics pre hourly topic in kafka
+    /opt/kafka/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 64 --topic metrics_pre_hourly
 }
 
 
@@ -344,7 +346,7 @@ function install_spark {
 
     if [ ! -f /opt/spark/download/${SPARK_TARBALL_NAME} ]
     then
-        sudo curl ${APACHE_MIRROR}/spark/spark-${SPARK_VERSION}/${SPARK_TARBALL_NAME} -o /opt/spark/download/${SPARK_TARBALL_NAME}
+        sudo curl -m 600 ${APACHE_MIRROR}/spark/spark-${SPARK_VERSION}/${SPARK_TARBALL_NAME} -o /opt/spark/download/${SPARK_TARBALL_NAME}
     fi
 
     sudo chown spark:spark /opt/spark/download/${SPARK_TARBALL_NAME}
