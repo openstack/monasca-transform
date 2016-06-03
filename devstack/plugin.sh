@@ -87,7 +87,7 @@ function install_java_libs {
 function link_spark_streaming_lib {
 
     pushd /opt/spark/current/lib
-    ln -sf spark-streaming-kafka.jar spark-streaming-kafka_2.10-1.6.0.jar
+    ln -sf spark-streaming-kafka.jar spark-streaming-kafka_2.10-1.6.1.jar
     popd
 
 }

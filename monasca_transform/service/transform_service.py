@@ -95,7 +95,8 @@ class TransformService(threading.Thread):
             else:
                 pyfiles = ''
             # Build the command to start the Spark driver
-            spark_cmd = ("export SPARK_HOME=/opt/spark/current && "
+            spark_cmd = ("export SPARK_HOME=" +
+                         CONF.service.spark_home + " && "
                          "spark-submit --supervise --master " +
                          CONF.service.spark_master_list +
                          " --conf spark.eventLog.enabled=" +

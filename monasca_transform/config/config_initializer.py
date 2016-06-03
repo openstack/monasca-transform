@@ -98,7 +98,8 @@ class ConfigInitializer(object):
             cfg.StrOpt('spark_master_list'),
             cfg.StrOpt('spark_python_files'),
             cfg.IntOpt('stream_interval'),
-            cfg.StrOpt('work_dir')
+            cfg.StrOpt('work_dir'),
+            cfg.StrOpt('spark_home')
         ]
         service_group = cfg.OptGroup(name='service', title='service')
         cfg.CONF.register_group(service_group)
