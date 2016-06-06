@@ -92,10 +92,13 @@ class SparkTest(SparkContextTest):
         # get the metrics that have been submitted to the dummy message adapter
         metrics = MessageAdapter.adapter_impl.metric_list
 
+        # Verify cpu.total_logical_cores_agg for all hosts
         total_cpu_logical_agg_metric = [
             value for value in metrics
-            if value.get('metric').get(
-                'name') == 'cpu.total_logical_cores_agg'][0]
+            if value.get('metric').get('name') ==
+            'cpu.total_logical_cores_agg' and
+            value.get('metric').get('dimensions').get('host') ==
+            'all'][0]
 
         self.assertEqual(15.0,
                          total_cpu_logical_agg_metric.get(
@@ -106,10 +109,6 @@ class SparkTest(SparkContextTest):
         self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
                          total_cpu_logical_agg_metric.get(
                              'meta').get('tenantId'))
-        self.assertEqual('all',
-                         total_cpu_logical_agg_metric.get(
-                             'metric').get('dimensions')
-                         .get('host'))
         self.assertEqual('all',
                          total_cpu_logical_agg_metric.get(
                              'metric').get('dimensions')
@@ -132,10 +131,91 @@ class SparkTest(SparkContextTest):
                              'metric').get('value_meta')
                          .get('lastrecord_timestamp'))
 
+        # Verify cpu.total_logical_cores_agg for mini-mon host
+        total_cpu_logical_agg_metric = [
+            value for value in metrics
+            if value.get('metric').get('name') ==
+            'cpu.total_logical_cores_agg' and
+            value.get('metric').get('dimensions').get('host') ==
+            'mini-mon'][0]
+
+        self.assertEqual(9.0,
+                         total_cpu_logical_agg_metric.get(
+                             'metric').get('value'))
+        self.assertEqual('useast',
+                         total_cpu_logical_agg_metric.get(
+                             'meta').get('region'))
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+                         total_cpu_logical_agg_metric.get(
+                             'meta').get('tenantId'))
+        self.assertEqual('all',
+                         total_cpu_logical_agg_metric.get(
+                             'metric').get('dimensions')
+                         .get('project_id'))
+        self.assertEqual('hourly',
+                         total_cpu_logical_agg_metric.get(
+                             'metric').get('dimensions')
+                         .get('aggregation_period'))
+
+        self.assertEqual(6.0,
+                         total_cpu_logical_agg_metric.get(
+                             'metric').get('value_meta')
+                         .get('record_count'))
+        self.assertEqual('2016-03-07 16:09:23',
+                         total_cpu_logical_agg_metric.get(
+                             'metric').get('value_meta')
+                         .get('firstrecord_timestamp'))
+        self.assertEqual('2016-03-07 16:10:38',
+                         total_cpu_logical_agg_metric.get(
+                             'metric').get('value_meta')
+                         .get('lastrecord_timestamp'))
+
+        # Verify cpu.total_logical_cores_agg for devstack host
+        total_cpu_logical_agg_metric = [
+            value for value in metrics
+            if value.get('metric').get('name') ==
+            'cpu.total_logical_cores_agg' and
+            value.get('metric').get('dimensions').get('host') ==
+            'devstack'][0]
+
+        self.assertEqual(6.0,
+                         total_cpu_logical_agg_metric.get(
+                             'metric').get('value'))
+        self.assertEqual('useast',
+                         total_cpu_logical_agg_metric.get(
+                             'meta').get('region'))
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+                         total_cpu_logical_agg_metric.get(
+                             'meta').get('tenantId'))
+        self.assertEqual('all',
+                         total_cpu_logical_agg_metric.get(
+                             'metric').get('dimensions')
+                         .get('project_id'))
+        self.assertEqual('hourly',
+                         total_cpu_logical_agg_metric.get(
+                             'metric').get('dimensions')
+                         .get('aggregation_period'))
+
+        self.assertEqual(7.0,
+                         total_cpu_logical_agg_metric.get(
+                             'metric').get('value_meta')
+                         .get('record_count'))
+        self.assertEqual('2016-03-07 16:09:23',
+                         total_cpu_logical_agg_metric.get(
+                             'metric').get('value_meta')
+                         .get('firstrecord_timestamp'))
+        self.assertEqual('2016-03-07 16:10:38',
+                         total_cpu_logical_agg_metric.get(
+                             'metric').get('value_meta')
+                         .get('lastrecord_timestamp'))
+
+        # Verify cpu.utilized_logical_cores_agg for all hosts
         utilized_cpu_logical_agg_metric = [
             value for value in metrics
-            if value.get('metric').get(
-                'name') == 'cpu.utilized_logical_cores_agg'][0]
+            if value.get('metric').get('name') ==
+            'cpu.utilized_logical_cores_agg' and
+            value.get('metric').get('dimensions').get('host') ==
+            'all'][0]
 
         self.assertEqual(8.0,
                          utilized_cpu_logical_agg_metric.get(
@@ -150,7 +230,43 @@ class SparkTest(SparkContextTest):
         self.assertEqual('all',
                          utilized_cpu_logical_agg_metric.get(
                              'metric').get('dimensions')
-                         .get('host'))
+                         .get('project_id'))
+        self.assertEqual('hourly',
+                         utilized_cpu_logical_agg_metric.get(
+                             'metric').get('dimensions')
+                         .get('aggregation_period'))
+
+        self.assertEqual(13.0,
+                         utilized_cpu_logical_agg_metric.get(
+                             'metric').get('value_meta')
+                         .get('record_count'))
+        self.assertEqual('2016-03-07 16:09:23',
+                         utilized_cpu_logical_agg_metric.get(
+                             'metric').get('value_meta')
+                         .get('firstrecord_timestamp'))
+        self.assertEqual('2016-03-07 16:10:38',
+                         utilized_cpu_logical_agg_metric.get(
+                             'metric').get('value_meta')
+                         .get('lastrecord_timestamp'))
+
+        # Verify cpu.utilized_logical_cores_agg for the mini-mon host
+        utilized_cpu_logical_agg_metric = [
+            value for value in metrics
+            if value.get('metric').get('name') ==
+            'cpu.utilized_logical_cores_agg' and
+            value.get('metric').get('dimensions').get('host') ==
+            'mini-mon'][0]
+
+        self.assertEqual(5.0,
+                         utilized_cpu_logical_agg_metric.get(
+                             'metric').get('value'))
+        self.assertEqual('useast',
+                         utilized_cpu_logical_agg_metric.get(
+                             'meta').get('region'))
+
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+                         utilized_cpu_logical_agg_metric.get(
+                             'meta').get('tenantId'))
         self.assertEqual('all',
                          utilized_cpu_logical_agg_metric.get(
                              'metric').get('dimensions')
@@ -160,7 +276,47 @@ class SparkTest(SparkContextTest):
                              'metric').get('dimensions')
                          .get('aggregation_period'))
 
-        self.assertEqual(13.0,
+        self.assertEqual(6.0,
+                         utilized_cpu_logical_agg_metric.get(
+                             'metric').get('value_meta')
+                         .get('record_count'))
+        self.assertEqual('2016-03-07 16:09:23',
+                         utilized_cpu_logical_agg_metric.get(
+                             'metric').get('value_meta')
+                         .get('firstrecord_timestamp'))
+        self.assertEqual('2016-03-07 16:10:38',
+                         utilized_cpu_logical_agg_metric.get(
+                             'metric').get('value_meta')
+                         .get('lastrecord_timestamp'))
+
+        # Verify cpu.utilized_logical_cores_agg for the devstack host
+        utilized_cpu_logical_agg_metric = [
+            value for value in metrics
+            if value.get('metric').get('name') ==
+            'cpu.utilized_logical_cores_agg' and
+            value.get('metric').get('dimensions').get('host') ==
+            'devstack'][0]
+
+        self.assertEqual(3.0,
+                         utilized_cpu_logical_agg_metric.get(
+                             'metric').get('value'))
+        self.assertEqual('useast',
+                         utilized_cpu_logical_agg_metric.get(
+                             'meta').get('region'))
+
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+                         utilized_cpu_logical_agg_metric.get(
+                             'meta').get('tenantId'))
+        self.assertEqual('all',
+                         utilized_cpu_logical_agg_metric.get(
+                             'metric').get('dimensions')
+                         .get('project_id'))
+        self.assertEqual('hourly',
+                         utilized_cpu_logical_agg_metric.get(
+                             'metric').get('dimensions')
+                         .get('aggregation_period'))
+
+        self.assertEqual(7.0,
                          utilized_cpu_logical_agg_metric.get(
                              'metric').get('value_meta')
                          .get('record_count'))

@@ -114,7 +114,7 @@ class SparkTest(SparkContextTest):
         result = simple_count_transform(rdd_monasca_with_offsets)
 
         # Verify it worked
-        self.assertEqual(result, 320)
+        self.assertEqual(result, 324)
 
         # Call the primary method in mon_metrics_kafka
         MonMetricsKafkaProcessor.rdd_to_recordstore(
@@ -123,6 +123,7 @@ class SparkTest(SparkContextTest):
         # get the metrics that have been submitted to the dummy message adapter
         metrics = MessageAdapter.adapter_impl.metric_list
 
+        # Verify mem.total_mb_agg metrics
         total_mb_agg_metric = [
             value for value in metrics
             if value.get('metric').get('name') == 'mem.total_mb_agg'][0]
@@ -152,6 +153,7 @@ class SparkTest(SparkContextTest):
                          total_mb_agg_metric.get('metric').get('value_meta')
                          .get('lastrecord_timestamp'))
 
+        # Verify mem.usable_mb_agg metrics
         usable_mb_agg_metric = [
             value for value in metrics
             if value.get('metric').get('name') == 'mem.usable_mb_agg'][0]
@@ -183,6 +185,7 @@ class SparkTest(SparkContextTest):
                          usable_mb_agg_metric.get('metric').get('value_meta')
                          .get('lastrecord_timestamp'))
 
+        # Verify vcpus_agg metrics for all projects
         vcpus_agg_metric = [
             value for value in metrics
             if value.get('metric').get('name') ==
@@ -222,6 +225,8 @@ class SparkTest(SparkContextTest):
                          .get('metric').get('value_meta')
                          .get('lastrecord_timestamp'))
 
+        # Verify vcpus_agg metrics for 8647fd5030b04a799b0411cc38c4102d
+        # project
         vcpus_agg_metric = [
             value for value in metrics
             if value.get('metric').get('name') ==
@@ -261,6 +266,8 @@ class SparkTest(SparkContextTest):
                          .get('metric').get('value_meta')
                          .get('lastrecord_timestamp'))
 
+        # Verify vcpus_agg metrics for 9647fd5030b04a799b0411cc38c4102d
+        # project
         vcpus_agg_metric = [
             value for value in metrics
             if value.get('metric').get('name') ==
@@ -300,6 +307,7 @@ class SparkTest(SparkContextTest):
                          .get('metric').get('value_meta')
                          .get('lastrecord_timestamp'))
 
+        # Verify vm.mem.total_mb_agg metrics for all projects
         vm_mem_total_mb_agg_metric = [
             value for value in metrics
             if value.get('metric').get('name') ==
@@ -339,6 +347,8 @@ class SparkTest(SparkContextTest):
                          .get('metric').get('value_meta')
                          .get('lastrecord_timestamp'))
 
+        # Verify vm.mem.total_mb_agg metrics for
+        # 5f681592f7084c5fbcd4e8a20a4fef15 project
         vm_mem_total_mb_agg_metric = [
             value for value in metrics
             if value.get('metric').get('name') ==
@@ -378,6 +388,8 @@ class SparkTest(SparkContextTest):
                          .get('metric').get('value_meta')
                          .get('lastrecord_timestamp'))
 
+        # Verify vm.mem.total_mb_agg metrics for
+        # 6f681592f7084c5fbcd4e8a20a4fef15 project
         vm_mem_total_mb_agg_metric = [
             value for value in metrics
             if value.get('metric').get('name') ==
@@ -417,6 +429,7 @@ class SparkTest(SparkContextTest):
                          .get('metric').get('value_meta')
                          .get('lastrecord_timestamp'))
 
+        # Verify nova.vm.disk.total_allocated_gb_agg metrics
         total_allocated_disk_agg_metric = [
             value for value in metrics
             if value.get('metric').get('name') ==
@@ -450,6 +463,7 @@ class SparkTest(SparkContextTest):
                          total_allocated_disk_agg_metric.get('metric')
                          .get('value_meta').get('lastrecord_timestamp'))
 
+        # Verify disk.allocation_agg metrics for all projects
         disk_allocation_agg_metric = [
             value for value in metrics
             if value.get('metric').get('name') ==
@@ -489,6 +503,8 @@ class SparkTest(SparkContextTest):
                          .get('metric').get('value_meta')
                          .get('lastrecord_timestamp'))
 
+        # Verify disk.allocation_agg metrics for
+        # 5f681592f7084c5fbcd4e8a20a4fef15 project
         disk_allocation_agg_metric = [
             value for value in metrics
             if value.get('metric').get('name') ==
@@ -528,6 +544,8 @@ class SparkTest(SparkContextTest):
                          .get('metric').get('value_meta')
                          .get('lastrecord_timestamp'))
 
+        # Verify disk.allocation_agg metrics for
+        # 6f681592f7084c5fbcd4e8a20a4fef15 project
         disk_allocation_agg_metric = [
             value for value in metrics
             if value.get('metric').get('name') ==
@@ -567,6 +585,8 @@ class SparkTest(SparkContextTest):
                          .get('metric').get('value_meta')
                          .get('lastrecord_timestamp'))
 
+        # Verify vm.cpu.utilization_perc_agg metrics for
+        # 817331145b804dc9a7accb6edfb0674d project
         vm_cpu_util_perc_agg_metric = [
             value for value in metrics
             if value.get('metric').get('name') ==
@@ -602,6 +622,8 @@ class SparkTest(SparkContextTest):
                          vm_cpu_util_perc_agg_metric.get('metric')
                          .get('value_meta').get('lastrecord_timestamp'))
 
+        # Verify vm.cpu.utilization_perc_agg metrics for
+        # 5d0e49bdc4534bb4b65909228aa040da project
         vm_cpu_util_perc_agg_metric = [
             value for value in metrics
             if value.get('metric').get('name') ==
@@ -636,6 +658,205 @@ class SparkTest(SparkContextTest):
         self.assertEqual('2016-05-26 17:30:27',
                          vm_cpu_util_perc_agg_metric.get('metric')
                          .get('value_meta').get('lastrecord_timestamp'))
+
+        # Verify disk.total_space_mb_agg metrics
+        disk_total_space_agg_metric = [
+            value for value in metrics
+            if value.get('metric').get('name') ==
+            'disk.total_space_mb_agg'][0]
+
+        self.assertTrue(disk_total_space_agg_metric is not None)
+
+        self.assertEqual(2574044.0,
+                         disk_total_space_agg_metric
+                         .get('metric').get('value'))
+        self.assertEqual('useast',
+                         disk_total_space_agg_metric
+                         .get('meta').get('region'))
+
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+                         disk_total_space_agg_metric
+                         .get('meta').get('tenantId'))
+        self.assertEqual('all',
+                         disk_total_space_agg_metric
+                         .get('metric').get('dimensions').get('host'))
+        self.assertEqual('hourly',
+                         disk_total_space_agg_metric
+                         .get('metric').get('dimensions')
+                         .get('aggregation_period'))
+
+        self.assertEqual(2.0,
+                         disk_total_space_agg_metric
+                         .get('metric').get('value_meta').get('record_count'))
+        self.assertEqual('2016-06-01 21:09:21',
+                         disk_total_space_agg_metric
+                         .get('metric').get('value_meta')
+                         .get('firstrecord_timestamp'))
+        self.assertEqual('2016-06-01 21:09:24',
+                         disk_total_space_agg_metric
+                         .get('metric').get('value_meta')
+                         .get('lastrecord_timestamp'))
+
+        # Verify disk.total_used_space_mb_agg metrics
+        disk_total_used_agg_metric = [
+            value for value in metrics
+            if value.get('metric').get('name') ==
+            'disk.total_used_space_mb_agg'][0]
+
+        self.assertTrue(disk_total_used_agg_metric is not None)
+
+        self.assertEqual(34043.0,
+                         disk_total_used_agg_metric
+                         .get('metric').get('value'))
+        self.assertEqual('useast',
+                         disk_total_used_agg_metric
+                         .get('meta').get('region'))
+
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+                         disk_total_used_agg_metric
+                         .get('meta').get('tenantId'))
+        self.assertEqual('all',
+                         disk_total_used_agg_metric
+                         .get('metric').get('dimensions').get('host'))
+        self.assertEqual('hourly',
+                         disk_total_used_agg_metric
+                         .get('metric').get('dimensions')
+                         .get('aggregation_period'))
+
+        self.assertEqual(2.0,
+                         disk_total_used_agg_metric
+                         .get('metric').get('value_meta').get('record_count'))
+        self.assertEqual('2016-06-01 21:09:21',
+                         disk_total_used_agg_metric
+                         .get('metric').get('value_meta')
+                         .get('firstrecord_timestamp'))
+        self.assertEqual('2016-06-01 21:09:24',
+                         disk_total_used_agg_metric
+                         .get('metric').get('value_meta')
+                         .get('lastrecord_timestamp'))
+
+        # Verify cpu.utilized_logical_cores_agg metrics for all hosts
+        cpu_util_cores_agg_metric = [
+            value for value in metrics
+            if value.get('metric').get('name') ==
+            'cpu.utilized_logical_cores_agg' and
+            value.get('metric').get('dimensions').get('host') ==
+            'all'][0]
+
+        self.assertTrue(cpu_util_cores_agg_metric is not None)
+
+        self.assertEqual(2.0,
+                         cpu_util_cores_agg_metric
+                         .get('metric').get('value'))
+        self.assertEqual('useast',
+                         cpu_util_cores_agg_metric
+                         .get('meta').get('region'))
+
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+                         cpu_util_cores_agg_metric
+                         .get('meta').get('tenantId'))
+        self.assertEqual('all',
+                         cpu_util_cores_agg_metric
+                         .get('metric').get('dimensions')
+                         .get('project_id'))
+        self.assertEqual('hourly',
+                         cpu_util_cores_agg_metric
+                         .get('metric').get('dimensions')
+                         .get('aggregation_period'))
+
+        self.assertEqual(13.0,
+                         cpu_util_cores_agg_metric
+                         .get('metric').get('value_meta').get('record_count'))
+        self.assertEqual('2016-03-07 16:09:23',
+                         cpu_util_cores_agg_metric
+                         .get('metric').get('value_meta')
+                         .get('firstrecord_timestamp'))
+        self.assertEqual('2016-03-07 16:10:38',
+                         cpu_util_cores_agg_metric
+                         .get('metric').get('value_meta')
+                         .get('lastrecord_timestamp'))
+
+        # Verify cpu.utilized_logical_cores_agg metrics for mini-mon host
+        cpu_util_cores_agg_metric = [
+            value for value in metrics
+            if value.get('metric').get('name') ==
+            'cpu.utilized_logical_cores_agg' and
+            value.get('metric').get('dimensions').get('host') ==
+            'mini-mon'][0]
+
+        self.assertTrue(cpu_util_cores_agg_metric is not None)
+
+        self.assertEqual(1.0,
+                         cpu_util_cores_agg_metric
+                         .get('metric').get('value'))
+        self.assertEqual('useast',
+                         cpu_util_cores_agg_metric
+                         .get('meta').get('region'))
+
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+                         cpu_util_cores_agg_metric
+                         .get('meta').get('tenantId'))
+        self.assertEqual('all',
+                         cpu_util_cores_agg_metric
+                         .get('metric').get('dimensions')
+                         .get('project_id'))
+        self.assertEqual('hourly',
+                         cpu_util_cores_agg_metric
+                         .get('metric').get('dimensions')
+                         .get('aggregation_period'))
+
+        self.assertEqual(6.0,
+                         cpu_util_cores_agg_metric
+                         .get('metric').get('value_meta').get('record_count'))
+        self.assertEqual('2016-03-07 16:09:23',
+                         cpu_util_cores_agg_metric
+                         .get('metric').get('value_meta')
+                         .get('firstrecord_timestamp'))
+        self.assertEqual('2016-03-07 16:10:38',
+                         cpu_util_cores_agg_metric
+                         .get('metric').get('value_meta')
+                         .get('lastrecord_timestamp'))
+
+        # Verify vm.cpu.utilization_perc_agg metrics for devstack host
+        cpu_util_cores_agg_metric = [
+            value for value in metrics
+            if value.get('metric').get('name') ==
+            'cpu.utilized_logical_cores_agg' and
+            value.get('metric').get('dimensions').get('host') ==
+            'devstack'][0]
+
+        self.assertTrue(cpu_util_cores_agg_metric is not None)
+
+        self.assertEqual(1.0,
+                         cpu_util_cores_agg_metric
+                         .get('metric').get('value'))
+        self.assertEqual('useast',
+                         cpu_util_cores_agg_metric
+                         .get('meta').get('region'))
+
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+                         cpu_util_cores_agg_metric
+                         .get('meta').get('tenantId'))
+        self.assertEqual('all',
+                         cpu_util_cores_agg_metric
+                         .get('metric').get('dimensions')
+                         .get('project_id'))
+        self.assertEqual('hourly',
+                         cpu_util_cores_agg_metric
+                         .get('metric').get('dimensions')
+                         .get('aggregation_period'))
+
+        self.assertEqual(7.0,
+                         cpu_util_cores_agg_metric
+                         .get('metric').get('value_meta').get('record_count'))
+        self.assertEqual('2016-03-07 16:09:23',
+                         cpu_util_cores_agg_metric
+                         .get('metric').get('value_meta')
+                         .get('firstrecord_timestamp'))
+        self.assertEqual('2016-03-07 16:10:38',
+                         cpu_util_cores_agg_metric
+                         .get('metric').get('value_meta')
+                         .get('lastrecord_timestamp'))
 
 
 def simple_count_transform(rdd):
