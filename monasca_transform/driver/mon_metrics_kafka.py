@@ -365,8 +365,10 @@ class MonMetricsKafkaProcessor(object):
 
                 # resource_uuid
                 when(gen_mon_metrics_df.metric.dimensions.instanceId != '',
-                     gen_mon_metrics_df.metric.dimensions.
-                     instanceId).otherwise('NA').alias("resource_uuid"),
+                     gen_mon_metrics_df.metric.dimensions.instanceId).when(
+                    gen_mon_metrics_df.metric.dimensions.resource_id != '',
+                    gen_mon_metrics_df.metric.dimensions.resource_id).
+                otherwise('NA').alias("resource_uuid"),
 
                 when(gen_mon_metrics_df.metric.dimensions.tenantId != '',
                      gen_mon_metrics_df.metric.dimensions.tenantId).when(
@@ -375,6 +377,14 @@ class MonMetricsKafkaProcessor(object):
                     gen_mon_metrics_df.metric.dimensions.project_id != '',
                     gen_mon_metrics_df.metric.dimensions.project_id).otherwise(
                     'NA').alias("tenant_id"),
+
+                when(gen_mon_metrics_df.metric.dimensions.mount != '',
+                     gen_mon_metrics_df.metric.dimensions.mount).otherwise(
+                    'NA').alias("mount"),
+
+                when(gen_mon_metrics_df.metric.dimensions.device != '',
+                     gen_mon_metrics_df.metric.dimensions.device).otherwise(
+                    'NA').alias("device"),
 
                 when(gen_mon_metrics_df.meta.userId != '',
                      gen_mon_metrics_df.meta.userId).otherwise('NA').alias(

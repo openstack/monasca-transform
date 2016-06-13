@@ -142,7 +142,7 @@ class TestVmCpuAllocatedAgg(SparkContextTest):
         result = simple_count_transform(rdd_monasca_with_offsets)
 
         # Verify it worked
-        self.assertEqual(result, 324)
+        self.assertEqual(result, 347)
 
         # Call the primary method in mon_metrics_kafka
         MonMetricsKafkaProcessor.rdd_to_recordstore(
@@ -321,7 +321,7 @@ class TestVmCpuAllocatedAgg(SparkContextTest):
         result = simple_count_transform(rdd_monasca_with_offsets)
 
         # Verify it worked
-        self.assertEqual(result, 324)
+        self.assertEqual(result, 347)
 
         # Call the primary method in mon_metrics_kafka
         MonMetricsKafkaProcessor.rdd_to_recordstore(

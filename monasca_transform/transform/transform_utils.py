@@ -211,10 +211,10 @@ class MonMetricUtils(TransformUtils):
         """get the schema of the incoming monasca metric."""
         dimensions = ["apache_host", "apache_port", "component",
                       "consumer_group", "device", "hostname",
-                      "mode", "mount_point", "observer_host",
-                      "process_name", "project_id", "service", "test_type",
-                      "tenantId", "tenant_id", "topic", "url", "state",
-                      "state_description", "instanceId"]
+                      "mode", "mount", "mount_point", "observer_host",
+                      "process_name", "project_id", "resource_id", "service",
+                      "test_type", "tenantId", "tenant_id", "topic", "url",
+                      "state", "state_description", "instanceId"]
 
         dimensions_struct_fields = [
             StructField(field_name, StringType(), True)
