@@ -74,9 +74,6 @@ Vagrant.configure(2) do |config|
   config.vm.provision "shell", path: "install.sh"
   # provision the environments
   config.vm.provision "shell", path: "provision-pg-tips.sh", privileged: false
-  # pg-tips will now have monasca-api cloned so push our plugin.sh into place
-  config.vm.provision "file", source: "monasca-api-plugin.sh", \
-    destination: "/home/vagrant/monasca-api/devstack/plugin.sh"
 
   # pg-tips will now have devstack cloned so push our local.conf file into place
   config.vm.provision "file", source: "local.conf", \
