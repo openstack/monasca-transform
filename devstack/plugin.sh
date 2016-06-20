@@ -168,8 +168,9 @@ function create_spark_directories {
        sudo chmod 755 ${SPARK_DIRECTORY}
     done
 
-    sudo mkdir -p /var/log/spark-events
-    sudo chmod "a+rw" /var/log/spark-events
+    sudo mkdir -p /var/log/spark/events
+    sudo chown spark:spark /var/log/spark/events
+    sudo chmod 775 /var/log/spark/events
 
 }
 
@@ -180,7 +181,7 @@ function delete_spark_directories {
            sudo rm -rf ${SPARK_DIRECTORY} || true
         done
 
-    sudo rm -rf /var/log/spark-events || true
+    sudo rm -rf /var/log/spark/events || true
 
 }
 
@@ -264,6 +265,7 @@ function install_monasca_transform {
     sudo groupadd --system monasca-transform || true
 
     sudo useradd --system -g monasca-transform monasca-transform || true
+    sudo usermod -a -G spark monasca-transform
 
     create_monasca_transform_directories
     copy_monasca_transform_files

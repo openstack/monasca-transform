@@ -94,6 +94,14 @@ class TransformService(threading.Thread):
                 pyfiles = " --py-files %s" % CONF.service.spark_python_files
             else:
                 pyfiles = ''
+
+            if (CONF.service.spark_event_logging_enabled and
+                    CONF.service.spark_event_logging_dest):
+                event_logging_dest = (" --conf spark.eventLog.dir=file://%s" %
+                                      CONF.service.spark_event_logging_dest)
+            else:
+                event_logging_dest = ''
+
             # Build the command to start the Spark driver
             spark_cmd = ("export SPARK_HOME=" +
                          CONF.service.spark_home + " && "
@@ -101,8 +109,7 @@ class TransformService(threading.Thread):
                          CONF.service.spark_master_list +
                          " --conf spark.eventLog.enabled=" +
                          CONF.service.spark_event_logging_enabled +
-                         " --conf spark.eventLog.dir=file://" +
-                         CONF.service.spark_event_logging_dest +
+                         event_logging_dest +
                          " --jars " + CONF.service.spark_jars_list +
                          pyfiles +
                          " " + CONF.service.spark_driver)

@@ -12,7 +12,7 @@ export SPARK_HOME=/opt/spark/current/
 # control-c is pressed.
 COUNTER=0
 while [  $COUNTER -lt 2 ]; do
-    spark-submit --supervise --master spark://192.168.10.4:7077,192.168.10.5:7077 --conf spark.eventLog.enabled=true --conf spark.eventLog.dir=file:///var/log/spark-events --jars $JARS_PATH --py-files dist/$new_filename /opt/monasca/transform/lib/driver.py || break
+    spark-submit --supervise --master spark://192.168.10.4:7077,192.168.10.5:7077 --conf spark.eventLog.enabled=true --jars $JARS_PATH --py-files dist/$new_filename /opt/monasca/transform/lib/driver.py || break
     let COUNTER=COUNTER+1
 done
 popd
