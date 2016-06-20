@@ -15,6 +15,19 @@ git config --global user.name "Local devstack committer"
 git add --all
 git commit -m "Local commit"
 
+CURRENT_BRANCH=`git status | grep 'On branch' | sed 's/On branch //'`
+if [ ${CURRENT_BRANCH} != 'master' ]
+then
+    echo Maintaining current branch ${CURRENT_BRANCH}
+    # set the branch to what we're using in local.conf
+    sed -i "s/enable_plugin monasca-transform \/home\/vagrant\/monasca-transform//g" /home/vagrant/devstack/local.conf
+    sed -i "s/# END DEVSTACK LOCAL.CONF CONTENTS//g" /home/vagrant/devstack/local.conf
+
+    printf "enable_plugin monasca-transform /home/vagrant/monasca-transform ${CURRENT_BRANCH}\n" >> /home/vagrant/devstack/local.conf
+    printf "# END DEVSTACK LOCAL.CONF CONTENTS" >> /home/vagrant/devstack/local.conf
+fi
+
+
 cd ../monasca-api
 
 git add --all
