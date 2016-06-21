@@ -163,9 +163,28 @@ class RollupQuantity(SetterComponent):
 
         transform_spec_df = transform_context.transform_spec_df_info
 
+        # get rollup operation (sum, max, avg, min)
+        agg_params = transform_spec_df.select(
+            "aggregation_params_map.setter_rollup_operation").\
+            collect()[0].asDict()
+        setter_rollup_operation = agg_params["setter_rollup_operation"]
+
+        instance_usage_trans_df = RollupQuantity.setter_by_operation(
+            transform_context,
+            instance_usage_df,
+            setter_rollup_operation)
+
+        return instance_usage_trans_df
+
+    @staticmethod
+    def setter_by_operation(transform_context, instance_usage_df,
+                            setter_rollup_operation):
+
+        transform_spec_df = transform_context.transform_spec_df_info
+
         # get fields we want to group by for a rollup
         agg_params = transform_spec_df.select(
-            "aggregation_params_map.setter_rollup_group_by_list").\
+            "aggregation_params_map.setter_rollup_group_by_list"). \
             collect()[0].asDict()
         setter_rollup_group_by_list = agg_params["setter_rollup_group_by_list"]
 
@@ -178,14 +197,8 @@ class RollupQuantity(SetterComponent):
                 aggregation_period)
 
         # group by columns list
-        group_by_columns_list = group_by_period_list + \
-            setter_rollup_group_by_list
-
-        # get rollup operation (sum, max, avg, min)
-        agg_params = transform_spec_df.select(
-            "aggregation_params_map.setter_rollup_operation").\
-            collect()[0].asDict()
-        setter_rollup_operation = agg_params["setter_rollup_operation"]
+        group_by_columns_list = \
+            group_by_period_list + setter_rollup_group_by_list
 
         # perform rollup operation
         instance_usage_json_rdd = RollupQuantity._rollup_quantity(

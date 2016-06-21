@@ -138,12 +138,6 @@ class TestVmCpuAllocatedAgg(SparkContextTest):
         rdd_monasca_with_offsets = rdd_monasca.map(
             lambda x: RddTransformContext(x, transform_context))
 
-        # Do something simple with the RDD
-        result = simple_count_transform(rdd_monasca_with_offsets)
-
-        # Verify it worked
-        self.assertEqual(result, 347)
-
         # Call the primary method in mon_metrics_kafka
         MonMetricsKafkaProcessor.rdd_to_recordstore(
             rdd_monasca_with_offsets)
@@ -316,12 +310,6 @@ class TestVmCpuAllocatedAgg(SparkContextTest):
             offset_info=myOffsetRanges)
         rdd_monasca_with_offsets = rdd_monasca.map(
             lambda x: RddTransformContext(x, transform_context))
-
-        # Do something simple with the RDD
-        result = simple_count_transform(rdd_monasca_with_offsets)
-
-        # Verify it worked
-        self.assertEqual(result, 347)
 
         # Call the primary method in mon_metrics_kafka
         MonMetricsKafkaProcessor.rdd_to_recordstore(

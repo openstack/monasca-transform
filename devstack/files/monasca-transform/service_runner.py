@@ -14,10 +14,11 @@
 
 import sys
 
+from monasca_transform.service.transform_service import main_service
+
+
 activate_this_file = "/opt/monasca/transform/venv/bin/activate_this.py"
 execfile(activate_this_file, dict(__file__=activate_this_file))
-
-from monasca_transform.service.transform_service import main_service
 
 
 def main():

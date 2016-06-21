@@ -114,7 +114,7 @@ class SparkTest(SparkContextTest):
         result = simple_count_transform(rdd_monasca_with_offsets)
 
         # Verify it worked
-        self.assertEqual(result, 347)
+        self.assertEqual(result, 363)
 
         # Call the primary method in mon_metrics_kafka
         MonMetricsKafkaProcessor.rdd_to_recordstore(
@@ -972,13 +972,14 @@ class SparkTest(SparkContextTest):
                          .get('metric').get('value_meta')
                          .get('lastrecord_timestamp'))
 
-        # Verify swiftlm.diskusage.val.size_agg
+        # Verify swiftlm.diskusage.val.size_agg for all hosts
         used_swift_agg_metric = [
             value for value in metrics
             if value.get('metric').get('name') ==
-            'swiftlm.diskusage.val.size_agg'][0]
+            'swiftlm.diskusage.val.size_agg' and
+            value.get('metric').get('dimensions').get('host') == 'all'][0]
 
-        self.assertEqual(360000000000342.0,
+        self.assertEqual(5291.0,
                          used_swift_agg_metric.get('metric').get('value'))
         self.assertEqual('useast',
                          used_swift_agg_metric.get('meta').get('region'))
@@ -986,22 +987,195 @@ class SparkTest(SparkContextTest):
                          used_swift_agg_metric.get('meta').get('tenantId'))
         self.assertEqual('all',
                          used_swift_agg_metric.get('metric').get('dimensions')
-                         .get('host'))
+                         .get('project_id'))
+        self.assertEqual('hourly',
+                         used_swift_agg_metric.get('metric').get('dimensions')
+                         .get('aggregation_period'))
+        self.assertEqual(17.0,
+                         used_swift_agg_metric.get('metric').get('value_meta')
+                         .get('record_count'))
+        self.assertEqual('2016-06-10 20:27:01',
+                         used_swift_agg_metric.get('metric').get('value_meta')
+                         .get('firstrecord_timestamp'))
+        self.assertEqual('2016-06-10 20:27:01',
+                         used_swift_agg_metric.get('metric').get('value_meta')
+                         .get('lastrecord_timestamp'))
+
+        # Verify swiftlm.diskusage.val.size_agg for host a
+        used_swift_agg_metric = [
+            value for value in metrics
+            if value.get('metric').get('name') ==
+            'swiftlm.diskusage.val.size_agg' and
+            value.get('metric').get('dimensions').get('host') == 'a'][0]
+
+        self.assertEqual(2848.0,
+                         used_swift_agg_metric.get('metric').get('value'))
+        self.assertEqual('useast',
+                         used_swift_agg_metric.get('meta').get('region'))
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+                         used_swift_agg_metric.get('meta').get('tenantId'))
         self.assertEqual('all',
                          used_swift_agg_metric.get('metric').get('dimensions')
                          .get('project_id'))
         self.assertEqual('hourly',
                          used_swift_agg_metric.get('metric').get('dimensions')
                          .get('aggregation_period'))
-        self.assertEqual(18.0,
+        self.assertEqual(8.0,
                          used_swift_agg_metric.get('metric').get('value_meta')
                          .get('record_count'))
         self.assertEqual('2016-06-10 20:27:01',
                          used_swift_agg_metric.get('metric').get('value_meta')
                          .get('firstrecord_timestamp'))
-        self.assertEqual('2016-06-10 20:27:20',
+        self.assertEqual('2016-06-10 20:27:01',
                          used_swift_agg_metric.get('metric').get('value_meta')
                          .get('lastrecord_timestamp'))
+
+        # Verify swiftlm.diskusage.val.size_agg for host b
+        used_swift_agg_metric = [
+            value for value in metrics
+            if value.get('metric').get('name') ==
+            'swiftlm.diskusage.val.size_agg' and
+            value.get('metric').get('dimensions').get('host') == 'b'][0]
+
+        self.assertEqual(2443.0,
+                         used_swift_agg_metric.get('metric').get('value'))
+        self.assertEqual('useast',
+                         used_swift_agg_metric.get('meta').get('region'))
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+                         used_swift_agg_metric.get('meta').get('tenantId'))
+        self.assertEqual('all',
+                         used_swift_agg_metric.get('metric').get('dimensions')
+                         .get('project_id'))
+        self.assertEqual('hourly',
+                         used_swift_agg_metric.get('metric').get('dimensions')
+                         .get('aggregation_period'))
+        self.assertEqual(9.0,
+                         used_swift_agg_metric.get('metric').get('value_meta')
+                         .get('record_count'))
+        self.assertEqual('2016-06-10 20:27:01',
+                         used_swift_agg_metric.get('metric').get('value_meta')
+                         .get('firstrecord_timestamp'))
+        self.assertEqual('2016-06-10 20:27:01',
+                         used_swift_agg_metric.get('metric').get('value_meta')
+                         .get('lastrecord_timestamp'))
+
+        # Verify swiftlm.diskusage.val.avail_agg for all hosts
+        avail_swift_agg_metric = [
+            value for value in metrics
+            if value.get('metric').get('name') ==
+            'swiftlm.diskusage.val.avail_agg' and
+            value.get('metric').get('dimensions').get('host') == 'all'][0]
+
+        self.assertEqual(5291.0,
+                         avail_swift_agg_metric.get('metric').get('value'))
+        self.assertEqual('useast',
+                         avail_swift_agg_metric.get('meta').get('region'))
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+                         avail_swift_agg_metric.get('meta').get('tenantId'))
+        self.assertEqual('all',
+                         avail_swift_agg_metric.get('metric').get('dimensions')
+                         .get('project_id'))
+        self.assertEqual('hourly',
+                         avail_swift_agg_metric.get('metric').get('dimensions')
+                         .get('aggregation_period'))
+        self.assertEqual(17.0,
+                         avail_swift_agg_metric.get('metric').get('value_meta')
+                         .get('record_count'))
+        self.assertEqual('2016-06-10 20:27:01',
+                         avail_swift_agg_metric.get('metric').get('value_meta')
+                         .get('firstrecord_timestamp'))
+        self.assertEqual('2016-06-10 20:27:01',
+                         avail_swift_agg_metric.get('metric').get('value_meta')
+                         .get('lastrecord_timestamp'))
+
+        # Verify swiftlm.diskusage.val.avail_agg for host a
+        avail_swift_agg_metric = [
+            value for value in metrics
+            if value.get('metric').get('name') ==
+            'swiftlm.diskusage.val.avail_agg' and
+            value.get('metric').get('dimensions').get('host') == 'a'][0]
+
+        self.assertEqual(2848.0,
+                         avail_swift_agg_metric.get('metric').get('value'))
+        self.assertEqual('useast',
+                         avail_swift_agg_metric.get('meta').get('region'))
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+                         avail_swift_agg_metric.get('meta').get('tenantId'))
+        self.assertEqual('all',
+                         avail_swift_agg_metric.get('metric').get('dimensions')
+                         .get('project_id'))
+        self.assertEqual('hourly',
+                         avail_swift_agg_metric.get('metric').get('dimensions')
+                         .get('aggregation_period'))
+        self.assertEqual(8.0,
+                         avail_swift_agg_metric.get('metric').get('value_meta')
+                         .get('record_count'))
+        self.assertEqual('2016-06-10 20:27:01',
+                         avail_swift_agg_metric.get('metric').get('value_meta')
+                         .get('firstrecord_timestamp'))
+        self.assertEqual('2016-06-10 20:27:01',
+                         avail_swift_agg_metric.get('metric').get('value_meta')
+                         .get('lastrecord_timestamp'))
+
+        # Verify swiftlm.diskusage.val.avail_agg for host b
+        avail_swift_agg_metric = [
+            value for value in metrics
+            if value.get('metric').get('name') ==
+            'swiftlm.diskusage.val.avail_agg' and
+            value.get('metric').get('dimensions').get('host') == 'b'][0]
+
+        self.assertEqual(2443.0,
+                         avail_swift_agg_metric.get('metric').get('value'))
+        self.assertEqual('useast',
+                         avail_swift_agg_metric.get('meta').get('region'))
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+                         avail_swift_agg_metric.get('meta').get('tenantId'))
+        self.assertEqual('all',
+                         avail_swift_agg_metric.get('metric').get('dimensions')
+                         .get('project_id'))
+        self.assertEqual('hourly',
+                         avail_swift_agg_metric.get('metric').get('dimensions')
+                         .get('aggregation_period'))
+        self.assertEqual(9.0,
+                         avail_swift_agg_metric.get('metric').get('value_meta')
+                         .get('record_count'))
+        self.assertEqual('2016-06-10 20:27:01',
+                         avail_swift_agg_metric.get('metric').get('value_meta')
+                         .get('firstrecord_timestamp'))
+        self.assertEqual('2016-06-10 20:27:01',
+                         avail_swift_agg_metric.get('metric').get('value_meta')
+                         .get('lastrecord_timestamp'))
+
+        # Verify swiftlm.diskusage.rate_agg metrics
+        diskusage_rate_agg_metric = [
+            value for value in metrics
+            if value.get('metric').get('name') ==
+            'swiftlm.diskusage.rate_agg'][0]
+
+        self.assertEqual(15.650273224043715,
+                         diskusage_rate_agg_metric.get('metric').get('value'))
+        self.assertEqual('useast',
+                         diskusage_rate_agg_metric.get('meta').get('region'))
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+                         diskusage_rate_agg_metric.get('meta').get('tenantId'))
+        self.assertEqual('all',
+                         diskusage_rate_agg_metric.get('metric')
+                         .get('dimensions').get('host'))
+        self.assertEqual('all',
+                         diskusage_rate_agg_metric.get('metric')
+                         .get('dimensions').get('project_id'))
+        self.assertEqual('hourly',
+                         diskusage_rate_agg_metric.get('metric')
+                         .get('dimensions').get('aggregation_period'))
+        self.assertEqual(34.0,
+                         diskusage_rate_agg_metric.get('metric')
+                         .get('value_meta').get('record_count'))
+        self.assertEqual('2016-06-10 20:27:01',
+                         diskusage_rate_agg_metric.get('metric')
+                         .get('value_meta').get('firstrecord_timestamp'))
+        self.assertEqual('2016-06-10 20:27:01',
+                         diskusage_rate_agg_metric.get('metric')
+                         .get('value_meta').get('lastrecord_timestamp'))
 
 
 def simple_count_transform(rdd):

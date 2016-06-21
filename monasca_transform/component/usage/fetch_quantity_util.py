@@ -251,10 +251,10 @@ class FetchQuantityUtil(UsageComponent):
         #
         quant_idle_perc_calc_df = quant_idle_perc_df.select(
             col("quantity_df_alias.*"),
-            when(col("idle_perc_df_alias.quantity")
-                 != 0.0,
-                 ceil(((100.0 - col("idle_perc_df_alias.quantity")))
-                      * col("quantity_df_alias.quantity") / 100.0))
+            when(col("idle_perc_df_alias.quantity") != 0.0,
+                 ceil(((100.0 - col(
+                     "idle_perc_df_alias.quantity"))) * col(
+                     "quantity_df_alias.quantity") / 100.0))
             .otherwise(col("quantity_df_alias.quantity"))
             .alias("utilized_quantity"),
 

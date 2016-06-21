@@ -25,6 +25,8 @@ from monasca_transform.component.setter.set_aggregated_metric_name \
     import SetAggregatedMetricName
 from monasca_transform.component.setter.set_aggregated_period \
     import SetAggregatedPeriod
+from monasca_transform.component.usage.calculate_rate \
+    import CalculateRate
 from monasca_transform.component.usage.fetch_quantity \
     import FetchQuantity
 from monasca_transform.component.usage.fetch_quantity_util \
@@ -49,6 +51,13 @@ class MockComponentManager(object):
             'FetchQuantityUtil',
             FetchQuantityUtil(),
             None),
+            Extension(
+                'calculate_rate',
+                'monasca_transform.component.usage.'
+                'calculate_rate:'
+                'CalculateRate',
+                CalculateRate(),
+                None),
         ])
 
     @staticmethod

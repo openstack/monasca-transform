@@ -79,6 +79,14 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
             metric_id='swift_usage_all',
             expected_agg_metric_name='swiftlm.diskusage.val.size_agg',
             transform_specs_dataframe=transform_specs_data_frame)
+        self.check_metric(
+            metric_id='swift_avail_all',
+            expected_agg_metric_name='swiftlm.diskusage.val.avail_agg',
+            transform_specs_dataframe=transform_specs_data_frame)
+        self.check_metric(
+            metric_id='swift_usage_rate',
+            expected_agg_metric_name='swiftlm.diskusage.rate_agg',
+            transform_specs_dataframe=transform_specs_data_frame)
 
     def check_metric(self, metric_id=None, expected_agg_metric_name=None,
                      transform_specs_dataframe=None):
@@ -107,7 +115,8 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
                      u'vm.mem.total_mb', u'vm.mem.used_mb',
                      u'nova.vm.disk.total_allocated_gb',
                      u'vm.disk.allocation', u'vm.cpu.utilization_perc',
-                     u'swiftlm.diskusage.host.val.size']),
+                     u'swiftlm.diskusage.host.val.size',
+                     u'swiftlm.diskusage.host.val.avail']),
             Counter([row.event_type for row in
                      pre_transform_specs_data_frame.collect()]))
 
@@ -295,7 +304,7 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
         self.check_list_field_for_row(
             row=vm_disk_allocation_all_row,
             field_name='required_raw_fields_list',
-            expected_list=['creation_time', 'tenantId', 'resource_id'],
+            expected_list=['creation_time', 'tenant_id', 'resource_id'],
         )
         self.check_dict_field_for_row(
             row=vm_disk_allocation_all_row,
@@ -346,7 +355,8 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
         self.check_list_field_for_row(
             row=swiftlm_diskusage_all_row,
             field_name='metric_id_list',
-            expected_list=['swift_usage_all']
+            expected_list=['swift_usage_all', 'swift_usage_host',
+                           'swift_usage_rate']
         )
         self.check_list_field_for_row(
             row=swiftlm_diskusage_all_row,
@@ -363,6 +373,35 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
                 "set_default_region_to": "W"})
         self.check_value_field_for_row(
             row=swiftlm_diskusage_all_row,
+            field_name='service_id',
+            expected_value='host_metrics'
+        )
+
+        # swiftlm.diskusage.host.val.avail
+        event_type = 'swiftlm.diskusage.host.val.avail'
+        swiftlm_diskavail_all_row = self.get_row_for_event_type(
+            event_type=event_type,
+            pre_transform_specs_data_frame=pre_transform_specs_data_frame)
+        self.check_list_field_for_row(
+            row=swiftlm_diskavail_all_row,
+            field_name='metric_id_list',
+            expected_list=['swift_avail_all', 'swift_avail_host']
+        )
+        self.check_list_field_for_row(
+            row=swiftlm_diskavail_all_row,
+            field_name='required_raw_fields_list',
+            expected_list=['creation_time', 'hostname', 'mount',
+                           'device'],
+        )
+        self.check_dict_field_for_row(
+            row=swiftlm_diskavail_all_row,
+            field_name='event_processing_params',
+            expected_dict={
+                "set_default_zone_to": "1",
+                "set_default_geolocation_to": "1",
+                "set_default_region_to": "W"})
+        self.check_value_field_for_row(
+            row=swiftlm_diskavail_all_row,
             field_name='service_id',
             expected_value='host_metrics'
         )

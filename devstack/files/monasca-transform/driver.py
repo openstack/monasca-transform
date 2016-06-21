@@ -12,10 +12,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from monasca_transform.driver.mon_metrics_kafka import invoke
+
 
 activate_this_file = "/opt/monasca/transform/venv/bin/activate_this.py"
 execfile(activate_this_file, dict(__file__=activate_this_file))
-
-from monasca_transform.driver.mon_metrics_kafka import invoke
 
 invoke()

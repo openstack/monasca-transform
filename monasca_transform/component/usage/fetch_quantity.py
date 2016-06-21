@@ -299,8 +299,23 @@ class FetchQuantity(UsageComponent):
             collect()[0].asDict()
         usage_fetch_operation = agg_params["usage_fetch_operation"]
 
+        instance_usage_df = FetchQuantity.usage_by_operation(
+            transform_context, record_store_df, usage_fetch_operation)
+
+        return instance_usage_df
+
+    @staticmethod
+    def usage_by_operation(transform_context, record_store_df,
+                           usage_fetch_operation):
+        """component which groups together record store records by
+        provided group by columns list , sorts within the group by event
+        timestamp field, applies group stats udf and returns the latest
+        quantity as a instance usage dataframe
+        """
+        transform_spec_df = transform_context.transform_spec_df_info
+
         # check if operation is valid
-        if not FetchQuantity.\
+        if not FetchQuantity. \
                 _is_valid_fetch_operation(usage_fetch_operation):
             raise FetchQuantityException(
                 "Operation %s is not supported" % usage_fetch_operation)
@@ -314,7 +329,7 @@ class FetchQuantity(UsageComponent):
 
         # get what we want to group by
         agg_params = transform_spec_df.select(
-            "aggregation_params_map.aggregation_group_by_list").\
+            "aggregation_params_map.aggregation_group_by_list"). \
             collect()[0].asDict()
         aggregation_group_by_list = agg_params["aggregation_group_by_list"]
 
@@ -323,8 +338,8 @@ class FetchQuantity(UsageComponent):
             aggregation_group_by_list
 
         instance_usage_json_rdd = None
-        if (usage_fetch_operation == "latest"
-                or usage_fetch_operation == "oldest"):
+        if (usage_fetch_operation == "latest" or
+                usage_fetch_operation == "oldest"):
 
             grouped_rows_rdd = None
 
@@ -342,7 +357,7 @@ class FetchQuantity(UsageComponent):
                 # high number is adversely affecting performance
                 num_of_groups = 100
                 grouped_rows_rdd = \
-                    GroupSortbyTimestampPartition.\
+                    GroupSortbyTimestampPartition. \
                     fetch_group_latest_oldest_quantity(
                         record_store_df, transform_spec_df,
                         group_by_columns_list,
@@ -350,15 +365,15 @@ class FetchQuantity(UsageComponent):
             else:
                 # group using key-value pair RDD's groupByKey()
                 grouped_rows_rdd = \
-                    GroupSortbyTimestamp.\
+                    GroupSortbyTimestamp. \
                     fetch_group_latest_oldest_quantity(
                         record_store_df, transform_spec_df,
                         group_by_columns_list)
 
             grouped_data_rdd_with_operation = grouped_rows_rdd.map(
                 lambda x:
-                    GroupedDataWithOperation(x,
-                                             str(usage_fetch_operation)))
+                GroupedDataWithOperation(x,
+                                         str(usage_fetch_operation)))
 
             instance_usage_json_rdd = \
                 grouped_data_rdd_with_operation.map(
@@ -367,10 +382,10 @@ class FetchQuantity(UsageComponent):
 
             record_store_df_int = \
                 record_store_df.select(
-                    record_store_df.event_timestamp_unix
-                    .alias("event_timestamp_unix_for_min"),
-                    record_store_df.event_timestamp_unix
-                    .alias("event_timestamp_unix_for_max"),
+                    record_store_df.event_timestamp_unix.alias(
+                        "event_timestamp_unix_for_min"),
+                    record_store_df.event_timestamp_unix.alias(
+                        "event_timestamp_unix_for_max"),
                     "*")
 
             # for standard sum, max, min, avg operations on grouped data
@@ -385,8 +400,8 @@ class FetchQuantity(UsageComponent):
 
             grouped_data_rdd_with_operation = grouped_record_store_df.map(
                 lambda x:
-                    GroupedDataWithOperation(x,
-                                             str(usage_fetch_operation)))
+                GroupedDataWithOperation(x,
+                                         str(usage_fetch_operation)))
 
             instance_usage_json_rdd = grouped_data_rdd_with_operation.map(
                 FetchQuantity._get_quantity)
