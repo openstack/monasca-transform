@@ -54,7 +54,7 @@ class TestConfigInitializer(unittest.TestCase):
             'mysql_data_driven_specs_repo:MySQLDataDrivenSpecsRepo',
             cfg.CONF.repositories.data_driven_specs)
 
-        self.assertEqual('mysql',
+        self.assertEqual('mysql:thin',
                          cfg.CONF.database.server_type)
         self.assertEqual('localhost',
                          cfg.CONF.database.host)

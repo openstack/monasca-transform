@@ -65,13 +65,6 @@ function pre_install_spark {
 :
 }
 
-
-function install_mysql_connector {
-
-    sudo apt-get -y install libmysql-java
-
-}
-
 function install_java_libs {
 
     pushd /opt/spark/current/lib
@@ -355,8 +348,6 @@ function install_spark {
     sudo -u spark tar -xzf /opt/spark/download/${SPARK_TARBALL_NAME}  -C /opt/spark/
 
     sudo -u spark ln -sf /opt/spark/${SPARK_HADOOP_VERSION} /opt/spark/current
-
-    install_mysql_connector
 
     install_java_libs
 
