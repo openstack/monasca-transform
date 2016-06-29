@@ -20,8 +20,8 @@ from pyspark.streaming.kafka import OffsetRange
 
 import datetime
 import logging
+from monasca_common.simport import simport
 from oslo_config import cfg
-import simport
 
 
 from monasca_transform.component.insert.kafka_insert import KafkaInsert

@@ -27,8 +27,8 @@ from pyspark.sql import SQLContext
 
 import json
 import logging
+from monasca_common.simport import simport
 from oslo_config import cfg
-import simport
 import time
 
 from monasca_transform.config.config_initializer import ConfigInitializer

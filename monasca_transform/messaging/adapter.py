@@ -16,8 +16,8 @@ import abc
 import json
 from kafka import KafkaClient
 from kafka import SimpleProducer
+from monasca_common.simport import simport
 from oslo_config import cfg
-import simport
 
 
 class MessageAdapter(object):

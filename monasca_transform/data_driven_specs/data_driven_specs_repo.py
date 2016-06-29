@@ -13,8 +13,8 @@
 # under the License.
 
 import abc
+from monasca_common.simport import simport
 from oslo_config import cfg
-import simport
 import six
 
 
