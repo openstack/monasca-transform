@@ -309,7 +309,8 @@ function copy_monasca_transform_files {
     sudo cp -f "${MONASCA_TRANSFORM_BASE}"/monasca-transform/devstack/files/monasca-transform/transform_specs.sql /opt/monasca/transform/lib/.
     sudo cp -f "${MONASCA_TRANSFORM_BASE}"/monasca-transform/devstack/files/monasca-transform/pre_transform_specs.sql /opt/monasca/transform/lib/.
     sudo chown -R monasca-transform:monasca-transform /opt/monasca/transform
-
+    sudo touch /var/log/monasca/transform/monasca-transform.log
+    sudo chown monasca-transform:monasca-transform /var/log/monasca/transform/monasca-transform.log
 }
 
 function create_monasca_transform_venv {

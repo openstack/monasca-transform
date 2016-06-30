@@ -102,6 +102,8 @@ class ConfigInitializer(object):
             cfg.StrOpt('setup_target'),
             cfg.StrOpt('spark_driver'),
             cfg.StrOpt('service_log_path'),
+            cfg.StrOpt('service_log_filename',
+                       default='monasca-transform.log'),
             cfg.StrOpt('spark_event_logging_dest'),
             cfg.StrOpt('spark_event_logging_enabled'),
             cfg.StrOpt('spark_jars_list'),

@@ -8,3 +8,4 @@ oslo.config>=1.2.1
 oslo.log
 oslo.service
 tooz
+kazoo

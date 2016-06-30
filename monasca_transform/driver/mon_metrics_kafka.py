@@ -52,8 +52,10 @@ ConfigInitializer.basic_config()
 
 # initialize logger
 log = logging.getLogger(__name__)
-_h = logging.FileHandler('%s/monasca_transform.log' %
-                         cfg.CONF.service.service_log_path)
+_h = logging.FileHandler('%s/%s' % (
+    cfg.CONF.service.service_log_path,
+    cfg.CONF.service.service_log_filename)
+)
 _h.setFormatter(logging.Formatter("'%(asctime)s - %(pathname)s:"
                                   "%(lineno)s - %(levelname)s - %(message)s'"))
 log.addHandler(_h)
