@@ -47,7 +47,7 @@ Vagrant.configure(2) do |config|
         config.proxy.https    = ENV['https_proxy']
     end
     if ENV['no_proxy'] && !ENV['no_proxy'].empty?
-        config.proxy.no_proxy = ENV['no_proxy'] + "192.168.15.6,10.0.2.15"
+        config.proxy.no_proxy = ENV['no_proxy'] + ",192.168.15.6,10.0.2.15"
     end
   end
   # Provider-specific configuration so you can fine-tune various
