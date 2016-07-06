@@ -11,7 +11,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from kafka.common import OffsetRequestPayload
+from kafka.common import OffsetRequest
 from kafka import KafkaClient
 
 from pyspark.sql import SQLContext
@@ -117,10 +117,10 @@ class PreHourlyProcessor(Processor):
         # A+Guide+To+The+Kafka+Protocol#
         # AGuideToTheKafkaProtocol-OffsetRequest
         MAX_OFFSETS = 1
-        offset_requests = [OffsetRequestPayload(topic,
-                                                part_name,
-                                                offset_time,
-                                                MAX_OFFSETS) for part_name
+        offset_requests = [OffsetRequest(topic,
+                                         part_name,
+                                         offset_time,
+                                         MAX_OFFSETS) for part_name
                            in partitions.keys()]
 
         offsets_responses = client.send_offset_request(offset_requests)
