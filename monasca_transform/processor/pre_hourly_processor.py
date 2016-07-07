@@ -31,6 +31,8 @@ from monasca_transform.data_driven_specs.data_driven_specs_repo \
 from monasca_transform.data_driven_specs.data_driven_specs_repo \
     import DataDrivenSpecsRepoFactory
 from monasca_transform.processor import Processor
+from monasca_transform.transform.storage_utils import \
+    InvalidCacheStorageLevelException
 from monasca_transform.transform.storage_utils import StorageUtils
 from monasca_transform.transform.transform_utils import InstanceUsageUtils
 from monasca_transform.transform import TransformContextUtils
@@ -416,8 +418,15 @@ class PreHourlyProcessor(Processor):
             storage_level_prop = \
                 cfg.CONF.pre_hourly_processor\
                 .instance_usage_df_cache_storage_level
-            storage_level = StorageUtils.get_storage_level(
-                storage_level_prop)
+            try:
+                storage_level = StorageUtils.get_storage_level(
+                    storage_level_prop)
+            except InvalidCacheStorageLevelException as storage_error:
+                storage_error.value += \
+                    " (as specified in " \
+                    "pre_hourly_processor.instance_usage_df" \
+                    "_cache_storage_level)"
+                raise
             instance_usage_df.persist(storage_level)
 
         # aggregate pre hourly data

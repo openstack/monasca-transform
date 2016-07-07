@@ -96,14 +96,22 @@ class CalculateRate(UsageComponent):
             ((latest_quantity - oldest_quantity) / oldest_quantity) * 100
 
         #  create a new instance usage dict
-        instance_usage_dict = {"tenant_id": "all",
-                               "user_id": "all",
-                               "resource_uuid": "all",
-                               "geolocation": "all",
-                               "region": "all",
-                               "zone": "all",
-                               "host": "all",
-                               "project_id": "all",
+        instance_usage_dict = {"tenant_id":
+                               latest_dict.get("tenant_id", "all"),
+                               "user_id":
+                                   latest_dict.get("user_id", "all"),
+                               "resource_uuid":
+                                   latest_dict.get("resource_uuid", "all"),
+                               "geolocation":
+                                   latest_dict.get("geolocation", "all"),
+                               "region":
+                                   latest_dict.get("region", "all"),
+                               "zone":
+                                   latest_dict.get("zone", "all"),
+                               "host":
+                                   latest_dict.get("host", "all"),
+                               "project_id":
+                                   latest_dict.get("project_id", "all"),
                                "aggregated_metric_name":
                                    aggregated_metric_name,
                                "quantity": rate_percentage,
@@ -118,9 +126,13 @@ class CalculateRate(UsageComponent):
                                "record_count": oldest_dict["record_count"] +
                                    latest_dict["record_count"],
                                "service_group":
-                                   Component.DEFAULT_UNAVAILABLE_VALUE,
+                                   latest_dict.get("service_group",
+                                                   Component.
+                                                   DEFAULT_UNAVAILABLE_VALUE),
                                "service_id":
-                                   Component.DEFAULT_UNAVAILABLE_VALUE,
+                                   latest_dict.get("service_id",
+                                                   Component.
+                                                   DEFAULT_UNAVAILABLE_VALUE),
                                "usage_date": latest_dict["usage_date"],
                                "usage_hour": latest_dict["usage_hour"],
                                "usage_minute": latest_dict["usage_minute"],

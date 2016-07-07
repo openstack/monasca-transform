@@ -15,6 +15,19 @@
 from pyspark import StorageLevel
 
 
+class InvalidCacheStorageLevelException(Exception):
+    """Exception thrown when an invalid cache storage level is encountered
+    Attributes:
+    value: string representing the error
+    """
+
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
+
+
 class StorageUtils(object):
     """storage util functions"""
 
@@ -46,4 +59,5 @@ class StorageUtils(object):
         elif (storage_level_str == "OFF_HEAP"):
             return StorageLevel.OFF_HEAP
         else:
-            return StorageLevel.MEMORY_ONLY
+            raise InvalidCacheStorageLevelException(
+                "Unrecognized cache storage level: %s" % storage_level_str)

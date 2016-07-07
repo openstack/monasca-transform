@@ -44,6 +44,8 @@ from monasca_transform.data_driven_specs.data_driven_specs_repo \
 from monasca_transform.processor.pre_hourly_processor import PreHourlyProcessor
 
 from monasca_transform.transform import RddTransformContext
+from monasca_transform.transform.storage_utils import \
+    InvalidCacheStorageLevelException
 from monasca_transform.transform.storage_utils import StorageUtils
 from monasca_transform.transform.transform_utils import MonMetricUtils
 from monasca_transform.transform import TransformContextUtils
@@ -454,8 +456,14 @@ class MonMetricsKafkaProcessor(object):
             if cfg.CONF.service.enable_record_store_df_cache:
                 storage_level_prop = \
                     cfg.CONF.service.record_store_df_cache_storage_level
-                storage_level = StorageUtils.get_storage_level(
-                    storage_level_prop)
+                try:
+                    storage_level = StorageUtils.get_storage_level(
+                        storage_level_prop)
+                except InvalidCacheStorageLevelException as storage_error:
+                    storage_error.value += \
+                        " (as specified in " \
+                        "service.record_store_df_cache_storage_level)"
+                    raise
                 record_store_df.persist(storage_level)
 
             #
