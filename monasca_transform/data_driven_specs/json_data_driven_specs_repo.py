@@ -16,6 +16,8 @@ import os
 
 from monasca_transform.data_driven_specs.data_driven_specs_repo \
     import DataDrivenSpecsRepo
+from monasca_transform.transform.transform_utils import PreTransformSpecsUtils
+from monasca_transform.transform.transform_utils import TransformSpecsUtils
 
 
 class JSONDataDrivenSpecsRepo(DataDrivenSpecsRepo):
@@ -32,14 +34,17 @@ class JSONDataDrivenSpecsRepo(DataDrivenSpecsRepo):
                     "monasca_transform/data_driven_specs/"
                     "transform_specs/transform_specs.json"
                     ))
+            if os.path.exists(path):
+                # read file to json
+                return TransformSpecsUtils.create_df_from_json(
+                    sql_context, path)
         elif data_driven_spec_type == self.pre_transform_specs_type:
             path = (os.path.join(
                     self._common_file_system_stub_path,
                     "monasca_transform/data_driven_specs/"
                     "pre_transform_specs/pre_transform_specs.json"
-
                     ))
-
-        if os.path.exists(path):
-            # read file to json
-            return sql_context.read.json(path)
+            if os.path.exists(path):
+                # read file to json
+                return PreTransformSpecsUtils.create_df_from_json(
+                    sql_context, path)

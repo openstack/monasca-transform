@@ -15,7 +15,9 @@
 from collections import namedtuple
 import datetime
 
+from pyspark.sql import functions
 from pyspark.sql import SQLContext
+
 
 from monasca_transform.component import Component
 from monasca_transform.component.component_utils import ComponentUtils
@@ -326,6 +328,43 @@ class FetchQuantity(UsageComponent):
         aggregation_period = agg_params["aggregation_period"]
         group_by_period_list = ComponentUtils._get_group_by_period_list(
             aggregation_period)
+
+        # retrieve filter specifications
+        agg_params = transform_spec_df.select(
+            "aggregation_params_map.filter_by_list"). \
+            collect()[0].asDict()
+        filter_by_list = \
+            agg_params["filter_by_list"]
+
+        # if filter(s) have been specified, apply them one at a time
+        if filter_by_list:
+            for filter_element in filter_by_list:
+                field_to_filter = filter_element["field_to_filter"]
+                filter_expression = filter_element["filter_expression"]
+                filter_operation = filter_element["filter_operation"]
+
+                if (field_to_filter and
+                        filter_expression and
+                        filter_operation and
+                        (filter_operation == "include" or
+                         filter_operation == "exclude")):
+                    if filter_operation == "include":
+                        match = True
+                    else:
+                        match = False
+                    # apply the specified filter to the record store
+                    record_store_df = record_store_df.where(
+                        functions.col(str(field_to_filter)).rlike(
+                            str(filter_expression)) == match)
+                else:
+                    raise FetchQuantityException(
+                        "Encountered invalid filter details: "
+                        "field to filter = %s, filter expression = %s, "
+                        "filter operation = %s.  All values must be "
+                        "supplied and filter operation must be either "
+                        "'include' or 'exclude'." % (field_to_filter,
+                                                     filter_expression,
+                                                     filter_operation))
 
         # get what we want to group by
         agg_params = transform_spec_df.select(

@@ -131,13 +131,13 @@ class SparkTest(SparkContextTest):
                              'metric').get('value_meta')
                          .get('lastrecord_timestamp'))
 
-        # Verify cpu.total_logical_cores_agg for mini-mon host
+        # Verify cpu.total_logical_cores_agg for test-cp1-comp0333-mgmt host
         total_cpu_logical_agg_metric = [
             value for value in metrics
             if value.get('metric').get('name') ==
             'cpu.total_logical_cores_agg' and
             value.get('metric').get('dimensions').get('host') ==
-            'mini-mon'][0]
+            'test-cp1-comp0333-mgmt'][0]
 
         self.assertEqual(9.0,
                          total_cpu_logical_agg_metric.get(
@@ -170,13 +170,13 @@ class SparkTest(SparkContextTest):
                              'metric').get('value_meta')
                          .get('lastrecord_timestamp'))
 
-        # Verify cpu.total_logical_cores_agg for devstack host
+        # Verify cpu.total_logical_cores_agg for test-cp1-comp0027-mgmt host
         total_cpu_logical_agg_metric = [
             value for value in metrics
             if value.get('metric').get('name') ==
             'cpu.total_logical_cores_agg' and
             value.get('metric').get('dimensions').get('host') ==
-            'devstack'][0]
+            'test-cp1-comp0027-mgmt'][0]
 
         self.assertEqual(6.0,
                          total_cpu_logical_agg_metric.get(
@@ -249,13 +249,14 @@ class SparkTest(SparkContextTest):
                              'metric').get('value_meta')
                          .get('lastrecord_timestamp'))
 
-        # Verify cpu.utilized_logical_cores_agg for the mini-mon host
+        # Verify cpu.utilized_logical_cores_agg for the
+        # test-cp1-comp0333-mgmt host
         utilized_cpu_logical_agg_metric = [
             value for value in metrics
             if value.get('metric').get('name') ==
             'cpu.utilized_logical_cores_agg' and
             value.get('metric').get('dimensions').get('host') ==
-            'mini-mon'][0]
+            'test-cp1-comp0333-mgmt'][0]
 
         self.assertEqual(5.0,
                          utilized_cpu_logical_agg_metric.get(
@@ -289,13 +290,14 @@ class SparkTest(SparkContextTest):
                              'metric').get('value_meta')
                          .get('lastrecord_timestamp'))
 
-        # Verify cpu.utilized_logical_cores_agg for the devstack host
+        # Verify cpu.utilized_logical_cores_agg for the
+        # test-cp1-comp0027-mgmt host
         utilized_cpu_logical_agg_metric = [
             value for value in metrics
             if value.get('metric').get('name') ==
             'cpu.utilized_logical_cores_agg' and
             value.get('metric').get('dimensions').get('host') ==
-            'devstack'][0]
+            'test-cp1-comp0027-mgmt'][0]
 
         self.assertEqual(3.0,
                          utilized_cpu_logical_agg_metric.get(
