@@ -184,7 +184,7 @@ class FetchQuantity(UsageComponent):
             row, "min(event_timestamp_unix_for_min)",
             Component.DEFAULT_UNAVAILABLE_VALUE)
         earliest_record_timestamp_string = \
-            datetime.datetime.fromtimestamp(
+            datetime.datetime.utcfromtimestamp(
                 earliest_record_timestamp_unix).strftime(
                 '%Y-%m-%d %H:%M:%S')
 
@@ -193,7 +193,7 @@ class FetchQuantity(UsageComponent):
             row, "max(event_timestamp_unix_for_max)",
             Component.DEFAULT_UNAVAILABLE_VALUE)
         latest_record_timestamp_string = \
-            datetime.datetime.fromtimestamp(
+            datetime.datetime.utcfromtimestamp(
                 latest_record_timestamp_unix).strftime('%Y-%m-%d %H:%M:%S')
 
         # record count
