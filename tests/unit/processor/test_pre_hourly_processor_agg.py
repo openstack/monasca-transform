@@ -16,10 +16,10 @@ import unittest
 
 from pyspark.streaming.kafka import OffsetRange
 
-from monasca_transform.component.insert.dummy_insert import DummyInsert
 from monasca_transform.config.config_initializer import ConfigInitializer
 from monasca_transform.processor.pre_hourly_processor import PreHourlyProcessor
 
+from tests.unit.component.insert.dummy_insert import DummyInsert
 from tests.unit.messaging.adapter import DummyAdapter
 from tests.unit.spark_context_test import SparkContextTest
 from tests.unit.test_resources.metrics_pre_hourly_data.data_provider \
