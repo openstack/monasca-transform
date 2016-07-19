@@ -178,11 +178,11 @@ class TestVmCpuAllocatedAgg(SparkContextTest):
         self.assertEqual('2016-01-20 16:40:05',
                          vcpus_agg_metric
                          .get('metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-01-20 16:40:46',
                          vcpus_agg_metric
                          .get('metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
         vcpus_agg_metric = [
             value for value in metrics
@@ -217,11 +217,11 @@ class TestVmCpuAllocatedAgg(SparkContextTest):
         self.assertEqual('2016-01-20 16:40:00',
                          vcpus_agg_metric
                          .get('metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-01-20 16:40:42',
                          vcpus_agg_metric
                          .get('metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
     def get_pre_transform_specs_json_by_all(self):
         """get pre_transform_specs driver table info."""
@@ -353,11 +353,11 @@ class TestVmCpuAllocatedAgg(SparkContextTest):
         self.assertEqual('2016-01-20 16:40:00',
                          vcpus_agg_metric
                          .get('metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-01-20 16:40:46',
                          vcpus_agg_metric
                          .get('metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
 
 def simple_count_transform(rdd):

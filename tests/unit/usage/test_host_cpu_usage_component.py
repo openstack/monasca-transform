@@ -125,11 +125,11 @@ class SparkTest(SparkContextTest):
         self.assertEqual('2016-03-07 16:09:23',
                          total_cpu_logical_agg_metric.get(
                              'metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-03-07 16:10:38',
                          total_cpu_logical_agg_metric.get(
                              'metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
         # Verify cpu.total_logical_cores_agg for test-cp1-comp0333-mgmt host
         total_cpu_logical_agg_metric = [
@@ -164,11 +164,11 @@ class SparkTest(SparkContextTest):
         self.assertEqual('2016-03-07 16:09:23',
                          total_cpu_logical_agg_metric.get(
                              'metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-03-07 16:10:38',
                          total_cpu_logical_agg_metric.get(
                              'metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
         # Verify cpu.total_logical_cores_agg for test-cp1-comp0027-mgmt host
         total_cpu_logical_agg_metric = [
@@ -203,11 +203,11 @@ class SparkTest(SparkContextTest):
         self.assertEqual('2016-03-07 16:09:23',
                          total_cpu_logical_agg_metric.get(
                              'metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-03-07 16:10:38',
                          total_cpu_logical_agg_metric.get(
                              'metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
         # Verify cpu.utilized_logical_cores_agg for all hosts
         utilized_cpu_logical_agg_metric = [
@@ -243,11 +243,11 @@ class SparkTest(SparkContextTest):
         self.assertEqual('2016-03-07 16:09:23',
                          utilized_cpu_logical_agg_metric.get(
                              'metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-03-07 16:10:38',
                          utilized_cpu_logical_agg_metric.get(
                              'metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
         # Verify cpu.utilized_logical_cores_agg for the
         # test-cp1-comp0333-mgmt host
@@ -284,11 +284,11 @@ class SparkTest(SparkContextTest):
         self.assertEqual('2016-03-07 16:09:23',
                          utilized_cpu_logical_agg_metric.get(
                              'metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-03-07 16:10:38',
                          utilized_cpu_logical_agg_metric.get(
                              'metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
         # Verify cpu.utilized_logical_cores_agg for the
         # test-cp1-comp0027-mgmt host
@@ -325,11 +325,11 @@ class SparkTest(SparkContextTest):
         self.assertEqual('2016-03-07 16:09:23',
                          utilized_cpu_logical_agg_metric.get(
                              'metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-03-07 16:10:38',
                          utilized_cpu_logical_agg_metric.get(
                              'metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
 
 def simple_count_transform(rdd):

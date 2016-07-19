@@ -148,10 +148,10 @@ class SparkTest(SparkContextTest):
                          .get('record_count'))
         self.assertEqual('2016-01-20 16:40:00',
                          total_mb_agg_metric.get('metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-01-20 16:40:46',
                          total_mb_agg_metric.get('metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
         # Verify mem.usable_mb_agg metrics
         usable_mb_agg_metric = [
@@ -180,10 +180,10 @@ class SparkTest(SparkContextTest):
                          .get('record_count'))
         self.assertEqual('2016-01-20 16:40:00',
                          usable_mb_agg_metric.get('metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-01-20 16:40:46',
                          usable_mb_agg_metric.get('metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
         # Verify vcpus_agg metrics for all projects
         vcpus_agg_metric = [
@@ -219,11 +219,11 @@ class SparkTest(SparkContextTest):
         self.assertEqual('2016-01-20 16:40:00',
                          vcpus_agg_metric
                          .get('metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-01-20 16:40:46',
                          vcpus_agg_metric
                          .get('metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
         # Verify vcpus_agg metrics for 8647fd5030b04a799b0411cc38c4102d
         # project
@@ -260,11 +260,11 @@ class SparkTest(SparkContextTest):
         self.assertEqual('2016-01-20 16:40:00',
                          vcpus_agg_metric
                          .get('metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-01-20 16:40:42',
                          vcpus_agg_metric
                          .get('metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
         # Verify vcpus_agg metrics for 9647fd5030b04a799b0411cc38c4102d
         # project
@@ -301,11 +301,11 @@ class SparkTest(SparkContextTest):
         self.assertEqual('2016-01-20 16:40:05',
                          vcpus_agg_metric
                          .get('metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-01-20 16:40:46',
                          vcpus_agg_metric
                          .get('metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
         # Verify vm.mem.total_mb_agg metrics for all projects
         vm_mem_total_mb_agg_metric = [
@@ -341,11 +341,11 @@ class SparkTest(SparkContextTest):
         self.assertEqual('2016-06-07 16:27:54',
                          vm_mem_total_mb_agg_metric
                          .get('metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-06-07 16:30:54',
                          vm_mem_total_mb_agg_metric
                          .get('metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
         # Verify vm.mem.total_mb_agg metrics for the 1 project
         vm_mem_total_mb_agg_metric = [
@@ -380,11 +380,11 @@ class SparkTest(SparkContextTest):
         self.assertEqual('2016-06-07 16:27:54',
                          vm_mem_total_mb_agg_metric
                          .get('metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-06-07 16:29:54',
                          vm_mem_total_mb_agg_metric
                          .get('metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
         # Verify vm.mem.total_mb_agg metrics for the 2 project
         vm_mem_total_mb_agg_metric = [
@@ -419,11 +419,11 @@ class SparkTest(SparkContextTest):
         self.assertEqual('2016-06-07 16:28:54',
                          vm_mem_total_mb_agg_metric
                          .get('metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-06-07 16:30:54',
                          vm_mem_total_mb_agg_metric
                          .get('metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
         # Verify nova.vm.disk.total_allocated_gb_agg metrics
         total_allocated_disk_agg_metric = [
@@ -454,10 +454,12 @@ class SparkTest(SparkContextTest):
                          .get('value_meta').get('record_count'))
         self.assertEqual('2016-05-17 15:14:08',
                          total_allocated_disk_agg_metric.get('metric')
-                         .get('value_meta').get('firstrecord_timestamp'))
+                         .get('value_meta')
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-05-17 15:14:44',
                          total_allocated_disk_agg_metric.get('metric')
-                         .get('value_meta').get('lastrecord_timestamp'))
+                         .get('value_meta')
+                         .get('lastrecord_timestamp_string'))
 
         # Verify vm.disk.allocation_agg metrics for all projects
         vm_disk_allocation_agg_metric = [
@@ -493,11 +495,11 @@ class SparkTest(SparkContextTest):
         self.assertEqual('2016-01-20 16:40:00',
                          vm_disk_allocation_agg_metric
                          .get('metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-01-20 16:40:46',
                          vm_disk_allocation_agg_metric
                          .get('metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
         # Verify vm.disk.allocation_agg metrics for
         # 5f681592f7084c5fbcd4e8a20a4fef15 project
@@ -534,11 +536,11 @@ class SparkTest(SparkContextTest):
         self.assertEqual('2016-01-20 16:40:00',
                          vm_disk_allocation_agg_metric
                          .get('metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-01-20 16:40:40',
                          vm_disk_allocation_agg_metric
                          .get('metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
         # Verify vm.disk.allocation_agg metrics for
         # 6f681592f7084c5fbcd4e8a20a4fef15 project
@@ -575,11 +577,11 @@ class SparkTest(SparkContextTest):
         self.assertEqual('2016-01-20 16:40:00',
                          vm_disk_allocation_agg_metric
                          .get('metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-01-20 16:40:46',
                          vm_disk_allocation_agg_metric
                          .get('metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
         # Verify vm.cpu.utilization_perc_agg metrics for
         # 817331145b804dc9a7accb6edfb0674d project
@@ -613,10 +615,12 @@ class SparkTest(SparkContextTest):
                          .get('value_meta').get('record_count'))
         self.assertEqual('2016-05-26 17:31:01',
                          vm_cpu_util_perc_agg_metric.get('metric')
-                         .get('value_meta').get('firstrecord_timestamp'))
+                         .get('value_meta')
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-05-26 17:31:36',
                          vm_cpu_util_perc_agg_metric.get('metric')
-                         .get('value_meta').get('lastrecord_timestamp'))
+                         .get('value_meta')
+                         .get('lastrecord_timestamp_string'))
 
         # Verify vm.cpu.utilization_perc_agg metrics for
         # 5d0e49bdc4534bb4b65909228aa040da project
@@ -650,10 +654,12 @@ class SparkTest(SparkContextTest):
                          .get('value_meta').get('record_count'))
         self.assertEqual('2016-05-26 17:30:27',
                          vm_cpu_util_perc_agg_metric.get('metric')
-                         .get('value_meta').get('firstrecord_timestamp'))
+                         .get('value_meta')
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-05-26 17:30:27',
                          vm_cpu_util_perc_agg_metric.get('metric')
-                         .get('value_meta').get('lastrecord_timestamp'))
+                         .get('value_meta')
+                         .get('lastrecord_timestamp_string'))
 
         # Verify disk.total_space_mb_agg metrics
         disk_total_space_agg_metric = [
@@ -687,11 +693,11 @@ class SparkTest(SparkContextTest):
         self.assertEqual('2016-06-01 21:09:21',
                          disk_total_space_agg_metric
                          .get('metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-06-01 21:09:21',
                          disk_total_space_agg_metric
                          .get('metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
         # Verify disk.total_used_space_mb_agg metrics
         disk_total_used_agg_metric = [
@@ -725,11 +731,11 @@ class SparkTest(SparkContextTest):
         self.assertEqual('2016-06-01 21:09:21',
                          disk_total_used_agg_metric
                          .get('metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-06-01 21:09:21',
                          disk_total_used_agg_metric
                          .get('metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
         # Verify cpu.utilized_logical_cores_agg metrics for all hosts
         cpu_util_cores_agg_metric = [
@@ -766,11 +772,11 @@ class SparkTest(SparkContextTest):
         self.assertEqual('2016-03-07 16:09:23',
                          cpu_util_cores_agg_metric
                          .get('metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-03-07 16:10:38',
                          cpu_util_cores_agg_metric
                          .get('metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
         # Verify cpu.utilized_logical_cores_agg metrics for
         # test-cp1-comp0294-mgmt host
@@ -808,11 +814,11 @@ class SparkTest(SparkContextTest):
         self.assertEqual('2016-03-07 16:09:23',
                          cpu_util_cores_agg_metric
                          .get('metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-03-07 16:10:38',
                          cpu_util_cores_agg_metric
                          .get('metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
         # Verify vm.cpu.utilization_perc_agg metrics for
         # test-cp1-comp0037-mgmt host
@@ -850,11 +856,11 @@ class SparkTest(SparkContextTest):
         self.assertEqual('2016-03-07 16:09:23',
                          cpu_util_cores_agg_metric
                          .get('metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-03-07 16:10:38',
                          cpu_util_cores_agg_metric
                          .get('metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
         # Verify vm.mem.used_mb_agg metrics for all projects
         vm_mem_used_mb_agg_metric = [
@@ -890,11 +896,11 @@ class SparkTest(SparkContextTest):
         self.assertEqual('2016-06-07 16:27:54',
                          vm_mem_used_mb_agg_metric
                          .get('metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-06-07 16:30:54',
                          vm_mem_used_mb_agg_metric
                          .get('metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
         # Verify vm.mem.used_mb_agg metrics for the 1 project
         vm_mem_used_mb_agg_metric = [
@@ -929,11 +935,11 @@ class SparkTest(SparkContextTest):
         self.assertEqual('2016-06-07 16:27:54',
                          vm_mem_used_mb_agg_metric
                          .get('metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-06-07 16:29:54',
                          vm_mem_used_mb_agg_metric
                          .get('metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
         # Verify vm.mem.used_mb_agg metrics for the 2 project
         vm_mem_used_mb_agg_metric = [
@@ -968,11 +974,11 @@ class SparkTest(SparkContextTest):
         self.assertEqual('2016-06-07 16:28:54',
                          vm_mem_used_mb_agg_metric
                          .get('metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-06-07 16:30:54',
                          vm_mem_used_mb_agg_metric
                          .get('metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
         # Verify swiftlm.diskusage.val.size_agg for all hosts
         used_swift_agg_metric = [
@@ -998,10 +1004,10 @@ class SparkTest(SparkContextTest):
                          .get('record_count'))
         self.assertEqual('2016-06-10 20:27:01',
                          used_swift_agg_metric.get('metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-06-10 20:27:01',
                          used_swift_agg_metric.get('metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
         # Verify swiftlm.diskusage.val.size_agg for host a
         used_swift_agg_metric = [
@@ -1027,10 +1033,10 @@ class SparkTest(SparkContextTest):
                          .get('record_count'))
         self.assertEqual('2016-06-10 20:27:01',
                          used_swift_agg_metric.get('metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-06-10 20:27:01',
                          used_swift_agg_metric.get('metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
         # Verify swiftlm.diskusage.val.size_agg for host b
         used_swift_agg_metric = [
@@ -1056,10 +1062,10 @@ class SparkTest(SparkContextTest):
                          .get('record_count'))
         self.assertEqual('2016-06-10 20:27:01',
                          used_swift_agg_metric.get('metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-06-10 20:27:01',
                          used_swift_agg_metric.get('metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
         # Verify swiftlm.diskusage.val.avail_agg for all hosts
         avail_swift_agg_metric = [
@@ -1085,10 +1091,10 @@ class SparkTest(SparkContextTest):
                          .get('record_count'))
         self.assertEqual('2016-06-10 20:27:01',
                          avail_swift_agg_metric.get('metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-06-10 20:27:01',
                          avail_swift_agg_metric.get('metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
         # Verify swiftlm.diskusage.val.avail_agg for host a
         avail_swift_agg_metric = [
@@ -1114,10 +1120,10 @@ class SparkTest(SparkContextTest):
                          .get('record_count'))
         self.assertEqual('2016-06-10 20:27:01',
                          avail_swift_agg_metric.get('metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-06-10 20:27:01',
                          avail_swift_agg_metric.get('metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
         # Verify swiftlm.diskusage.val.avail_agg for host b
         avail_swift_agg_metric = [
@@ -1143,10 +1149,10 @@ class SparkTest(SparkContextTest):
                          .get('record_count'))
         self.assertEqual('2016-06-10 20:27:01',
                          avail_swift_agg_metric.get('metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-06-10 20:27:01',
                          avail_swift_agg_metric.get('metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
         # Verify swiftlm.diskusage.rate_agg metrics
         diskusage_rate_agg_metric = [
@@ -1174,10 +1180,12 @@ class SparkTest(SparkContextTest):
                          .get('value_meta').get('record_count'))
         self.assertEqual('2016-06-10 20:27:01',
                          diskusage_rate_agg_metric.get('metric')
-                         .get('value_meta').get('firstrecord_timestamp'))
+                         .get('value_meta')
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-06-10 20:27:01',
                          diskusage_rate_agg_metric.get('metric')
-                         .get('value_meta').get('lastrecord_timestamp'))
+                         .get('value_meta')
+                         .get('lastrecord_timestamp_string'))
 
 
 def simple_count_transform(rdd):

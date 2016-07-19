@@ -228,11 +228,11 @@ class TestFetchQuantityAgg(SparkContextTest):
         self.assertEqual('2016-01-20 16:40:00',
                          mem_total_mb_agg_metric
                          .get('metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-01-20 16:40:46',
                          mem_total_mb_agg_metric
                          .get('metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
     @mock.patch('monasca_transform.data_driven_specs.data_driven_specs_repo.'
                 'DataDrivenSpecsRepoFactory.get_data_driven_specs_repo')
@@ -335,11 +335,11 @@ class TestFetchQuantityAgg(SparkContextTest):
         self.assertEqual('2016-01-20 16:40:00',
                          mem_total_mb_agg_metric
                          .get('metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-01-20 16:40:46',
                          mem_total_mb_agg_metric
                          .get('metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
     @mock.patch('monasca_transform.data_driven_specs.data_driven_specs_repo.'
                 'DataDrivenSpecsRepoFactory.get_data_driven_specs_repo')
@@ -441,11 +441,11 @@ class TestFetchQuantityAgg(SparkContextTest):
         self.assertEqual('2016-01-20 16:40:00',
                          mem_total_mb_agg_metric
                          .get('metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-01-20 16:40:46',
                          mem_total_mb_agg_metric
                          .get('metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
     @mock.patch('monasca_transform.data_driven_specs.data_driven_specs_repo.'
                 'DataDrivenSpecsRepoFactory.get_data_driven_specs_repo')
@@ -548,11 +548,11 @@ class TestFetchQuantityAgg(SparkContextTest):
         self.assertEqual('2016-01-20 16:40:00',
                          mem_total_mb_agg_metric
                          .get('metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-01-20 16:40:46',
                          mem_total_mb_agg_metric
                          .get('metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
     @mock.patch('monasca_transform.data_driven_specs.data_driven_specs_repo.'
                 'DataDrivenSpecsRepoFactory.get_data_driven_specs_repo')
@@ -655,11 +655,11 @@ class TestFetchQuantityAgg(SparkContextTest):
         self.assertEqual('2016-01-20 16:40:00',
                          mem_total_mb_agg_metric
                          .get('metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-01-20 16:40:46',
                          mem_total_mb_agg_metric
                          .get('metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
     @mock.patch('monasca_transform.data_driven_specs.data_driven_specs_repo.'
                 'DataDrivenSpecsRepoFactory.get_data_driven_specs_repo')
@@ -762,11 +762,11 @@ class TestFetchQuantityAgg(SparkContextTest):
         self.assertEqual('2016-01-20 16:40:00',
                          mem_total_mb_agg_metric
                          .get('metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-01-20 16:40:46',
                          mem_total_mb_agg_metric
                          .get('metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
     @mock.patch('monasca_transform.data_driven_specs.data_driven_specs_repo.'
                 'DataDrivenSpecsRepoFactory.get_data_driven_specs_repo')

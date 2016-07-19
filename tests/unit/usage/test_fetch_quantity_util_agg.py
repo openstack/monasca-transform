@@ -211,11 +211,11 @@ class TestFetchQuantityUtilAgg(SparkContextTest):
         self.assertEqual('2016-03-07 16:09:23',
                          utilized_cpu_logical_agg_metric.get(
                              'metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-03-07 16:10:38',
                          utilized_cpu_logical_agg_metric.get(
                              'metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
     @mock.patch('monasca_transform.data_driven_specs.data_driven_specs_repo.'
                 'DataDrivenSpecsRepoFactory.get_data_driven_specs_repo')
@@ -314,11 +314,11 @@ class TestFetchQuantityUtilAgg(SparkContextTest):
         self.assertEqual('2016-03-07 16:09:23',
                          utilized_cpu_logical_agg_metric.get(
                              'metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-03-07 16:10:38',
                          utilized_cpu_logical_agg_metric.get(
                              'metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
     @mock.patch('monasca_transform.data_driven_specs.data_driven_specs_repo.'
                 'DataDrivenSpecsRepoFactory.get_data_driven_specs_repo')
@@ -417,11 +417,11 @@ class TestFetchQuantityUtilAgg(SparkContextTest):
         self.assertEqual('2016-03-07 16:09:23',
                          utilized_cpu_logical_agg_metric.get(
                              'metric').get('value_meta')
-                         .get('firstrecord_timestamp'))
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-03-07 16:10:38',
                          utilized_cpu_logical_agg_metric.get(
                              'metric').get('value_meta')
-                         .get('lastrecord_timestamp'))
+                         .get('lastrecord_timestamp_string'))
 
     @mock.patch('monasca_transform.data_driven_specs.data_driven_specs_repo.'
                 'DataDrivenSpecsRepoFactory.get_data_driven_specs_repo')

@@ -80,11 +80,13 @@ class InsertComponent(Component):
 
         value_meta_part = {"record_count": instance_usage_dict.get(
                            "record_count", 0),
-                           "firstrecord_timestamp": instance_usage_dict.get(
-                           "firstrecord_timestamp",
+                           "firstrecord_timestamp_string":
+                           instance_usage_dict.get(
+                           "firstrecord_timestamp_string",
                                Component.DEFAULT_UNAVAILABLE_VALUE),
-                           "lastrecord_timestamp": instance_usage_dict.get(
-                           "lastrecord_timestamp",
+                           "lastrecord_timestamp_string":
+                           instance_usage_dict.get(
+                           "lastrecord_timestamp_string",
                                Component.DEFAULT_UNAVAILABLE_VALUE)}
 
         metric_part = {"name": instance_usage_dict.get(
@@ -117,9 +119,9 @@ class InsertComponent(Component):
                                "aggregated_metric_name":
                                    row.aggregated_metric_name,
                                "quantity": row.quantity,
-                               "firstrecord_timestamp":
+                               "firstrecord_timestamp_string":
                                    row.firstrecord_timestamp_string,
-                               "lastrecord_timestamp":
+                               "lastrecord_timestamp_string":
                                    row.lastrecord_timestamp_string,
                                "record_count": row.record_count,
                                "service_group": row.service_group,
@@ -153,9 +155,9 @@ class InsertComponent(Component):
                                "aggregated_metric_name":
                                    row.aggregated_metric_name,
                                "quantity": row.quantity,
-                               "firstrecord_timestamp":
+                               "firstrecord_timestamp_string":
                                    row.firstrecord_timestamp_string,
-                               "lastrecord_timestamp":
+                               "lastrecord_timestamp_string":
                                    row.lastrecord_timestamp_string,
                                "firstrecord_timestamp_unix":
                                    row.firstrecord_timestamp_unix,

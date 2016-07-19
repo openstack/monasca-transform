@@ -90,11 +90,13 @@ class TestPreHourlyProcessorAgg(SparkContextTest):
         self.assertEqual("2016-06-20 11:49:44",
                          mem_total_mb_agg_metric
                          .get("metric")
-                         .get('value_meta').get('lastrecord_timestamp'))
+                         .get('value_meta')
+                         .get('lastrecord_timestamp_string'))
         self.assertEqual("2016-06-20 11:24:59",
                          mem_total_mb_agg_metric
                          .get("metric")
-                         .get('value_meta').get('firstrecord_timestamp'))
+                         .get('value_meta')
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual(60.0,
                          mem_total_mb_agg_metric
                          .get("metric")
@@ -114,11 +116,13 @@ class TestPreHourlyProcessorAgg(SparkContextTest):
         self.assertEqual("2016-06-20 11:49:44",
                          mem_usable_mb_agg_metric
                          .get("metric")
-                         .get('value_meta').get('lastrecord_timestamp'))
+                         .get('value_meta')
+                         .get('lastrecord_timestamp_string'))
         self.assertEqual("2016-06-20 11:24:59",
                          mem_usable_mb_agg_metric
                          .get("metric")
-                         .get('value_meta').get('firstrecord_timestamp'))
+                         .get('value_meta')
+                         .get('firstrecord_timestamp_string'))
         self.assertEqual(60.0,
                          mem_usable_mb_agg_metric
                          .get("metric")
