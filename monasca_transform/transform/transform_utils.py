@@ -159,6 +159,12 @@ class TransformSpecsUtils(TransformUtils):
                                     StructField("usage_fetch_operation",
                                                 StringType(),
                                                 True),
+                                    StructField("filter_by_list",
+                                                ArrayType(MapType(StringType(),
+                                                                  StringType(),
+                                                                  True)
+                                                          )
+                                                ),
                                     StructField(
                                     "usage_fetch_util_quantity_event_type",
                                     StringType(),

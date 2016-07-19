@@ -90,7 +90,7 @@ class SparkTest(SparkContextTest):
             MockComponentManager.get_insert_cmpt_mgr()
 
         # Create an emulated set of Kafka messages (these were gathered
-        # by extracting Monasca messages from the Metrics queue on mini-mon).
+        # by extracting Monasca messages from the Metrics queue).
 
         # Create an RDD out of the mocked Monasca metrics
         with open(DataProvider.kafka_data_path) as f:
@@ -663,7 +663,7 @@ class SparkTest(SparkContextTest):
 
         self.assertTrue(disk_total_space_agg_metric is not None)
 
-        self.assertEqual(2574044.0,
+        self.assertEqual(1282121.0,
                          disk_total_space_agg_metric
                          .get('metric').get('value'))
         self.assertEqual('useast',
@@ -681,14 +681,14 @@ class SparkTest(SparkContextTest):
                          .get('metric').get('dimensions')
                          .get('aggregation_period'))
 
-        self.assertEqual(2.0,
+        self.assertEqual(1.0,
                          disk_total_space_agg_metric
                          .get('metric').get('value_meta').get('record_count'))
         self.assertEqual('2016-06-01 21:09:21',
                          disk_total_space_agg_metric
                          .get('metric').get('value_meta')
                          .get('firstrecord_timestamp'))
-        self.assertEqual('2016-06-01 21:09:24',
+        self.assertEqual('2016-06-01 21:09:21',
                          disk_total_space_agg_metric
                          .get('metric').get('value_meta')
                          .get('lastrecord_timestamp'))
@@ -701,7 +701,7 @@ class SparkTest(SparkContextTest):
 
         self.assertTrue(disk_total_used_agg_metric is not None)
 
-        self.assertEqual(34043.0,
+        self.assertEqual(2329.0,
                          disk_total_used_agg_metric
                          .get('metric').get('value'))
         self.assertEqual('useast',
@@ -719,14 +719,14 @@ class SparkTest(SparkContextTest):
                          .get('metric').get('dimensions')
                          .get('aggregation_period'))
 
-        self.assertEqual(2.0,
+        self.assertEqual(1.0,
                          disk_total_used_agg_metric
                          .get('metric').get('value_meta').get('record_count'))
         self.assertEqual('2016-06-01 21:09:21',
                          disk_total_used_agg_metric
                          .get('metric').get('value_meta')
                          .get('firstrecord_timestamp'))
-        self.assertEqual('2016-06-01 21:09:24',
+        self.assertEqual('2016-06-01 21:09:21',
                          disk_total_used_agg_metric
                          .get('metric').get('value_meta')
                          .get('lastrecord_timestamp'))
@@ -772,13 +772,14 @@ class SparkTest(SparkContextTest):
                          .get('metric').get('value_meta')
                          .get('lastrecord_timestamp'))
 
-        # Verify cpu.utilized_logical_cores_agg metrics for mini-mon host
+        # Verify cpu.utilized_logical_cores_agg metrics for
+        # test-cp1-comp0294-mgmt host
         cpu_util_cores_agg_metric = [
             value for value in metrics
             if value.get('metric').get('name') ==
             'cpu.utilized_logical_cores_agg' and
             value.get('metric').get('dimensions').get('host') ==
-            'mini-mon'][0]
+            'test-cp1-comp0294-mgmt'][0]
 
         self.assertTrue(cpu_util_cores_agg_metric is not None)
 
@@ -813,13 +814,14 @@ class SparkTest(SparkContextTest):
                          .get('metric').get('value_meta')
                          .get('lastrecord_timestamp'))
 
-        # Verify vm.cpu.utilization_perc_agg metrics for devstack host
+        # Verify vm.cpu.utilization_perc_agg metrics for
+        # test-cp1-comp0037-mgmt host
         cpu_util_cores_agg_metric = [
             value for value in metrics
             if value.get('metric').get('name') ==
             'cpu.utilized_logical_cores_agg' and
             value.get('metric').get('dimensions').get('host') ==
-            'devstack'][0]
+            'test-cp1-comp0037-mgmt'][0]
 
         self.assertTrue(cpu_util_cores_agg_metric is not None)
 
