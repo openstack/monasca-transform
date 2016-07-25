@@ -40,6 +40,9 @@ class TestConfigInitializer(unittest.TestCase):
                          cfg.CONF.database.username)
         self.assertEqual('test_database_password',
                          cfg.CONF.database.password)
+        self.assertEqual('test_ca_file_path',
+                         cfg.CONF.database.ca_file)
+        self.assertTrue(cfg.CONF.database.use_ssl)
 
     def test_use_default_config_file(self):
 
@@ -64,3 +67,5 @@ class TestConfigInitializer(unittest.TestCase):
                          cfg.CONF.database.username)
         self.assertEqual('password',
                          cfg.CONF.database.password)
+        self.assertIsNone(cfg.CONF.database.ca_file)
+        self.assertFalse(cfg.CONF.database.use_ssl)

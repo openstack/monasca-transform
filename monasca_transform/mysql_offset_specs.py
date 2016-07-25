@@ -18,6 +18,7 @@ from sqlalchemy import desc
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import sessionmaker
 
+from monasca_transform.db.db_utils import DbUtil
 from monasca_transform.offset_specs import OffsetSpec
 from monasca_transform.offset_specs import OffsetSpecs
 
@@ -41,16 +42,9 @@ class MySQLOffsetSpec(Base, OffsetSpec):
 class MySQLOffsetSpecs(OffsetSpecs):
 
     def __init__(self):
-        database_name = cfg.CONF.database.database_name
-        database_server = cfg.CONF.database.host
-        database_uid = cfg.CONF.database.username
-        database_pwd = cfg.CONF.database.password
 
-        db = create_engine('mysql+pymysql://%s:%s@%s/%s' % (
-            database_uid,
-            database_pwd,
-            database_server,
-            database_name), isolation_level="READ UNCOMMITTED")
+        db = create_engine(DbUtil.get_python_db_connection_string(),
+                           isolation_level="READ UNCOMMITTED")
 
         db.echo = True
         # reflect the tables

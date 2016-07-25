@@ -13,35 +13,18 @@
 # under the License.
 
 import json
-from oslo_config import cfg
 
 from pyspark.sql import DataFrameReader
 
 from monasca_transform.data_driven_specs.data_driven_specs_repo \
     import DataDrivenSpecsRepo
+from monasca_transform.db.db_utils import DbUtil
 
 
 class MySQLDataDrivenSpecsRepo(DataDrivenSpecsRepo):
 
     transform_specs_data_frame = None
     pre_transform_specs_data_frame = None
-
-    def __init__(self):
-        self.database_impl = cfg.CONF.database.server_type
-        self.database_name = cfg.CONF.database.database_name
-        self.database_server = cfg.CONF.database.host
-        self.database_uid = cfg.CONF.database.username
-        self.database_pwd = cfg.CONF.database.password
-
-    def get_connection_string(self):
-        # FIXME I don't like this, find a better way of managing the conn
-        return 'jdbc:%s://%s/%s?user=%s&password=%s' % (
-            self.database_impl,
-            self.database_server,
-            self.database_name,
-            self.database_uid,
-            self.database_pwd
-        )
 
     def get_data_driven_specs(self, sql_context=None,
                               data_driven_spec_type=None):
@@ -65,7 +48,7 @@ class MySQLDataDrivenSpecsRepo(DataDrivenSpecsRepo):
 
         data_frame_reader = DataFrameReader(sql_context)
         transform_specs_data_frame = data_frame_reader.jdbc(
-            self.get_connection_string(),
+            DbUtil.get_java_db_connection_string(),
             'transform_specs'
         )
         data = []
@@ -81,7 +64,7 @@ class MySQLDataDrivenSpecsRepo(DataDrivenSpecsRepo):
 
         data_frame_reader = DataFrameReader(sql_context)
         pre_transform_specs_data_frame = data_frame_reader.jdbc(
-            self.get_connection_string(),
+            DbUtil.get_java_db_connection_string(),
             'pre_transform_specs'
         )
         data = []

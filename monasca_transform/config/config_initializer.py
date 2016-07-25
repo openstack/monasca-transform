@@ -60,7 +60,9 @@ class ConfigInitializer(object):
             cfg.StrOpt('host'),
             cfg.StrOpt('database_name'),
             cfg.StrOpt('username'),
-            cfg.StrOpt('password')
+            cfg.StrOpt('password'),
+            cfg.BoolOpt('use_ssl', default=False),
+            cfg.StrOpt('ca_file')
         ]
         mysql_group = cfg.OptGroup(name='database', title='database')
         cfg.CONF.register_group(mysql_group)

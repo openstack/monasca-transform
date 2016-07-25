@@ -4,3 +4,4 @@ flake8>=2.2.4
 nose==1.3.0
 mock>=1.0.1
 tox
+fixtures==1.4.0
