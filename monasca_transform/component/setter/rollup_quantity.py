@@ -83,7 +83,7 @@ class RollupQuantity(SetterComponent):
                 row, "min(firstrecord_timestamp_unix)",
                 Component.DEFAULT_UNAVAILABLE_VALUE)
             earliest_record_timestamp_string = \
-                datetime.datetime.fromtimestamp(
+                datetime.datetime.utcfromtimestamp(
                     earliest_record_timestamp_unix).strftime(
                     '%Y-%m-%d %H:%M:%S')
 
@@ -92,7 +92,7 @@ class RollupQuantity(SetterComponent):
                 row, "max(lastrecord_timestamp_unix)",
                 Component.DEFAULT_UNAVAILABLE_VALUE)
             latest_record_timestamp_string = \
-                datetime.datetime.fromtimestamp(
+                datetime.datetime.utcfromtimestamp(
                     latest_record_timestamp_unix).strftime('%Y-%m-%d %H:%M:%S')
 
             # record count
