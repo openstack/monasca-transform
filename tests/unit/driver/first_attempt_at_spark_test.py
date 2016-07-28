@@ -987,7 +987,7 @@ class SparkTest(SparkContextTest):
             'swiftlm.diskusage.val.size_agg' and
             value.get('metric').get('dimensions').get('host') == 'all'][0]
 
-        self.assertEqual(5291.0,
+        self.assertEqual(3363.4285714285716,
                          used_swift_agg_metric.get('metric').get('value'))
         self.assertEqual('useast',
                          used_swift_agg_metric.get('meta').get('region'))
@@ -1016,7 +1016,7 @@ class SparkTest(SparkContextTest):
             'swiftlm.diskusage.val.size_agg' and
             value.get('metric').get('dimensions').get('host') == 'a'][0]
 
-        self.assertEqual(2848.0,
+        self.assertEqual(1890.857142857143,
                          used_swift_agg_metric.get('metric').get('value'))
         self.assertEqual('useast',
                          used_swift_agg_metric.get('meta').get('region'))
@@ -1045,7 +1045,7 @@ class SparkTest(SparkContextTest):
             'swiftlm.diskusage.val.size_agg' and
             value.get('metric').get('dimensions').get('host') == 'b'][0]
 
-        self.assertEqual(2443.0,
+        self.assertEqual(1472.5714285714284,
                          used_swift_agg_metric.get('metric').get('value'))
         self.assertEqual('useast',
                          used_swift_agg_metric.get('meta').get('region'))
@@ -1074,7 +1074,7 @@ class SparkTest(SparkContextTest):
             'swiftlm.diskusage.val.avail_agg' and
             value.get('metric').get('dimensions').get('host') == 'all'][0]
 
-        self.assertEqual(5291.0,
+        self.assertEqual(3363.4285714285716,
                          avail_swift_agg_metric.get('metric').get('value'))
         self.assertEqual('useast',
                          avail_swift_agg_metric.get('meta').get('region'))
@@ -1103,7 +1103,7 @@ class SparkTest(SparkContextTest):
             'swiftlm.diskusage.val.avail_agg' and
             value.get('metric').get('dimensions').get('host') == 'a'][0]
 
-        self.assertEqual(2848.0,
+        self.assertEqual(1890.857142857143,
                          avail_swift_agg_metric.get('metric').get('value'))
         self.assertEqual('useast',
                          avail_swift_agg_metric.get('meta').get('region'))
@@ -1132,7 +1132,7 @@ class SparkTest(SparkContextTest):
             'swiftlm.diskusage.val.avail_agg' and
             value.get('metric').get('dimensions').get('host') == 'b'][0]
 
-        self.assertEqual(2443.0,
+        self.assertEqual(1472.5714285714284,
                          avail_swift_agg_metric.get('metric').get('value'))
         self.assertEqual('useast',
                          avail_swift_agg_metric.get('meta').get('region'))
@@ -1160,7 +1160,7 @@ class SparkTest(SparkContextTest):
             if value.get('metric').get('name') ==
             'swiftlm.diskusage.rate_agg'][0]
 
-        self.assertEqual(15.650273224043715,
+        self.assertEqual(23.610017325563085,
                          diskusage_rate_agg_metric.get('metric').get('value'))
         self.assertEqual('useast',
                          diskusage_rate_agg_metric.get('meta').get('region'))

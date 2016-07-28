@@ -361,8 +361,7 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
         self.check_list_field_for_row(
             row=swiftlm_diskusage_all_row,
             field_name='required_raw_fields_list',
-            expected_list=['creation_time', 'hostname', 'mount',
-                           'device'],
+            expected_list=['creation_time', 'hostname', 'mount'],
         )
         self.check_dict_field_for_row(
             row=swiftlm_diskusage_all_row,
@@ -390,8 +389,7 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
         self.check_list_field_for_row(
             row=swiftlm_diskavail_all_row,
             field_name='required_raw_fields_list',
-            expected_list=['creation_time', 'hostname', 'mount',
-                           'device'],
+            expected_list=['creation_time', 'hostname', 'mount'],
         )
         self.check_dict_field_for_row(
             row=swiftlm_diskavail_all_row,
