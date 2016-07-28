@@ -16,9 +16,7 @@ from stevedore.extension import Extension
 from stevedore.extension import ExtensionManager
 
 
-from monasca_transform.component.insert.dummy_insert import DummyInsert
 from monasca_transform.component.insert.prepare_data import PrepareData
-
 from monasca_transform.component.setter.rollup_quantity \
     import RollupQuantity
 from monasca_transform.component.setter.set_aggregated_metric_name \
@@ -31,6 +29,9 @@ from monasca_transform.component.usage.fetch_quantity \
     import FetchQuantity
 from monasca_transform.component.usage.fetch_quantity_util \
     import FetchQuantityUtil
+from tests.unit.component.insert.dummy_insert import DummyInsert
+from tests.unit.component.insert.dummy_insert_pre_hourly \
+    import DummyInsertPreHourly
 
 
 class MockComponentManager(object):
@@ -88,13 +89,33 @@ class MockComponentManager(object):
             PrepareData(),
             None),
             Extension('insert_data',
-                      'monasca_transform.component.insert.dummy_insert:'
+                      'tests.unit.component.insert.dummy_insert:'
                       'DummyInsert',
                       DummyInsert(),
                       None),
             Extension('insert_data_pre_hourly',
-                      'monasca_transform.component.insert.dummy_insert:'
+                      'tests.unit.component.insert.dummy_insert:'
                       'DummyInsert',
                       DummyInsert(),
+                      None),
+        ])
+
+    @staticmethod
+    def get_insert_pre_hourly_cmpt_mgr():
+        return ExtensionManager.make_test_instance([Extension(
+            'prepare_data',
+            'monasca_transform.component.insert.prepare_data:PrepareData',
+            PrepareData(),
+            None),
+            Extension('insert_data',
+                      'tests.unit.component.insert.dummy_insert:'
+                      'DummyInsert',
+                      DummyInsert(),
+                      None),
+            Extension('insert_data_pre_hourly',
+                      'tests.unit.component.insert.'
+                      'dummy_insert_pre_hourly:'
+                      'DummyInsertPreHourly',
+                      DummyInsertPreHourly(),
                       None),
         ])
