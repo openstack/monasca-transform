@@ -114,7 +114,7 @@ class SparkTest(SparkContextTest):
         result = simple_count_transform(rdd_monasca_with_offsets)
 
         # Verify it worked
-        self.assertEqual(result, 363)
+        self.assertEqual(result, 386)
 
         # Call the primary method in mon_metrics_kafka
         MonMetricsKafkaProcessor.rdd_to_recordstore(
@@ -1185,6 +1185,88 @@ class SparkTest(SparkContextTest):
         self.assertEqual('2016-06-10 20:27:01',
                          diskusage_rate_agg_metric.get('metric')
                          .get('value_meta')
+                         .get('lastrecord_timestamp_string'))
+
+        # Verify nova.vm.cpu.total_allocated_agg metrics
+        nova_vm_cpu_total_alloc_agg_metric = [
+            value for value in metrics
+            if value.get('metric').get('name') ==
+            'nova.vm.cpu.total_allocated_agg'][0]
+
+        self.assertTrue(nova_vm_cpu_total_alloc_agg_metric is not None)
+
+        self.assertEqual(8.0,
+                         nova_vm_cpu_total_alloc_agg_metric
+                         .get('metric').get('value'))
+        self.assertEqual('useast',
+                         nova_vm_cpu_total_alloc_agg_metric
+                         .get('meta').get('region'))
+
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+                         nova_vm_cpu_total_alloc_agg_metric
+                         .get('meta').get('tenantId'))
+        self.assertEqual('all',
+                         nova_vm_cpu_total_alloc_agg_metric
+                         .get('metric').get('dimensions').get('host'))
+        self.assertEqual('all',
+                         nova_vm_cpu_total_alloc_agg_metric.get('metric')
+                         .get('dimensions').get('project_id'))
+        self.assertEqual('hourly',
+                         nova_vm_cpu_total_alloc_agg_metric
+                         .get('metric').get('dimensions')
+                         .get('aggregation_period'))
+
+        self.assertEqual(14.0,
+                         nova_vm_cpu_total_alloc_agg_metric
+                         .get('metric').get('value_meta').get('record_count'))
+        self.assertEqual('2016-01-20 16:40:00',
+                         nova_vm_cpu_total_alloc_agg_metric
+                         .get('metric').get('value_meta')
+                         .get('firstrecord_timestamp_string'))
+        self.assertEqual('2016-01-20 16:40:46',
+                         nova_vm_cpu_total_alloc_agg_metric
+                         .get('metric').get('value_meta')
+                         .get('lastrecord_timestamp_string'))
+
+        # Verify nova.vm.mem.total_allocated_mb_agg metrics
+        nova_vm_mem_total_alloc_agg_metric = [
+            value for value in metrics
+            if value.get('metric').get('name') ==
+            'nova.vm.mem.total_allocated_mb_agg'][0]
+
+        self.assertTrue(nova_vm_mem_total_alloc_agg_metric is not None)
+
+        self.assertEqual(9728.0,
+                         nova_vm_mem_total_alloc_agg_metric
+                         .get('metric').get('value'))
+        self.assertEqual('useast',
+                         nova_vm_mem_total_alloc_agg_metric
+                         .get('meta').get('region'))
+
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+                         nova_vm_mem_total_alloc_agg_metric
+                         .get('meta').get('tenantId'))
+        self.assertEqual('all',
+                         nova_vm_mem_total_alloc_agg_metric
+                         .get('metric').get('dimensions').get('host'))
+        self.assertEqual('all',
+                         nova_vm_mem_total_alloc_agg_metric.get('metric')
+                         .get('dimensions').get('project_id'))
+        self.assertEqual('hourly',
+                         nova_vm_mem_total_alloc_agg_metric
+                         .get('metric').get('dimensions')
+                         .get('aggregation_period'))
+
+        self.assertEqual(9.0,
+                         nova_vm_mem_total_alloc_agg_metric
+                         .get('metric').get('value_meta').get('record_count'))
+        self.assertEqual('2016-01-20 16:40:00',
+                         nova_vm_mem_total_alloc_agg_metric
+                         .get('metric').get('value_meta')
+                         .get('firstrecord_timestamp_string'))
+        self.assertEqual('2016-01-20 16:40:46',
+                         nova_vm_mem_total_alloc_agg_metric
+                         .get('metric').get('value_meta')
                          .get('lastrecord_timestamp_string'))
 
 

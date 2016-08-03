@@ -52,6 +52,14 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
             expected_agg_metric_name='disk.total_used_space_mb_agg',
             transform_specs_dataframe=transform_specs_data_frame)
         self.check_metric(
+            metric_id='nova_vm_cpu_total_all',
+            expected_agg_metric_name='nova.vm.cpu.total_allocated_agg',
+            transform_specs_dataframe=transform_specs_data_frame)
+        self.check_metric(
+            metric_id='nova_vm_mem_total_all',
+            expected_agg_metric_name='nova.vm.mem.total_allocated_mb_agg',
+            transform_specs_dataframe=transform_specs_data_frame)
+        self.check_metric(
             metric_id='vcpus_all',
             expected_agg_metric_name='vcpus_agg',
             transform_specs_dataframe=transform_specs_data_frame)
@@ -111,7 +119,8 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
                      u'mem.total_mb',
                      u'disk.total_used_space_mb', u'disk.total_space_mb',
                      u'cpu.total_logical_cores',
-                     u'cpu.idle_perc', u'vcpus',
+                     u'cpu.idle_perc', u'nova.vm.cpu.total_allocated',
+                     u'nova.vm.mem.total_allocated_mb', u'vcpus',
                      u'vm.mem.total_mb', u'vm.mem.used_mb',
                      u'nova.vm.disk.total_allocated_gb',
                      u'vm.disk.allocation', u'vm.cpu.utilization_perc',
@@ -400,6 +409,62 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
                 "set_default_region_to": "W"})
         self.check_value_field_for_row(
             row=swiftlm_diskavail_all_row,
+            field_name='service_id',
+            expected_value='host_metrics'
+        )
+
+        # nova.vm.cpu.total_allocated
+        event_type = 'nova.vm.cpu.total_allocated'
+        nova_vm_cpu_total_all_row = self.get_row_for_event_type(
+            event_type=event_type,
+            pre_transform_specs_data_frame=pre_transform_specs_data_frame)
+        self.check_list_field_for_row(
+            row=nova_vm_cpu_total_all_row,
+            field_name='metric_id_list',
+            expected_list=['nova_vm_cpu_total_all']
+        )
+        self.check_list_field_for_row(
+            row=nova_vm_cpu_total_all_row,
+            field_name='required_raw_fields_list',
+            expected_list=['creation_time'],
+        )
+        self.check_dict_field_for_row(
+            row=nova_vm_cpu_total_all_row,
+            field_name='event_processing_params',
+            expected_dict={
+                "set_default_zone_to": "1",
+                "set_default_geolocation_to": "1",
+                "set_default_region_to": "W"})
+        self.check_value_field_for_row(
+            row=nova_vm_cpu_total_all_row,
+            field_name='service_id',
+            expected_value='host_metrics'
+        )
+
+        # nova.vm.mem.total_allocated_mb
+        event_type = 'nova.vm.mem.total_allocated_mb'
+        nova_vm_mem_total_all_row = self.get_row_for_event_type(
+            event_type=event_type,
+            pre_transform_specs_data_frame=pre_transform_specs_data_frame)
+        self.check_list_field_for_row(
+            row=nova_vm_mem_total_all_row,
+            field_name='metric_id_list',
+            expected_list=['nova_vm_mem_total_all']
+        )
+        self.check_list_field_for_row(
+            row=nova_vm_mem_total_all_row,
+            field_name='required_raw_fields_list',
+            expected_list=['creation_time'],
+        )
+        self.check_dict_field_for_row(
+            row=nova_vm_mem_total_all_row,
+            field_name='event_processing_params',
+            expected_dict={
+                "set_default_zone_to": "1",
+                "set_default_geolocation_to": "1",
+                "set_default_region_to": "W"})
+        self.check_value_field_for_row(
+            row=nova_vm_mem_total_all_row,
             field_name='service_id',
             expected_value='host_metrics'
         )
