@@ -141,7 +141,16 @@ class CalculateRate(UsageComponent):
                                    {"event_type":
                                     latest_dict.get("event_type",
                                                     Component.
-                                                    DEFAULT_UNAVAILABLE_VALUE)}
+                                                    DEFAULT_UNAVAILABLE_VALUE),
+                                    "oldest_timestamp_string":
+                                    oldest_dict[
+                                        "firstrecord_timestamp_string"],
+                                    "oldest_quantity": oldest_quantity,
+                                    "latest_timestamp_string":
+                                        latest_dict[
+                                            "lastrecord_timestamp_string"],
+                                    "latest_quantity": latest_quantity
+                                    }
                                }
 
         instance_usage_data_json = json.dumps(instance_usage_dict)

@@ -23,8 +23,9 @@ import logging
 from monasca_common.simport import simport
 from oslo_config import cfg
 
-
 from monasca_transform.component.insert.kafka_insert import KafkaInsert
+from monasca_transform.component.setter.pre_hourly_calculate_rate import \
+    PreHourlyCalculateRate
 from monasca_transform.component.setter.rollup_quantity import RollupQuantity
 from monasca_transform.data_driven_specs.data_driven_specs_repo \
     import DataDrivenSpecsRepo
@@ -166,14 +167,12 @@ class PreHourlyProcessor(Processor):
         # A+Guide+To+The+Kafka+Protocol#
         # AGuideToTheKafkaProtocol-OffsetRequest
         GET_LATEST_OFFSETS = -1
-        latest_dict = PreHourlyProcessor.\
-            _get_offsets_from_kafka(brokers, topic,
-                                    GET_LATEST_OFFSETS)
+        latest_dict = PreHourlyProcessor._get_offsets_from_kafka(
+            brokers, topic, GET_LATEST_OFFSETS)
 
         GET_EARLIEST_OFFSETS = -2
-        earliest_dict = PreHourlyProcessor.\
-            _get_offsets_from_kafka(brokers, topic,
-                                    GET_EARLIEST_OFFSETS)
+        earliest_dict = PreHourlyProcessor._get_offsets_from_kafka(
+            brokers, topic, GET_EARLIEST_OFFSETS)
 
         for item in latest_dict:
             until_offset = latest_dict[item].offsets[0]
@@ -200,17 +199,15 @@ class PreHourlyProcessor(Processor):
         # A+Guide+To+The+Kafka+Protocol#
         # AGuideToTheKafkaProtocol-OffsetRequest
         GET_LATEST_OFFSETS = -1
-        latest_dict = PreHourlyProcessor.\
-            _get_offsets_from_kafka(brokers, topic,
-                                    GET_LATEST_OFFSETS)
+        latest_dict = PreHourlyProcessor._get_offsets_from_kafka(
+            brokers, topic, GET_LATEST_OFFSETS)
 
         GET_EARLIEST_OFFSETS = -2
-        earliest_dict = PreHourlyProcessor.\
-            _get_offsets_from_kafka(brokers, topic,
-                                    GET_EARLIEST_OFFSETS)
+        earliest_dict = PreHourlyProcessor._get_offsets_from_kafka(
+            brokers, topic, GET_EARLIEST_OFFSETS)
 
-        saved_dict = PreHourlyProcessor.\
-            _parse_saved_offsets(app_name, topic, saved_offset_spec)
+        saved_dict = PreHourlyProcessor._parse_saved_offsets(
+            app_name, topic, saved_offset_spec)
 
         for item in latest_dict:
             # saved spec
@@ -305,10 +302,8 @@ class PreHourlyProcessor(Processor):
         # convert usage data rdd to instance usage df
         #
         sqlc = SQLContext.getOrCreate(pre_hourly_rdd.context)
-        instance_usage_df = \
-            InstanceUsageUtils.create_df_from_json_rdd(
-                sqlc,
-                instance_usage_rdd)
+        instance_usage_df = InstanceUsageUtils.create_df_from_json_rdd(
+            sqlc, instance_usage_rdd)
 
         return instance_usage_df
 
@@ -323,9 +318,9 @@ class PreHourlyProcessor(Processor):
         #
         # do a rollup operation
         #
-        agg_params = transform_spec_df.select(
-            "aggregation_params_map.pre_hourly_group_by_list")\
-            .collect()[0].asDict()
+        agg_params = (transform_spec_df.select(
+            "aggregation_params_map.pre_hourly_group_by_list")
+            .collect()[0].asDict())
         pre_hourly_group_by_list = agg_params["pre_hourly_group_by_list"]
 
         if (len(pre_hourly_group_by_list) == 1 and
@@ -343,16 +338,19 @@ class PreHourlyProcessor(Processor):
         aggregation_period = agg_params["aggregation_period"]
 
         # get 2stage operation
-        agg_params = transform_spec_df.select(
-            "aggregation_params_map.pre_hourly_operation")\
-            .collect()[0].asDict()
+        agg_params = (transform_spec_df.select(
+            "aggregation_params_map.pre_hourly_operation")
+            .collect()[0].asDict())
         pre_hourly_operation = agg_params["pre_hourly_operation"]
 
-        instance_usage_df = \
-            RollupQuantity.do_rollup(pre_hourly_group_by_list,
-                                     aggregation_period,
-                                     pre_hourly_operation,
-                                     instance_usage_df)
+        if pre_hourly_operation != "rate":
+            instance_usage_df = RollupQuantity.do_rollup(
+                pre_hourly_group_by_list, aggregation_period,
+                pre_hourly_operation, instance_usage_df)
+        else:
+            instance_usage_df = PreHourlyCalculateRate.do_rate_calculation(
+                instance_usage_df)
+
         # insert metrics
         instance_usage_df = KafkaInsert.insert(transform_context,
                                                instance_usage_df)
@@ -367,11 +365,12 @@ class PreHourlyProcessor(Processor):
         #
         metric_ids_df = instance_usage_df.select(
             "processing_meta.metric_id").distinct()
+
         metric_ids_to_process = [row.metric_id
                                  for row in metric_ids_df.collect()]
 
-        data_driven_specs_repo = DataDrivenSpecsRepoFactory.\
-            get_data_driven_specs_repo()
+        data_driven_specs_repo = (
+            DataDrivenSpecsRepoFactory.get_data_driven_specs_repo())
         sqlc = SQLContext.getOrCreate(instance_usage_df.rdd.context)
         transform_specs_df = data_driven_specs_repo.get_data_driven_specs(
             sql_context=sqlc,
@@ -385,9 +384,8 @@ class PreHourlyProcessor(Processor):
                 instance_usage_df.processing_meta.metric_id == metric_id)
 
             # set transform_spec_df in TransformContext
-            transform_context = \
-                TransformContextUtils.get_context(
-                    transform_spec_df_info=transform_spec_df)
+            transform_context = TransformContextUtils.get_context(
+                transform_spec_df_info=transform_spec_df)
 
             PreHourlyProcessor.process_instance_usage(
                 transform_context, source_instance_usage_df)
@@ -399,9 +397,9 @@ class PreHourlyProcessor(Processor):
            offsets available
            """
 
-        offset_range_list = \
+        offset_range_list = (
             PreHourlyProcessor.get_processing_offset_range_list(
-                processing_time)
+                processing_time))
 
         # get pre hourly data
         pre_hourly_rdd = PreHourlyProcessor.fetch_pre_hourly_data(
@@ -415,17 +413,17 @@ class PreHourlyProcessor(Processor):
         # cache instance usage df
         #
         if cfg.CONF.pre_hourly_processor.enable_instance_usage_df_cache:
-            storage_level_prop = \
-                cfg.CONF.pre_hourly_processor\
-                .instance_usage_df_cache_storage_level
+            storage_level_prop = (
+                cfg.CONF.pre_hourly_processor
+                .instance_usage_df_cache_storage_level)
             try:
                 storage_level = StorageUtils.get_storage_level(
                     storage_level_prop)
             except InvalidCacheStorageLevelException as storage_error:
-                storage_error.value += \
-                    " (as specified in " \
-                    "pre_hourly_processor.instance_usage_df" \
-                    "_cache_storage_level)"
+                storage_error.value += (" (as specified in "
+                                        "pre_hourly_processor"
+                                        ".instance_usage_df_cache"
+                                        "_storage_level)")
                 raise
             instance_usage_df.persist(storage_level)
 

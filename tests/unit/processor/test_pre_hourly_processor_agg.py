@@ -14,6 +14,7 @@
 import mock
 import unittest
 
+from oslo_config import cfg
 from pyspark.streaming.kafka import OffsetRange
 
 from monasca_transform.config.config_initializer import ConfigInitializer
@@ -73,7 +74,7 @@ class TestPreHourlyProcessorAgg(SparkContextTest):
         metrics = DummyAdapter.adapter_impl.metric_list
 
         # Verify count of instance usage data
-        self.assertEqual(result, 6)
+        self.assertEqual(result, 9)
 
         # check aggregation result
         mem_total_mb_agg_metric = [
@@ -127,6 +128,44 @@ class TestPreHourlyProcessorAgg(SparkContextTest):
                          mem_usable_mb_agg_metric
                          .get("metric")
                          .get('value_meta').get('record_count'))
+
+        # check aggregation result for swiftlm.diskusage.rate_agg
+        swift_disk_rate_agg_metric = [
+            value for value in metrics
+            if value.get('metric').get('name') ==
+            'swiftlm.diskusage.rate_agg'][0]
+        self.assertTrue(swift_disk_rate_agg_metric is not None)
+        self.assertEqual(59.36612021857923,
+                         swift_disk_rate_agg_metric
+                         .get('metric').get('value'))
+        self.assertEqual('2016-06-10 20:27:02',
+                         swift_disk_rate_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('lastrecord_timestamp_string'))
+        self.assertEqual('2016-06-10 20:27:01',
+                         swift_disk_rate_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('firstrecord_timestamp_string'))
+        self.assertEqual(68.0,
+                         swift_disk_rate_agg_metric
+                         .get('metric')
+                         .get('value_meta').get('record_count'))
+        self.assertEqual('useast',
+                         swift_disk_rate_agg_metric.get('meta').get('region'))
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+                         swift_disk_rate_agg_metric.get('meta')
+                         .get('tenantId'))
+        self.assertEqual('all',
+                         swift_disk_rate_agg_metric.get('metric')
+                         .get('dimensions').get('host'))
+        self.assertEqual('all',
+                         swift_disk_rate_agg_metric.get('metric')
+                         .get('dimensions').get('project_id'))
+        self.assertEqual('hourly',
+                         swift_disk_rate_agg_metric.get('metric')
+                         .get('dimensions').get('aggregation_period'))
 
     def simple_count_transform(self, rdd):
         return rdd.count()
