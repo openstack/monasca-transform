@@ -33,6 +33,11 @@ class SetAggregatedMetricName(SetterComponent):
 
         agg_params = instance_usage_agg_params.agg_params
 
+        try:
+            processing_meta = row.processing_meta
+        except AttributeError:
+            processing_meta = {}
+
         instance_usage_dict = {"tenant_id": row.tenant_id,
                                "user_id": row.user_id,
                                "resource_uuid": row.resource_uuid,
@@ -58,7 +63,8 @@ class SetAggregatedMetricName(SetterComponent):
                                "usage_date": row.usage_date,
                                "usage_hour": row.usage_hour,
                                "usage_minute": row.usage_minute,
-                               "aggregation_period": row.aggregation_period}
+                               "aggregation_period": row.aggregation_period,
+                               "processing_meta": processing_meta}
 
         instance_usage_data_json = json.dumps(instance_usage_dict)
 

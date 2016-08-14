@@ -31,6 +31,10 @@ from monasca_common.simport import simport
 from oslo_config import cfg
 import time
 
+from monasca_transform.component.usage.fetch_quantity import \
+    FetchQuantityException
+from monasca_transform.component.usage.fetch_quantity_util import \
+    FetchQuantityUtilException
 from monasca_transform.config.config_initializer import ConfigInitializer
 from monasca_transform.transform.builder.generic_transform_builder \
     import GenericTransformBuilder
@@ -278,8 +282,17 @@ class MonMetricsKafkaProcessor(object):
                     transform_context_info=transform_context,
                     transform_spec_df_info=transform_spec_df)
 
-            MonMetricsKafkaProcessor.process_metric(
-                transform_context, source_record_store_df)
+            try:
+                MonMetricsKafkaProcessor.process_metric(
+                    transform_context, source_record_store_df)
+            except FetchQuantityException:
+                raise
+            except FetchQuantityUtilException:
+                raise
+            except Exception as e:
+                MonMetricsKafkaProcessor.log_debug(
+                    "Exception raised in metric processing for metric: " +
+                    str(metric_id) + ".  Error: " + str(e))
 
     @staticmethod
     def rdd_to_recordstore(rdd_transform_context_rdd):

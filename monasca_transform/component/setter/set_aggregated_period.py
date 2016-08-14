@@ -33,6 +33,11 @@ class SetAggregatedPeriod(SetterComponent):
 
         agg_params = instance_usage_agg_params.agg_params
 
+        try:
+            processing_meta = row.processing_meta
+        except AttributeError:
+            processing_meta = {}
+
         instance_usage_dict = {"tenant_id": row.tenant_id,
                                "user_id": row.user_id,
                                "resource_uuid": row.resource_uuid,
@@ -59,7 +64,8 @@ class SetAggregatedPeriod(SetterComponent):
                                "usage_hour": row.usage_hour,
                                "usage_minute": row.usage_minute,
                                "aggregation_period":
-                                   agg_params["aggregation_period"]}
+                                   agg_params["aggregation_period"],
+                               "processing_meta": processing_meta}
 
         instance_usage_data_json = json.dumps(instance_usage_dict)
 

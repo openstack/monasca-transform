@@ -22,29 +22,47 @@ from monasca_transform.transform.transform_utils import InstanceUsageUtils
 import json
 
 
+class PreHourlyCalculateRateException(Exception):
+    """Exception thrown when doing pre-hourly rate calculations
+    Attributes:
+    value: string representing the error
+    """
+
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
+
+
 class PreHourlyCalculateRate(SetterComponent):
 
     @staticmethod
     def _calculate_rate(instance_usage_df):
         instance_usage_data_json_list = []
 
-        sorted_oldest_ascending_df = instance_usage_df.sort(
-            functions.asc("processing_meta.oldest_timestamp_string"))
+        try:
+            sorted_oldest_ascending_df = instance_usage_df.sort(
+                functions.asc("processing_meta.oldest_timestamp_string"))
 
-        sorted_latest_descending_df = instance_usage_df.sort(
-            functions.desc("processing_meta.latest_timestamp_string"))
+            sorted_latest_descending_df = instance_usage_df.sort(
+                functions.desc("processing_meta.latest_timestamp_string"))
 
-        # Calculate the rate change by percentage
-        oldest_dict = sorted_oldest_ascending_df.collect()[0].asDict()
-        oldest_quantity = float(oldest_dict[
-                                "processing_meta"]['oldest_quantity'])
+            # Calculate the rate change by percentage
+            oldest_dict = sorted_oldest_ascending_df.collect()[0].asDict()
+            oldest_quantity = float(oldest_dict[
+                                    "processing_meta"]["oldest_quantity"])
 
-        latest_dict = sorted_latest_descending_df.collect()[0].asDict()
-        latest_quantity = float(latest_dict[
-                                "processing_meta"]['latest_quantity'])
+            latest_dict = sorted_latest_descending_df.collect()[0].asDict()
+            latest_quantity = float(latest_dict[
+                                    "processing_meta"]["latest_quantity"])
 
-        rate_percentage = 100 * (
-            (latest_quantity - oldest_quantity) / oldest_quantity)
+            rate_percentage = 100 * (
+                (latest_quantity - oldest_quantity) / oldest_quantity)
+        except Exception as e:
+            raise PreHourlyCalculateRateException(
+                "Exception occurred in pre-hourly rate calculation. Error: %s"
+                % str(e))
 
         #  create a new instance usage dict
         instance_usage_dict = {"tenant_id":

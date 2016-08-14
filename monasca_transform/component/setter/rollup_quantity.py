@@ -104,6 +104,11 @@ class RollupQuantity(SetterComponent):
             select_quant_str = "".join((setter_rollup_operation, "(quantity)"))
             quantity = getattr(row, select_quant_str, 0.0)
 
+            try:
+                processing_meta = row.processing_meta
+            except AttributeError:
+                processing_meta = {}
+
             # create a new instance usage dict
             instance_usage_dict = {"tenant_id": getattr(row, "tenant_id",
                                                         "all"),
@@ -147,7 +152,8 @@ class RollupQuantity(SetterComponent):
                                        getattr(row, "usage_minute", "all"),
                                    "aggregation_period":
                                        getattr(row, "aggregation_period",
-                                               "all")
+                                               "all"),
+                                   "processing_meta": processing_meta
                                    }
 
             instance_usage_data_json = json.dumps(instance_usage_dict)

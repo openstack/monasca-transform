@@ -87,6 +87,10 @@ class InsertComponent(Component):
                            "lastrecord_timestamp_string":
                            instance_usage_dict.get(
                            "lastrecord_timestamp_string",
+                               Component.DEFAULT_UNAVAILABLE_VALUE),
+                           "processing_meta":
+                           instance_usage_dict.get(
+                           "processing_meta",
                                Component.DEFAULT_UNAVAILABLE_VALUE)}
 
         metric_part = {"name": instance_usage_dict.get(
@@ -108,6 +112,11 @@ class InsertComponent(Component):
         """write data to kafka. extracts and formats
         metric data and write s the data to kafka
         """
+        try:
+            processing_meta = row.processing_meta
+        except AttributeError:
+            processing_meta = {}
+
         instance_usage_dict = {"tenant_id": row.tenant_id,
                                "user_id": row.user_id,
                                "resource_uuid": row.resource_uuid,
@@ -130,7 +139,8 @@ class InsertComponent(Component):
                                "usage_hour": row.usage_hour,
                                    "usage_minute": row.usage_minute,
                                "aggregation_period":
-                                   row.aggregation_period}
+                                   row.aggregation_period,
+                               "processing_meta": processing_meta}
         metric = InsertComponent._prepare_metric(instance_usage_dict,
                                                  agg_params)
         return metric
@@ -141,8 +151,13 @@ class InsertComponent(Component):
         """write data to kafka. extracts and formats
         metric data and writes the data to kafka
         """
-        # add transform spec metric id to processing meta
-        processing_meta = {"metric_id": metric_id}
+        # retrieve the processing meta from the row
+        processing_meta = row.processing_meta
+        # add transform spec metric id to the processing meta
+        if processing_meta:
+                processing_meta["metric_id"] = metric_id
+        else:
+                processing_meta = {"metric_id": metric_id}
 
         instance_usage_dict = {"tenant_id": row.tenant_id,
                                "user_id": row.user_id,

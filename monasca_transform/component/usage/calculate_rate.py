@@ -87,10 +87,10 @@ class CalculateRate(UsageComponent):
 
         # Calculate the rate change by percentage
         oldest_dict = oldest_rolled_up_instance_usage_df.collect()[0].asDict()
-        oldest_quantity = oldest_dict['quantity']
+        oldest_quantity = float(oldest_dict['quantity'])
 
         latest_dict = latest_rolled_up_instance_usage_df.collect()[0].asDict()
-        latest_quantity = latest_dict['quantity']
+        latest_quantity = float(latest_dict['quantity'])
 
         rate_percentage = \
             ((latest_quantity - oldest_quantity) / oldest_quantity) * 100
