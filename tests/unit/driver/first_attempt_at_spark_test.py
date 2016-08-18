@@ -1187,25 +1187,6 @@ class SparkTest(SparkContextTest):
                          .get('value_meta')
                          .get('lastrecord_timestamp_string'))
 
-        self.assertEqual('3363.4285714285716',
-                         diskusage_rate_agg_metric.get('metric')
-                         .get('value_meta')
-                         .get('processing_meta').get('latest_quantity'))
-        self.assertEqual('2016-06-10 20:27:01',
-                         diskusage_rate_agg_metric.get('metric')
-                         .get('value_meta')
-                         .get('processing_meta')
-                         .get('latest_timestamp_string'))
-        self.assertEqual('2721.0',
-                         diskusage_rate_agg_metric.get('metric')
-                         .get('value_meta')
-                         .get('processing_meta').get('oldest_quantity'))
-        self.assertEqual('2016-06-10 20:27:01',
-                         diskusage_rate_agg_metric.get('metric')
-                         .get('value_meta')
-                         .get('processing_meta')
-                         .get('oldest_timestamp_string'))
-
         # Verify nova.vm.cpu.total_allocated_agg metrics
         nova_vm_cpu_total_alloc_agg_metric = [
             value for value in metrics
