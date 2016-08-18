@@ -84,10 +84,10 @@ class SparkTest(SparkContextTest):
                                 insert_manager):
 
         usage_manager.return_value = MockComponentManager.get_usage_cmpt_mgr()
-        setter_manager.return_value = \
-            MockComponentManager.get_setter_cmpt_mgr()
-        insert_manager.return_value = \
-            MockComponentManager.get_insert_cmpt_mgr()
+        setter_manager.return_value = (MockComponentManager
+                                       .get_setter_cmpt_mgr())
+        insert_manager.return_value = (MockComponentManager
+                                       .get_insert_cmpt_mgr())
 
         # Create an emulated set of Kafka messages (these were gathered
         # by extracting Monasca messages from the Metrics queue).
@@ -114,7 +114,7 @@ class SparkTest(SparkContextTest):
         result = simple_count_transform(rdd_monasca_with_offsets)
 
         # Verify it worked
-        self.assertEqual(result, 386)
+        self.assertEqual(result, 391)
 
         # Call the primary method in mon_metrics_kafka
         MonMetricsKafkaProcessor.rdd_to_recordstore(
@@ -1285,6 +1285,47 @@ class SparkTest(SparkContextTest):
                          .get('firstrecord_timestamp_string'))
         self.assertEqual('2016-01-20 16:40:46',
                          nova_vm_mem_total_alloc_agg_metric
+                         .get('metric').get('value_meta')
+                         .get('lastrecord_timestamp_string'))
+
+        # Verify storage.objects.size_agg metrics
+        storage_objects_size_agg_metric = [
+            value for value in metrics
+            if value.get('metric').get('name') ==
+            'storage.objects.size_agg'][0]
+
+        self.assertTrue(storage_objects_size_agg_metric is not None)
+
+        self.assertEqual(16666.5,
+                         storage_objects_size_agg_metric
+                         .get('metric').get('value'))
+        self.assertEqual('useast',
+                         storage_objects_size_agg_metric
+                         .get('meta').get('region'))
+
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+                         storage_objects_size_agg_metric
+                         .get('meta').get('tenantId'))
+        self.assertEqual('all',
+                         storage_objects_size_agg_metric
+                         .get('metric').get('dimensions').get('host'))
+        self.assertEqual('all',
+                         storage_objects_size_agg_metric.get('metric')
+                         .get('dimensions').get('project_id'))
+        self.assertEqual('hourly',
+                         storage_objects_size_agg_metric
+                         .get('metric').get('dimensions')
+                         .get('aggregation_period'))
+
+        self.assertEqual(5.0,
+                         storage_objects_size_agg_metric
+                         .get('metric').get('value_meta').get('record_count'))
+        self.assertEqual('2016-08-10 21:04:12',
+                         storage_objects_size_agg_metric
+                         .get('metric').get('value_meta')
+                         .get('firstrecord_timestamp_string'))
+        self.assertEqual('2016-08-10 21:04:12',
+                         storage_objects_size_agg_metric
                          .get('metric').get('value_meta')
                          .get('lastrecord_timestamp_string'))
 
