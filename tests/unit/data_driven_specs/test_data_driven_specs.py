@@ -95,6 +95,10 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
             metric_id='swift_usage_rate',
             expected_agg_metric_name='swiftlm.diskusage.rate_agg',
             transform_specs_dataframe=transform_specs_data_frame)
+        self.check_metric(
+            metric_id='storage_objects_size_all',
+            expected_agg_metric_name='storage.objects.size_agg',
+            transform_specs_dataframe=transform_specs_data_frame)
 
     def check_metric(self, metric_id=None, expected_agg_metric_name=None,
                      transform_specs_dataframe=None):
@@ -104,9 +108,9 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
              "metric_id"]
         ).where(
             transform_specs_dataframe.metric_id == metric_id)
-        agg_params_json = transform_specs_data_frame.select(
-            "aggregation_params_map.aggregated_metric_name").collect()[0].\
-            asDict()
+        agg_params_json = (transform_specs_data_frame.select(
+            "aggregation_params_map.aggregated_metric_name").collect()[0]
+            .asDict())
         self.assertEqual(expected_agg_metric_name,
                          agg_params_json["aggregated_metric_name"])
 
@@ -125,7 +129,8 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
                      u'nova.vm.disk.total_allocated_gb',
                      u'vm.disk.allocation', u'vm.cpu.utilization_perc',
                      u'swiftlm.diskusage.host.val.size',
-                     u'swiftlm.diskusage.host.val.avail']),
+                     u'swiftlm.diskusage.host.val.avail',
+                     u'storage.objects.size']),
             Counter([row.event_type for row in
                      pre_transform_specs_data_frame.collect()]))
 
@@ -469,6 +474,34 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
             expected_value='host_metrics'
         )
 
+        # storage.objects.size
+        event_type = 'storage.objects.size'
+        storage_objects_size_all_row = self.get_row_for_event_type(
+            event_type=event_type,
+            pre_transform_specs_data_frame=pre_transform_specs_data_frame)
+        self.check_list_field_for_row(
+            row=storage_objects_size_all_row,
+            field_name='metric_id_list',
+            expected_list=['storage_objects_size_all']
+        )
+        self.check_list_field_for_row(
+            row=storage_objects_size_all_row,
+            field_name='required_raw_fields_list',
+            expected_list=['creation_time', 'project_id'],
+        )
+        self.check_dict_field_for_row(
+            row=storage_objects_size_all_row,
+            field_name='event_processing_params',
+            expected_dict={
+                "set_default_zone_to": "1",
+                "set_default_geolocation_to": "1",
+                "set_default_region_to": "W"})
+        self.check_value_field_for_row(
+            row=storage_objects_size_all_row,
+            field_name='service_id',
+            expected_value='host_metrics'
+        )
+
     def get_row_for_event_type(self,
                                event_type=None,
                                pre_transform_specs_data_frame=None):
@@ -520,20 +553,21 @@ class TestMySQLDataDrivenSpecsRepo(TestDataDrivenSpecsRepo):
 
     def test_transform_specs_data_frame(self):
 
-        db_transform_specs_data_frame = \
+        db_transform_specs_data_frame = (
             self.data_driven_specs_repo.get_data_driven_specs(
                 sql_context=self.sql_context,
-                data_driven_spec_type=DataDrivenSpecsRepo.transform_specs_type)
+                data_driven_spec_type=DataDrivenSpecsRepo.
+                transform_specs_type))
 
         self.check_transform_specs_data_frame(db_transform_specs_data_frame)
 
     def test_pre_transform_specs_data_frame(self):
 
-        db_pre_transform_specs_data_frame = \
+        db_pre_transform_specs_data_frame = (
             self.data_driven_specs_repo.get_data_driven_specs(
                 sql_context=self.sql_context,
                 data_driven_spec_type=DataDrivenSpecsRepo.
-                pre_transform_specs_type)
+                pre_transform_specs_type))
 
         self.check_pre_transform_specs_data_frame(
             db_pre_transform_specs_data_frame)
@@ -550,20 +584,21 @@ class TestJSONDataDrivenSpecsRepo(TestDataDrivenSpecsRepo):
 
     def test_transform_specs_data_frame(self):
 
-        json_transform_specs_data_frame = \
+        json_transform_specs_data_frame = (
             self.data_driven_specs_repo.get_data_driven_specs(
                 sql_context=self.sql_context,
-                data_driven_spec_type=DataDrivenSpecsRepo.transform_specs_type)
+                data_driven_spec_type=DataDrivenSpecsRepo
+                .transform_specs_type))
 
         self.check_transform_specs_data_frame(json_transform_specs_data_frame)
 
     def test_pre_transform_specs_data_frame(self):
 
-        json_pre_transform_specs_data_frame = \
+        json_pre_transform_specs_data_frame = (
             self.data_driven_specs_repo.get_data_driven_specs(
                 sql_context=self.sql_context,
                 data_driven_spec_type=DataDrivenSpecsRepo.
-                pre_transform_specs_type)
+                pre_transform_specs_type))
 
         self.check_pre_transform_specs_data_frame(
             json_pre_transform_specs_data_frame)
