@@ -28,6 +28,3 @@ CREATE TABLE IF NOT EXISTS `pre_transform_specs` (
   `pre_transform_spec` varchar(2048) NOT NULL,
   PRIMARY KEY (`event_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-GRANT ALL ON monasca_transform.* TO 'm-transform'@'%' IDENTIFIED BY 'password';
-GRANT ALL ON monasca_transform.* TO 'm-transform'@'localhost' IDENTIFIED BY 'password';

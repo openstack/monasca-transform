@@ -1,4 +1,4 @@
-#
+
 # (C) Copyright 2015 Hewlett Packard Enterprise Development Company LP
 # Copyright 2016 FUJITSU LIMITED
 #
@@ -43,6 +43,9 @@ set -o xtrace
 
 ERREXIT=$(set +o | grep errexit)
 set -o errexit
+
+# monasca-transform database password
+export MONASCA_TRANSFORM_DB_PASSWORD=${MONASCA_TRANSFORM_DB_PASSWORD:-"password"}
 
 # Determine if we are running in devstack-gate or devstack.
 if [[ $DEST ]]; then
@@ -116,9 +119,7 @@ function delete_monasca_transform_files {
 }
 
 function drop_monasca_transform_database {
-    # must login as root@localhost
-    sudo mysql -h "127.0.0.1" -uroot -psecretmysql < "drop database monasca_transform; drop user 'm-transform'@'%' from mysql.user; drop user 'm-transform'@'localhost' from mysql.user;"  || echo "Failed to drop database 'monasca_transform' and/or user 'm-transform' from mysql database, you may wish to do this manually."
-
+    sudo mysql -u$DATABASE_USER -p$DATABASE_PASSWORD -h$MYSQL_HOST -e "drop database monasca_transform; drop user 'm-transform'@'%' from mysql.user; drop user 'm-transform'@'localhost' from mysql.user;"  || echo "Failed to drop database 'monasca_transform' and/or user 'm-transform' from mysql database, you may wish to do this manually."
 }
 
 function unstack_spark {
@@ -293,7 +294,6 @@ function copy_monasca_transform_files {
 
     sudo cp -f "${MONASCA_TRANSFORM_BASE}"/monasca-transform/devstack/files/monasca-transform/service_runner.py /opt/monasca/transform/lib/.
     sudo cp -f "${MONASCA_TRANSFORM_BASE}"/monasca-transform/devstack/files/monasca-transform/monasca-transform.conf /etc/.
-    sudo  sudo sed -i "s/brokers=192\.168\.15\.6:9092/brokers=${SERVICE_HOST}:9092/g" /etc/monasca-transform.conf
     sudo cp -f "${MONASCA_TRANSFORM_BASE}"/monasca-transform/devstack/files/monasca-transform/driver.py /opt/monasca/transform/lib/.
     ${MONASCA_TRANSFORM_BASE}/monasca-transform/scripts/create_zip.sh
     sudo cp -f "${MONASCA_TRANSFORM_BASE}"/monasca-transform/scripts/monasca-transform.zip /opt/monasca/transform/lib/.
@@ -304,6 +304,10 @@ function copy_monasca_transform_files {
     sudo chown -R monasca-transform:monasca-transform /opt/monasca/transform
     sudo touch /var/log/monasca/transform/monasca-transform.log
     sudo chown monasca-transform:monasca-transform /var/log/monasca/transform/monasca-transform.log
+
+    # set passwords and other variables in configuration files
+    sudo sudo sed -i "s/brokers=192\.168\.15\.6:9092/brokers=${SERVICE_HOST}:9092/g" /etc/monasca-transform.conf
+    sudo sudo sed -i "s/password\s=\spassword/password = ${MONASCA_TRANSFORM_DB_PASSWORD}/g" /etc/monasca-transform.conf
 }
 
 function create_monasca_transform_venv {
@@ -319,11 +323,15 @@ function create_monasca_transform_venv {
 
 function create_and_populate_monasca_transform_database {
     # must login as root@localhost
-    sudo mysql -h "127.0.0.1" -uroot -psecretmysql < /opt/monasca/transform/lib/monasca-transform_mysql.sql || echo "Did the schema change? This process will fail on schema changes."
+    sudo mysql -u$DATABASE_USER -p$DATABASE_PASSWORD -h$MYSQL_HOST < /opt/monasca/transform/lib/monasca-transform_mysql.sql || echo "Did the schema change? This process will fail on schema changes."
 
-    sudo mysql -h "127.0.0.1" -um-transform -ppassword < /opt/monasca/transform/lib/pre_transform_specs.sql
-    sudo mysql -h "127.0.0.1" -um-transform -ppassword <  /opt/monasca/transform/lib/transform_specs.sql
+    # set grants for m-transform user (needs to be done from localhost)
+    sudo mysql -u$DATABASE_USER -p$DATABASE_PASSWORD -h$MYSQL_HOST -e "GRANT ALL ON monasca_transform.* TO 'm-transform'@'%' IDENTIFIED BY '${MONASCA_TRANSFORM_DB_PASSWORD}';"
+    sudo mysql -u$DATABASE_USER -p$DATABASE_PASSWORD -h$MYSQL_HOST -e "GRANT ALL ON monasca_transform.* TO 'm-transform'@'localhost' IDENTIFIED BY '${MONASCA_TRANSFORM_DB_PASSWORD}';"
 
+    # copy rest of files after grants are ready
+    sudo mysql -um-transform -p$MONASCA_TRANSFORM_DB_PASSWORD -h$MYSQL_HOST < /opt/monasca/transform/lib/pre_transform_specs.sql
+    sudo mysql -um-transform -p$MONASCA_TRANSFORM_DB_PASSWORD -h$MYSQL_HOST <  /opt/monasca/transform/lib/transform_specs.sql
 }
 
 function install_spark {

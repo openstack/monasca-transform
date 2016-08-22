@@ -4,6 +4,10 @@ The Monasca-transform DevStack plugin is tested only on Ubuntu 14.04 (Trusty).
 
 A short cut to running monasca-transform in devstack is implemented with vagrant.
 
+## Variables
+* DATABASE_PASSWORD(default: *secretmysql*) - password to upload monasca-transform schema
+* MONASCA_TRANSFORM_DB_PASSWORD(default: *password*) - password for m-transform user
+
 ## To run monasca-transform using the provided vagrant environment
 
 ### Using any changes made locally to monasca-transform
