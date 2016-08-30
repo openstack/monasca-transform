@@ -98,6 +98,13 @@ class OffsetSpecs(object):
             "Class %s doesn't implement delete_all_kafka_offsets()"
             % self.__class__.__name__)
 
+    @abc.abstractmethod
+    def get_most_recent_batch_time_from_offsets(self, app_name, topic):
+        raise NotImplementedError(
+            "Class %s doesn't implement "
+            "get_most_recent_batch_time_from_offsets()"
+            % self.__class__.__name__)
+
 
 class JSONOffsetSpecs(OffsetSpecs):
 
@@ -189,6 +196,19 @@ class JSONOffsetSpecs(OffsetSpecs):
 
     def get_kafka_offsets(self, app_name):
         return self._kafka_offsets
+
+    def get_most_recent_batch_time_from_offsets(self, app_name, topic):
+        try:
+            # get partition 0 as a representative of all others
+            key = "%s_%s_%s" % (app_name, topic, 0)
+            offset = self._kafka_offsets[key]
+            most_recent_batch_time = datetime.datetime.strptime(
+                offset.get_batch_time(),
+                '%Y-%m-%d %H:%M:%S')
+        except Exception:
+            most_recent_batch_time = None
+
+        return most_recent_batch_time
 
     def delete_all_kafka_offsets(self, app_name):
         log.info("Deleting json offsets file: %s", self.kafka_offset_spec_file)

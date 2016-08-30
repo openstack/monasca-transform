@@ -135,7 +135,8 @@ class ConfigInitializer(object):
     def load_pre_hourly_processor_options():
         app_opts = [
             cfg.BoolOpt('enable_instance_usage_df_cache'),
-            cfg.StrOpt('instance_usage_df_cache_storage_level')
+            cfg.StrOpt('instance_usage_df_cache_storage_level'),
+            cfg.BoolOpt('enable_batch_time_filtering')
         ]
         app_group = cfg.OptGroup(name='pre_hourly_processor',
                                  title='pre_hourly_processor')

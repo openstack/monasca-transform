@@ -244,7 +244,7 @@ class PreHourlyProcessor(Processor):
         available in kafka.
         """
 
-        offset_specifications = simport.load(cfg.CONF.repositories.offsets)()
+        offset_specifications = PreHourlyProcessor.get_offset_specs()
 
         # get application name, will be used to get offsets from database
         app_name = PreHourlyProcessor.get_app_name()
@@ -278,6 +278,12 @@ class PreHourlyProcessor(Processor):
         return offset_range_list
 
     @staticmethod
+    def get_offset_specs():
+        """get offset specifications.
+        """
+        return simport.load(cfg.CONF.repositories.offsets)()
+
+    @staticmethod
     def fetch_pre_hourly_data(spark_context,
                               offset_range_list):
         """get metrics pre hourly data from offset range list."""
@@ -304,6 +310,45 @@ class PreHourlyProcessor(Processor):
         sqlc = SQLContext.getOrCreate(pre_hourly_rdd.context)
         instance_usage_df = InstanceUsageUtils.create_df_from_json_rdd(
             sqlc, instance_usage_rdd)
+
+        if cfg.CONF.pre_hourly_processor.enable_batch_time_filtering:
+            instance_usage_df = (
+                PreHourlyProcessor.filter_out_records_not_in_current_batch(
+                    instance_usage_df))
+
+        return instance_usage_df
+
+    @staticmethod
+    def filter_out_records_not_in_current_batch(instance_usage_df):
+        """Filter out any records which don't pertain to the
+        current batch (i.e., records before or after the
+        batch currently being processed).
+        """
+        # get the most recent batch time from the stored offsets
+
+        offset_specifications = PreHourlyProcessor.get_offset_specs()
+        app_name = PreHourlyProcessor.get_app_name()
+        topic = PreHourlyProcessor.get_kafka_topic()
+        most_recent_batch_time = (
+            offset_specifications.get_most_recent_batch_time_from_offsets(
+                app_name, topic))
+
+        if most_recent_batch_time:
+            # filter out records before current batch
+            instance_usage_df = instance_usage_df.filter(
+                instance_usage_df.lastrecord_timestamp_string >=
+                most_recent_batch_time)
+
+        # determine the timestamp of the most recent top-of-the-hour (which
+        # is the end of the current batch).
+        current_time = datetime.datetime.now()
+        truncated_timestamp_to_current_hour = current_time.replace(
+            minute=0, second=0, microsecond=0)
+
+        # filter out records after current batch
+        instance_usage_df = instance_usage_df.filter(
+            instance_usage_df.firstrecord_timestamp_string <
+            truncated_timestamp_to_current_hour)
 
         return instance_usage_df
 

@@ -12,7 +12,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 import mock
+import os
+import random
+import sys
 import unittest
+import uuid
 
 from oslo_config import cfg
 from pyspark.streaming.kafka import OffsetRange
@@ -26,8 +30,12 @@ from tests.unit.spark_context_test import SparkContextTest
 from tests.unit.test_resources.metrics_pre_hourly_data.data_provider \
     import DataProvider
 
+from monasca_transform.offset_specs import JSONOffsetSpecs
+
 
 class TestPreHourlyProcessorAgg(SparkContextTest):
+
+    test_resources_path = 'tests/unit/test_resources'
 
     def setUp(self):
         super(TestPreHourlyProcessorAgg, self).setUp()
@@ -44,17 +52,42 @@ class TestPreHourlyProcessorAgg(SparkContextTest):
     @mock.patch('monasca_transform.processor.pre_hourly_processor.KafkaInsert',
                 DummyInsert)
     @mock.patch('monasca_transform.processor.pre_hourly_processor.'
+                'PreHourlyProcessor.get_offset_specs')
+    @mock.patch('monasca_transform.processor.pre_hourly_processor.'
                 'PreHourlyProcessor.fetch_pre_hourly_data')
     @mock.patch('monasca_transform.processor.pre_hourly_processor.'
                 'PreHourlyProcessor.get_processing_offset_range_list')
     def test_pre_hourly_processor(self,
                                   offset_range_list,
-                                  pre_hourly_data):
+                                  pre_hourly_data,
+                                  offset_specs):
 
         # load components
         myOffsetRanges = [
-            OffsetRange("metrics_pre_hourly", 1, 10, 20)]
+            OffsetRange("metrics_pre_hourly", 0, 10, 20)]
         offset_range_list.return_value = myOffsetRanges
+
+        filename = '%s.json' % str(uuid.uuid4())
+        file_path = os.path.join(self.test_resources_path, filename)
+        json_offset_specs = JSONOffsetSpecs(
+            path=self.test_resources_path,
+            filename=filename
+        )
+        app_name = "mon_metrics_kafka_pre_hourly"
+        topic = "metrics_pre_hourly"
+        partition = 0
+        until_offset = random.randint(0, sys.maxsize)
+        from_offset = random.randint(0, sys.maxsize)
+
+        my_batch_time = self.get_dummy_batch_time()
+
+        json_offset_specs.add(topic=topic, partition=partition,
+                              app_name=app_name,
+                              from_offset=from_offset,
+                              until_offset=until_offset,
+                              batch_time_info=my_batch_time)
+
+        offset_specs.return_value = json_offset_specs
 
         # Create an RDD out of the mocked instance usage data
         with open(DataProvider.metrics_pre_hourly_data_path) as f:
@@ -167,13 +200,14 @@ class TestPreHourlyProcessorAgg(SparkContextTest):
                          swift_disk_rate_agg_metric.get('metric')
                          .get('dimensions').get('aggregation_period'))
 
+        os.remove(file_path)
+
     def simple_count_transform(self, rdd):
         return rdd.count()
 
 
 if __name__ == "__main__":
     print("PATH *************************************************************")
-    import sys
     print(sys.path)
     print("PATH==============================================================")
     unittest.main()

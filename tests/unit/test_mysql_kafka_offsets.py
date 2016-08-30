@@ -131,6 +131,27 @@ class TestMySQLOffsetSpecs(unittest.TestCase):
         self.assertEqual(until_offset_2,
                          updated_offset_value.get_until_offset())
 
+    def test_get_most_recent_batch_time(self):
+        topic_1 = str(uuid.uuid4())
+        partition_1 = 0
+        until_offset_1 = random.randint(0, sys.maxsize)
+        from_offset_1 = random.randint(0, sys.maxsize)
+        app_name_1 = str(uuid.uuid4())
+
+        my_batch_time = self.get_dummy_batch_time()
+
+        self.kafka_offset_specs.add(topic=topic_1, partition=partition_1,
+                                    app_name=app_name_1,
+                                    from_offset=from_offset_1,
+                                    until_offset=until_offset_1,
+                                    batch_time_info=my_batch_time)
+
+        most_recent_batch_time = (
+            self.kafka_offset_specs.get_most_recent_batch_time_from_offsets(
+                app_name_1, topic_1))
+
+        self.assertEqual(most_recent_batch_time, my_batch_time)
+
     def assertions_on_offset(self, used_value=None, offset_value=None):
         self.assertEqual(used_value.get('topic'),
                          offset_value.get_topic())

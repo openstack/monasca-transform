@@ -88,6 +88,22 @@ class MySQLOffsetSpecs(OffsetSpecs):
             MySQLOffsetSpec.app_name == app_name,
             MySQLOffsetSpec.revision == 1).all()}
 
+    def get_most_recent_batch_time_from_offsets(self, app_name, topic):
+        try:
+            # get partition 0 as a representative of all others
+            offset = self.session.query(MySQLOffsetSpec).filter(
+                MySQLOffsetSpec.app_name == app_name,
+                MySQLOffsetSpec.topic == topic,
+                MySQLOffsetSpec.partition == 0,
+                MySQLOffsetSpec.revision == 1).one()
+            most_recent_batch_time = datetime.datetime.strptime(
+                offset.get_batch_time(),
+                '%Y-%m-%d %H:%M:%S')
+        except Exception:
+            most_recent_batch_time = None
+
+        return most_recent_batch_time
+
     def delete_all_kafka_offsets(self, app_name):
         try:
             self.session.query(MySQLOffsetSpec).filter(
