@@ -168,7 +168,7 @@ class TestPreHourlyProcessorAgg(SparkContextTest):
             if value.get('metric').get('name') ==
             'swiftlm.diskusage.rate_agg'][0]
         self.assertTrue(swift_disk_rate_agg_metric is not None)
-        self.assertEqual(59.36612021857923,
+        self.assertEqual(37.25140584281991,
                          swift_disk_rate_agg_metric
                          .get('metric').get('value'))
         self.assertEqual('2016-06-10 20:27:02',

@@ -58,7 +58,7 @@ class PreHourlyCalculateRate(SetterComponent):
                                     "processing_meta"]["latest_quantity"])
 
             rate_percentage = 100 * (
-                (latest_quantity - oldest_quantity) / oldest_quantity)
+                (oldest_quantity - latest_quantity) / oldest_quantity)
         except Exception as e:
             raise PreHourlyCalculateRateException(
                 "Exception occurred in pre-hourly rate calculation. Error: %s"

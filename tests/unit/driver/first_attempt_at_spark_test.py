@@ -1160,7 +1160,7 @@ class SparkTest(SparkContextTest):
             if value.get('metric').get('name') ==
             'swiftlm.diskusage.rate_agg'][0]
 
-        self.assertEqual(23.610017325563085,
+        self.assertEqual(24.990442207212947,
                          diskusage_rate_agg_metric.get('metric').get('value'))
         self.assertEqual('useast',
                          diskusage_rate_agg_metric.get('meta').get('region'))

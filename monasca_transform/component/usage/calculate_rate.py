@@ -93,7 +93,7 @@ class CalculateRate(UsageComponent):
         latest_quantity = float(latest_dict['quantity'])
 
         rate_percentage = \
-            ((latest_quantity - oldest_quantity) / oldest_quantity) * 100
+            ((oldest_quantity - latest_quantity) / oldest_quantity) * 100
 
         #  create a new instance usage dict
         instance_usage_dict = {"tenant_id":

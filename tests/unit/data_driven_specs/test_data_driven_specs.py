@@ -84,7 +84,7 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
             expected_agg_metric_name='vm.cpu.utilization_perc_agg',
             transform_specs_dataframe=transform_specs_data_frame)
         self.check_metric(
-            metric_id='swift_usage_all',
+            metric_id='swift_total_all',
             expected_agg_metric_name='swiftlm.diskusage.val.size_agg',
             transform_specs_dataframe=transform_specs_data_frame)
         self.check_metric(
@@ -369,8 +369,7 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
         self.check_list_field_for_row(
             row=swiftlm_diskusage_all_row,
             field_name='metric_id_list',
-            expected_list=['swift_usage_all', 'swift_usage_host',
-                           'swift_usage_rate']
+            expected_list=['swift_total_all', 'swift_total_host']
         )
         self.check_list_field_for_row(
             row=swiftlm_diskusage_all_row,
@@ -398,7 +397,8 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
         self.check_list_field_for_row(
             row=swiftlm_diskavail_all_row,
             field_name='metric_id_list',
-            expected_list=['swift_avail_all', 'swift_avail_host']
+            expected_list=['swift_avail_all', 'swift_avail_host',
+                           'swift_usage_rate']
         )
         self.check_list_field_for_row(
             row=swiftlm_diskavail_all_row,
