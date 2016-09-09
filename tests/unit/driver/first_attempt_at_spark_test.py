@@ -747,7 +747,7 @@ class SparkTest(SparkContextTest):
 
         self.assertTrue(cpu_util_cores_agg_metric is not None)
 
-        self.assertEqual(2.0,
+        self.assertEqual(0.5303809523809525,
                          cpu_util_cores_agg_metric
                          .get('metric').get('value'))
         self.assertEqual('useast',
@@ -789,7 +789,7 @@ class SparkTest(SparkContextTest):
 
         self.assertTrue(cpu_util_cores_agg_metric is not None)
 
-        self.assertEqual(1.0,
+        self.assertEqual(0.3866666666666669,
                          cpu_util_cores_agg_metric
                          .get('metric').get('value'))
         self.assertEqual('useast',
@@ -831,7 +831,7 @@ class SparkTest(SparkContextTest):
 
         self.assertTrue(cpu_util_cores_agg_metric is not None)
 
-        self.assertEqual(1.0,
+        self.assertEqual(0.14371428571428566,
                          cpu_util_cores_agg_metric
                          .get('metric').get('value'))
         self.assertEqual('useast',

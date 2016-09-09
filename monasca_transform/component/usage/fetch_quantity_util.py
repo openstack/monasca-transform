@@ -12,7 +12,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from pyspark.sql.functions import ceil
 from pyspark.sql.functions import col
 from pyspark.sql.functions import when
 from pyspark.sql import SQLContext
@@ -157,7 +156,7 @@ class FetchQuantityUtil(UsageComponent):
         To calculate the utilized quantity  this component uses following
         formula:
 
-        utilized quantity = ceil((100 - idle_perc) * total_quantity / 100)
+        utilized quantity = (100 - idle_perc) * total_quantity / 100
 
         """
 
@@ -252,9 +251,9 @@ class FetchQuantityUtil(UsageComponent):
         quant_idle_perc_calc_df = quant_idle_perc_df.select(
             col("quantity_df_alias.*"),
             when(col("idle_perc_df_alias.quantity") != 0.0,
-                 ceil(((100.0 - col(
-                     "idle_perc_df_alias.quantity"))) * col(
-                     "quantity_df_alias.quantity") / 100.0))
+                 (100.0 - col(
+                     "idle_perc_df_alias.quantity")) * col(
+                     "quantity_df_alias.quantity") / 100.0)
             .otherwise(col("quantity_df_alias.quantity"))
             .alias("utilized_quantity"),
 

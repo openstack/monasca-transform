@@ -181,7 +181,7 @@ class TestFetchQuantityUtilAgg(SparkContextTest):
             if value.get('metric').get(
                 'name') == 'cpu.utilized_logical_cores_agg'][0]
 
-        self.assertEqual(9.0,
+        self.assertEqual(7.7700000000000005,
                          utilized_cpu_logical_agg_metric.get(
                              'metric').get('value'))
         self.assertEqual('useast',
@@ -284,7 +284,7 @@ class TestFetchQuantityUtilAgg(SparkContextTest):
             if value.get('metric').get(
                 'name') == 'cpu.utilized_logical_cores_agg'][0]
 
-        self.assertEqual(11.0,
+        self.assertEqual(9.52,
                          utilized_cpu_logical_agg_metric.get(
                              'metric').get('value'))
         self.assertEqual('useast',
@@ -387,7 +387,7 @@ class TestFetchQuantityUtilAgg(SparkContextTest):
             if value.get('metric').get(
                 'name') == 'cpu.utilized_logical_cores_agg'][0]
 
-        self.assertEqual(8.0,
+        self.assertEqual(7.134214285714285,
                          utilized_cpu_logical_agg_metric.get(
                              'metric').get('value'))
         self.assertEqual('useast',

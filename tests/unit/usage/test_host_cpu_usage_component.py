@@ -217,7 +217,7 @@ class SparkTest(SparkContextTest):
             value.get('metric').get('dimensions').get('host') ==
             'all'][0]
 
-        self.assertEqual(8.0,
+        self.assertEqual(7.134214285714285,
                          utilized_cpu_logical_agg_metric.get(
                              'metric').get('value'))
         self.assertEqual('useast',
@@ -258,7 +258,7 @@ class SparkTest(SparkContextTest):
             value.get('metric').get('dimensions').get('host') ==
             'test-cp1-comp0333-mgmt'][0]
 
-        self.assertEqual(5.0,
+        self.assertEqual(4.9665,
                          utilized_cpu_logical_agg_metric.get(
                              'metric').get('value'))
         self.assertEqual('useast',
@@ -299,7 +299,7 @@ class SparkTest(SparkContextTest):
             value.get('metric').get('dimensions').get('host') ==
             'test-cp1-comp0027-mgmt'][0]
 
-        self.assertEqual(3.0,
+        self.assertEqual(2.1677142857142853,
                          utilized_cpu_logical_agg_metric.get(
                              'metric').get('value'))
         self.assertEqual('useast',
