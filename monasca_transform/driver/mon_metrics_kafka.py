@@ -60,12 +60,14 @@ ConfigInitializer.basic_config()
 log = logging.getLogger(__name__)
 _h = logging.FileHandler('%s/%s' % (
     cfg.CONF.service.service_log_path,
-    cfg.CONF.service.service_log_filename)
-)
+    cfg.CONF.service.service_log_filename))
 _h.setFormatter(logging.Formatter("'%(asctime)s - %(pathname)s:"
                                   "%(lineno)s - %(levelname)s - %(message)s'"))
 log.addHandler(_h)
-log.setLevel(logging.DEBUG)
+if cfg.CONF.service.enable_debug_log_entries:
+    log.setLevel(logging.DEBUG)
+else:
+    log.setLevel(logging.INFO)
 
 
 class MonMetricsKafkaProcessor(object):
@@ -248,8 +250,8 @@ class MonMetricsKafkaProcessor(object):
         """
 
         # call processing chain
-        GenericTransformBuilder.do_transform(transform_context,
-                                             record_store_df)
+        return GenericTransformBuilder.do_transform(
+            transform_context, record_store_df)
 
     @staticmethod
     def process_metrics(transform_context, record_store_df):
@@ -283,8 +285,24 @@ class MonMetricsKafkaProcessor(object):
                     transform_spec_df_info=transform_spec_df)
 
             try:
-                MonMetricsKafkaProcessor.process_metric(
-                    transform_context, source_record_store_df)
+                agg_inst_usage_df = (
+                    MonMetricsKafkaProcessor.process_metric(
+                        transform_context, source_record_store_df))
+
+                # if running in debug mode, write out the aggregated metric
+                # name just processed (along with the count of how many of
+                # these were aggregated) to the application log.
+                if log.isEnabledFor(logging.DEBUG):
+                    agg_inst_usage_collection = agg_inst_usage_df.collect()
+                    collection_len = len(agg_inst_usage_collection)
+                    if collection_len > 0:
+                        agg_inst_usage_dict = (
+                            agg_inst_usage_collection[0].asDict())
+                        log.debug("Submitted pre-hourly aggregated metric: "
+                                  "%s (%s)",
+                                  agg_inst_usage_dict[
+                                      "aggregated_metric_name"],
+                                  str(collection_len))
             except FetchQuantityException:
                 raise
             except FetchQuantityUtilException:

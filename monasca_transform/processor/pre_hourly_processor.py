@@ -27,6 +27,7 @@ from monasca_transform.component.insert.kafka_insert import KafkaInsert
 from monasca_transform.component.setter.pre_hourly_calculate_rate import \
     PreHourlyCalculateRate
 from monasca_transform.component.setter.rollup_quantity import RollupQuantity
+from monasca_transform.config.config_initializer import ConfigInitializer
 from monasca_transform.data_driven_specs.data_driven_specs_repo \
     import DataDrivenSpecsRepo
 from monasca_transform.data_driven_specs.data_driven_specs_repo \
@@ -38,17 +39,26 @@ from monasca_transform.transform.storage_utils import StorageUtils
 from monasca_transform.transform.transform_utils import InstanceUsageUtils
 from monasca_transform.transform import TransformContextUtils
 
-LOG = logging.getLogger(__name__)
+ConfigInitializer.basic_config()
+
+# initialize logger
+log = logging.getLogger(__name__)
+_h = logging.FileHandler('%s/%s' % (
+    cfg.CONF.service.service_log_path,
+    cfg.CONF.service.service_log_filename))
+_h.setFormatter(logging.Formatter("'%(asctime)s - %(pathname)s:"
+                                  "%(lineno)s - %(levelname)s - %(message)s'"))
+log.addHandler(_h)
+if cfg.CONF.service.enable_debug_log_entries:
+    log.setLevel(logging.DEBUG)
+else:
+    log.setLevel(logging.INFO)
 
 
 class PreHourlyProcessor(Processor):
     """Processor to process usage data published to metrics_pre_hourly topic a
     and publish final rolled up metrics to metrics topic in kafka.
     """
-
-    @staticmethod
-    def log_debug(message):
-        LOG.debug(message)
 
     @staticmethod
     def save_kafka_offsets(current_offsets,
@@ -60,7 +70,7 @@ class PreHourlyProcessor(Processor):
         app_name = PreHourlyProcessor.get_app_name()
 
         for o in current_offsets:
-            PreHourlyProcessor.log_debug(
+            log.debug(
                 "saving: OffSetRanges: %s %s %s %s, "
                 "batch_time_info: %s" % (
                     o.topic, o.partition, o.fromOffset, o.untilOffset,
@@ -254,10 +264,9 @@ class PreHourlyProcessor(Processor):
         # get kafka topic to fetch data
         topic = PreHourlyProcessor.get_kafka_topic()
 
-        offset_range_list = []
         if len(saved_offset_spec) < 1:
 
-            PreHourlyProcessor.log_debug(
+            log.debug(
                 "No saved offsets available..."
                 "connecting to kafka and fetching "
                 "from earliest available offset ...")
@@ -266,7 +275,7 @@ class PreHourlyProcessor(Processor):
                 cfg.CONF.messaging.brokers,
                 topic)
         else:
-            PreHourlyProcessor.log_debug(
+            log.debug(
                 "Saved offsets available..."
                 "connecting to kafka and fetching from saved offset ...")
 
@@ -432,8 +441,20 @@ class PreHourlyProcessor(Processor):
             transform_context = TransformContextUtils.get_context(
                 transform_spec_df_info=transform_spec_df)
 
-            PreHourlyProcessor.process_instance_usage(
+            agg_inst_usage_df = PreHourlyProcessor.process_instance_usage(
                 transform_context, source_instance_usage_df)
+
+            # if running in debug mode, write out the aggregated metric
+            # name just processed (along with the count of how many of these
+            # were aggregated) to the application log.
+            if log.isEnabledFor(logging.DEBUG):
+                agg_inst_usage_collection = agg_inst_usage_df.collect()
+                collection_len = len(agg_inst_usage_collection)
+                if collection_len > 0:
+                    agg_inst_usage_dict = agg_inst_usage_collection[0].asDict()
+                    log.debug("Submitted hourly aggregated metric: %s (%s)",
+                              agg_inst_usage_dict["aggregated_metric_name"],
+                              str(collection_len))
 
     @staticmethod
     def run_processor(spark_context, processing_time):

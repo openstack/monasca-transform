@@ -100,6 +100,7 @@ class ConfigInitializer(object):
             cfg.StrOpt('coordinator_address'),
             cfg.StrOpt('coordinator_group'),
             cfg.FloatOpt('election_polling_frequency'),
+            cfg.BoolOpt('enable_debug_log_entries', default='false'),
             cfg.StrOpt('setup_file'),
             cfg.StrOpt('setup_target'),
             cfg.StrOpt('spark_driver'),
