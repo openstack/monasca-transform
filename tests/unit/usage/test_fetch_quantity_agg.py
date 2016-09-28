@@ -91,6 +91,31 @@ class TestFetchQuantityAgg(SparkContextTest):
 
         return [json.loads(transform_specs_json_operation)]
 
+    def get_transform_specs_json_invalid_name(self):
+        """get transform_specs driver table info."""
+        transform_specs_json = """
+        {"aggregation_params_map":{
+               "aggregation_pipeline":{"source":"streaming",
+                                       "usage":"fetch_quantity",
+                                       "setters":["rollup_quantity",
+                                                  "set_aggregated_metric_name",
+                                                  "set_aggregated_period"],
+                                       "insert":["prepare_data",
+                                                 "insert_data"]},
+               "aggregated_metric_name": "&invalidmetricname",
+               "aggregation_period": "hourly",
+               "aggregation_group_by_list": ["host", "metric_id"],
+               "usage_fetch_operation": "sum",
+               "setter_rollup_group_by_list": ["host"],
+               "setter_rollup_operation": "sum",
+               "dimension_list":["aggregation_period",
+                                 "host",
+                                 "project_id"]
+         },
+         "metric_group":"mem_total_all",
+         "metric_id":"mem_total_all"}"""
+        return [json.loads(transform_specs_json)]
+
     def get_invalid_filter_transform_specs_json(self,
                                                 field_to_filter,
                                                 filter_expression,
@@ -1020,6 +1045,67 @@ class TestFetchQuantityAgg(SparkContextTest):
             self.assertTrue("Encountered invalid filter details:" in e.value)
             self.assertTrue("filter operation = invalid." in e.value)
 
+    @mock.patch('monasca_transform.data_driven_specs.data_driven_specs_repo.'
+                'DataDrivenSpecsRepoFactory.get_data_driven_specs_repo')
+    @mock.patch('monasca_transform.transform.builder.'
+                'generic_transform_builder.GenericTransformBuilder.'
+                '_get_insert_component_manager')
+    @mock.patch('monasca_transform.transform.builder.'
+                'generic_transform_builder.GenericTransformBuilder.'
+                '_get_setter_component_manager')
+    @mock.patch('monasca_transform.transform.builder.'
+                'generic_transform_builder.GenericTransformBuilder.'
+                '_get_usage_component_manager')
+    def test_invalid_aggregated_metric_name(self,
+                                            usage_manager,
+                                            setter_manager,
+                                            insert_manager,
+                                            data_driven_specs_repo):
+
+        # load components
+        usage_manager.return_value = MockComponentManager.get_usage_cmpt_mgr()
+        setter_manager.return_value = \
+            MockComponentManager.get_setter_cmpt_mgr()
+        insert_manager.return_value = \
+            MockComponentManager.get_insert_cmpt_mgr()
+
+        # init mock driver tables
+        data_driven_specs_repo.return_value = \
+            MockDataDrivenSpecsRepo(
+                self.spark_context,
+                self.get_pre_transform_specs_json(),
+                self.get_transform_specs_json_invalid_name())
+
+        # Create an emulated set of Kafka messages (these were gathered
+        # by extracting Monasca messages from the Metrics queue on mini-mon).
+
+        # Create an RDD out of the mocked Monasca metrics
+        with open(DataProvider.fetch_quantity_data_path) as f:
+            raw_lines = f.read().splitlines()
+        raw_tuple_list = [eval(raw_line) for raw_line in raw_lines]
+
+        rdd_monasca = self.spark_context.parallelize(raw_tuple_list)
+
+        # decorate mocked RDD with dummy kafka offsets
+        myOffsetRanges = [
+            OffsetRange("metrics", 1, 10, 20)]  # mimic rdd.offsetRanges()
+
+        transform_context = TransformContextUtils.get_context(
+            offset_info=myOffsetRanges,
+            batch_time_info=self.get_dummy_batch_time())
+
+        rdd_monasca_with_offsets = rdd_monasca.map(
+            lambda x: RddTransformContext(x, transform_context))
+
+        # Call the primary method in mon_metrics_kafka
+        MonMetricsKafkaProcessor.rdd_to_recordstore(
+            rdd_monasca_with_offsets)
+
+        # get the metrics that have been submitted to the dummy message adapter
+        metrics = DummyAdapter.adapter_impl.metric_list
+
+        # metrics should be empty
+        self.assertFalse(metrics)
 
 if __name__ == "__main__":
     print("PATH *************************************************************")

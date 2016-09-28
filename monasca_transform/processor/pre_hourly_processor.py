@@ -32,6 +32,7 @@ from monasca_transform.data_driven_specs.data_driven_specs_repo \
     import DataDrivenSpecsRepo
 from monasca_transform.data_driven_specs.data_driven_specs_repo \
     import DataDrivenSpecsRepoFactory
+from monasca_transform.log_utils import LogUtils
 from monasca_transform.processor import Processor
 from monasca_transform.transform.storage_utils import \
     InvalidCacheStorageLevelException
@@ -40,19 +41,7 @@ from monasca_transform.transform.transform_utils import InstanceUsageUtils
 from monasca_transform.transform import TransformContextUtils
 
 ConfigInitializer.basic_config()
-
-# initialize logger
-log = logging.getLogger(__name__)
-_h = logging.FileHandler('%s/%s' % (
-    cfg.CONF.service.service_log_path,
-    cfg.CONF.service.service_log_filename))
-_h.setFormatter(logging.Formatter("'%(asctime)s - %(pathname)s:"
-                                  "%(lineno)s - %(levelname)s - %(message)s'"))
-log.addHandler(_h)
-if cfg.CONF.service.enable_debug_log_entries:
-    log.setLevel(logging.DEBUG)
-else:
-    log.setLevel(logging.INFO)
+log = LogUtils.init_logger(__name__)
 
 
 class PreHourlyProcessor(Processor):

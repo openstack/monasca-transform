@@ -36,6 +36,7 @@ from monasca_transform.component.usage.fetch_quantity import \
 from monasca_transform.component.usage.fetch_quantity_util import \
     FetchQuantityUtilException
 from monasca_transform.config.config_initializer import ConfigInitializer
+from monasca_transform.log_utils import LogUtils
 from monasca_transform.transform.builder.generic_transform_builder \
     import GenericTransformBuilder
 
@@ -55,19 +56,7 @@ from monasca_transform.transform.transform_utils import MonMetricUtils
 from monasca_transform.transform import TransformContextUtils
 
 ConfigInitializer.basic_config()
-
-# initialize logger
-log = logging.getLogger(__name__)
-_h = logging.FileHandler('%s/%s' % (
-    cfg.CONF.service.service_log_path,
-    cfg.CONF.service.service_log_filename))
-_h.setFormatter(logging.Formatter("'%(asctime)s - %(pathname)s:"
-                                  "%(lineno)s - %(levelname)s - %(message)s'"))
-log.addHandler(_h)
-if cfg.CONF.service.enable_debug_log_entries:
-    log.setLevel(logging.DEBUG)
-else:
-    log.setLevel(logging.INFO)
+log = LogUtils.init_logger(__name__)
 
 
 class MonMetricsKafkaProcessor(object):

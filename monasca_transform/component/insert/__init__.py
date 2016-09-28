@@ -11,13 +11,19 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
 import abc
+import json
 import time
 
+from monasca_common.validation import metrics as metric_validator
 from monasca_transform.component import Component
+from monasca_transform.config.config_initializer import ConfigInitializer
+from monasca_transform.log_utils import LogUtils
 
 from oslo_config import cfg
+
+ConfigInitializer.basic_config()
+log = LogUtils.init_logger(__name__)
 
 
 class InsertComponent(Component):
@@ -32,6 +38,20 @@ class InsertComponent(Component):
     @staticmethod
     def get_component_type():
         return Component.INSERT_COMPONENT_TYPE
+
+    @staticmethod
+    def _validate_metric(metric):
+        """validate monasca metric.
+        """
+        try:
+            # validate metric part, without the wrapper
+            metric_validator.validate(metric["metric"])
+        except Exception as e:
+            log.info("Metric %s is invalid: Exception : %s"
+                     % (json.dumps(metric),
+                        e.message))
+            return False
+        return True
 
     @staticmethod
     def _prepare_metric(instance_usage_dict, agg_params):

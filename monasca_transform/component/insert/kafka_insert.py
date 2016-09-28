@@ -57,10 +57,11 @@ class KafkaInsert(InsertComponent):
         # Approach # 2
         # using collect() to fetch all elements of an RDD and write to
         # kafka
-        #
 
         for instance_usage_row in instance_usage_df.collect():
             metric = InsertComponent._get_metric(
                 instance_usage_row, agg_params)
-            KafkaMessageAdapter.send_metric(metric)
+            # validate metric part
+            if InsertComponent._validate_metric(metric):
+                KafkaMessageAdapter.send_metric(metric)
         return instance_usage_df

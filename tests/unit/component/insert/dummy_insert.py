@@ -65,5 +65,7 @@ class DummyInsert(InsertComponent):
         for instance_usage_row in instance_usage_df.collect():
             metric = InsertComponent._get_metric(instance_usage_row,
                                                  agg_params)
-            DummyAdapter.send_metric(metric)
+            # validate metric part
+            if InsertComponent._validate_metric(metric):
+                DummyAdapter.send_metric(metric)
         return instance_usage_df

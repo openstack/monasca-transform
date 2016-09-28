@@ -13,6 +13,7 @@
 # under the License.
 
 import logging
+from oslo_config import cfg
 
 
 class LogUtils(object):
@@ -31,3 +32,22 @@ class LogUtils(object):
         debugstr = "\n".join((debugstr, "type: %s" % (type(obj))))
         debugstr = "\n".join((debugstr, "dir: %s" % (dir(obj)), sep))
         LogUtils.log_debug(debugstr)
+
+    @staticmethod
+    def init_logger(logger_name):
+
+        # initialize logger
+        log = logging.getLogger(logger_name)
+        _h = logging.FileHandler('%s/%s' % (
+            cfg.CONF.service.service_log_path,
+            cfg.CONF.service.service_log_filename))
+        _h.setFormatter(logging.Formatter("'%(asctime)s - %(pathname)s:"
+                                          "%(lineno)s - %(levelname)s"
+                                          " - %(message)s'"))
+        log.addHandler(_h)
+        if cfg.CONF.service.enable_debug_log_entries:
+            log.setLevel(logging.DEBUG)
+        else:
+            log.setLevel(logging.INFO)
+
+        return log
