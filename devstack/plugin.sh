@@ -107,7 +107,7 @@ function unstack_monasca_transform {
 function delete_monasca_transform_files {
 
     sudo rm -rf /opt/monasca/transform || true
-    sudo rm /etc/monasca-transform.conf
+    sudo rm /etc/monasca-transform.conf || true
 
     MONASCA_TRANSFORM_DIRECTORIES=("/var/log/monasca/transform" "/var/run/monasca/transform" "/etc/monasca/transform/init")
 
@@ -126,9 +126,9 @@ function unstack_spark {
 
     echo_summary "Unstack Spark"
 
-    sudo service spark-master stop || true
-
     sudo service spark-worker stop || true
+
+    sudo service spark-master stop || true
 
     delete_spark_start_scripts
     delete_spark_upstart_definitions
