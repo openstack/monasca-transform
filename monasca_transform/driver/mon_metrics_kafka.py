@@ -511,9 +511,8 @@ class MonMetricsKafkaProcessor(object):
                 batch_time_info)
 
             # call pre hourly processor, if its time to run
-            if (cfg.CONF.stage_processors.pre_hourly_processor_enabled
-                    is True and PreHourlyProcessor.is_time_to_run(
-                        batch_time_info)):
+            if (cfg.CONF.stage_processors.pre_hourly_processor_enabled and
+                    PreHourlyProcessor.is_time_to_run(batch_time_info)):
                 PreHourlyProcessor.run_processor(
                     record_store_df.rdd.context,
                     batch_time_info)

@@ -135,6 +135,11 @@ class ConfigInitializer(object):
     @staticmethod
     def load_pre_hourly_processor_options():
         app_opts = [
+            cfg.IntOpt('late_metric_slack_time', default=600),
+            cfg.StrOpt('data_provider',
+                       default='monasca_transform.processor.'
+                               'pre_hourly_processor:'
+                               'PreHourlyProcessorDataProvider'),
             cfg.BoolOpt('enable_instance_usage_df_cache'),
             cfg.StrOpt('instance_usage_df_cache_storage_level'),
             cfg.BoolOpt('enable_batch_time_filtering')
