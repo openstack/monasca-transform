@@ -6,6 +6,11 @@ else
     echo Yikes, no - this is not pg-tips!
     exit 1
 fi
+if [ -d "/home/vagrant/devstack" ] ; then
+
+. /home/vagrant/devstack/.stackenv
+
+fi
 
 SCRIPT_HOME=$(dirname $(readlink -f $BASH_SOURCE))
 pushd $SCRIPT_HOME
@@ -32,6 +37,9 @@ sudo cp /home/vagrant/monasca-transform/scripts/monasca-transform.zip /opt/monas
 
 # update the configuration file
 sudo cp /home/vagrant/monasca-transform/devstack/files/monasca-transform/monasca-transform.conf /etc/.
+if [ -n "$SERVICE_HOST" ]; then
+    sudo sudo sed -i "s/brokers=192\.168\.15\.6:9092/brokers=${SERVICE_HOST}:9092/g" /etc/monasca-transform.conf
+fi
 
 # delete the venv
 sudo rm -rf /opt/monasca/transform/venv
