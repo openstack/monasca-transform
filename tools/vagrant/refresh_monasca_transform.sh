@@ -56,6 +56,14 @@ sudo su - monasca-transform -c "
         deactivate"
 popd
 
+function get_id () {
+    echo `"$@" | grep ' id ' | awk '{print $4}'`
+}
+
+source ~/devstack/openrc admin admin
+export ADMIN_PROJECT_ID=$(get_id openstack project show admin)
+sudo sed -i "s/publish_kafka_project_id=d2cb21079930415a9f2a33588b9f2bb6/publish_kafka_project_id=${ADMIN_PROJECT_ID}/g" /etc/monasca-transform.conf
+
 sudo service monasca-transform start
 
 popd

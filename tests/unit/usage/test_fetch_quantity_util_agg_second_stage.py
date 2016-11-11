@@ -203,7 +203,7 @@ class TestFetchQuantityUtilAgg(SparkContextTest):
                          utilized_cpu_logical_agg_metric.get(
                              'meta').get('region'))
 
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          utilized_cpu_logical_agg_metric.get(
                              'meta').get('tenantId'))
         self.assertEqual('all',
@@ -292,7 +292,7 @@ class TestFetchQuantityUtilAgg(SparkContextTest):
                          utilized_cpu_logical_agg_metric.get(
                              'meta').get('region'))
 
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          utilized_cpu_logical_agg_metric.get(
                              'meta').get('tenantId'))
         self.assertEqual('all',

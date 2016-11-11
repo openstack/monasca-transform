@@ -233,7 +233,7 @@ class TestFetchQuantityAgg(SparkContextTest):
                          mem_total_mb_agg_metric
                          .get('meta').get('region'))
 
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          mem_total_mb_agg_metric
                          .get('meta').get('tenantId'))
         self.assertEqual('mini-mon',
@@ -341,7 +341,7 @@ class TestFetchQuantityAgg(SparkContextTest):
                          mem_total_mb_agg_metric
                          .get('meta').get('region'))
 
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          mem_total_mb_agg_metric
                          .get('meta').get('tenantId'))
         self.assertEqual('mini-mon',
@@ -447,7 +447,7 @@ class TestFetchQuantityAgg(SparkContextTest):
                          mem_total_mb_agg_metric
                          .get('meta').get('region'))
 
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          mem_total_mb_agg_metric
                          .get('meta').get('tenantId'))
         self.assertEqual('mini-mon',
@@ -554,7 +554,7 @@ class TestFetchQuantityAgg(SparkContextTest):
                          mem_total_mb_agg_metric
                          .get('meta').get('region'))
 
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          mem_total_mb_agg_metric
                          .get('meta').get('tenantId'))
         self.assertEqual('mini-mon',
@@ -661,7 +661,7 @@ class TestFetchQuantityAgg(SparkContextTest):
                          mem_total_mb_agg_metric
                          .get('meta').get('region'))
 
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          mem_total_mb_agg_metric
                          .get('meta').get('tenantId'))
         self.assertEqual('mini-mon',
@@ -768,7 +768,7 @@ class TestFetchQuantityAgg(SparkContextTest):
                          mem_total_mb_agg_metric
                          .get('meta').get('region'))
 
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          mem_total_mb_agg_metric
                          .get('meta').get('tenantId'))
         self.assertEqual('mini-mon',

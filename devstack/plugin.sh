@@ -290,6 +290,17 @@ function create_monasca_transform_directories {
 
 }
 
+function get_id () {
+    echo `"$@" | grep ' id ' | awk '{print $4}'`
+}
+
+function ascertain_admin_project_id {
+
+    source ~/devstack/openrc admin admin
+    export ADMIN_PROJECT_ID=$(get_id openstack project show admin)
+
+}
+
 function copy_monasca_transform_files {
 
     sudo cp -f "${MONASCA_TRANSFORM_BASE}"/monasca-transform/devstack/files/monasca-transform/service_runner.py /opt/monasca/transform/lib/.
@@ -385,6 +396,8 @@ function post_config_monasca_transform {
 
 function extra_monasca_transform {
 
+    ascertain_admin_project_id
+    sudo sed -i "s/publish_kafka_project_id=d2cb21079930415a9f2a33588b9f2bb6/publish_kafka_project_id=${ADMIN_PROJECT_ID}/g" /etc/monasca-transform.conf
     sudo service monasca-transform start
 
 }

@@ -95,7 +95,7 @@ class InsertComponent(Component):
         # a usable tenant ID to us in a configurable way.  BTW, without a
         # proper/valid tenant ID, aggregated metrics don't get persisted
         # to the Monasca DB.
-        meta_part["tenantId"] = cfg.CONF.messaging.publish_kafka_tenant_id
+        meta_part["tenantId"] = cfg.CONF.messaging.publish_kafka_project_id
         meta_part["region"] = "useast"
 
         value_meta_part = {"record_count": instance_usage_dict.get(

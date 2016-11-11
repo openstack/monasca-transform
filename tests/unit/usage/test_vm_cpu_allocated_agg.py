@@ -161,7 +161,7 @@ class TestVmCpuAllocatedAgg(SparkContextTest):
                          vcpus_agg_metric
                          .get('meta').get('region'))
 
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          vcpus_agg_metric
                          .get('meta').get('tenantId'))
         self.assertEqual('all',
@@ -200,7 +200,7 @@ class TestVmCpuAllocatedAgg(SparkContextTest):
                          vcpus_agg_metric
                          .get('meta').get('region'))
 
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          vcpus_agg_metric
                          .get('meta').get('tenantId'))
         self.assertEqual('all',
@@ -336,7 +336,7 @@ class TestVmCpuAllocatedAgg(SparkContextTest):
                          vcpus_agg_metric
                          .get('meta').get('region'))
 
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          vcpus_agg_metric
                          .get('meta').get('tenantId'))
         self.assertEqual('all',

@@ -187,7 +187,7 @@ class TestPreHourlyProcessorAgg(SparkContextTest):
                          .get('value_meta').get('record_count'))
         self.assertEqual('useast',
                          swift_disk_rate_agg_metric.get('meta').get('region'))
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          swift_disk_rate_agg_metric.get('meta')
                          .get('tenantId'))
         self.assertEqual('all',

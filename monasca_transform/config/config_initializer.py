@@ -80,7 +80,7 @@ class ConfigInitializer(object):
             cfg.StrOpt('brokers',
                        default='192.168.10.4:9092',
                        help='Messaging brokers'),
-            cfg.StrOpt('publish_kafka_tenant_id',
+            cfg.StrOpt('publish_kafka_project_id',
                        default='111111',
                        help='publish aggregated metrics tenant'),
             cfg.StrOpt('adapter_pre_hourly',

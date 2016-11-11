@@ -132,7 +132,7 @@ class SparkTest(SparkContextTest):
                          total_mb_agg_metric.get('metric').get('value'))
         self.assertEqual('useast',
                          total_mb_agg_metric.get('meta').get('region'))
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          total_mb_agg_metric.get('meta').get('tenantId'))
         self.assertEqual('all',
                          total_mb_agg_metric.get('metric').get('dimensions')
@@ -163,7 +163,7 @@ class SparkTest(SparkContextTest):
         self.assertEqual('useast',
                          usable_mb_agg_metric.get('meta').get('region'))
 
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          usable_mb_agg_metric.get('meta').get('tenantId'))
         self.assertEqual('all',
                          usable_mb_agg_metric.get('metric').get('dimensions')
@@ -202,7 +202,7 @@ class SparkTest(SparkContextTest):
                          vcpus_agg_metric
                          .get('meta').get('region'))
 
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          vcpus_agg_metric
                          .get('meta').get('tenantId'))
         self.assertEqual('all',
@@ -243,7 +243,7 @@ class SparkTest(SparkContextTest):
                          vcpus_agg_metric
                          .get('meta').get('region'))
 
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          vcpus_agg_metric
                          .get('meta').get('tenantId'))
         self.assertEqual('all',
@@ -284,7 +284,7 @@ class SparkTest(SparkContextTest):
                          vcpus_agg_metric
                          .get('meta').get('region'))
 
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          vcpus_agg_metric
                          .get('meta').get('tenantId'))
         self.assertEqual('all',
@@ -324,7 +324,7 @@ class SparkTest(SparkContextTest):
                          vm_mem_total_mb_agg_metric
                          .get('meta').get('region'))
 
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          vm_mem_total_mb_agg_metric
                          .get('meta').get('tenantId'))
         self.assertEqual('all',
@@ -363,7 +363,7 @@ class SparkTest(SparkContextTest):
                          vm_mem_total_mb_agg_metric
                          .get('meta').get('region'))
 
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          vm_mem_total_mb_agg_metric
                          .get('meta').get('tenantId'))
         self.assertEqual('all',
@@ -402,7 +402,7 @@ class SparkTest(SparkContextTest):
                          vm_mem_total_mb_agg_metric
                          .get('meta').get('region'))
 
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          vm_mem_total_mb_agg_metric
                          .get('meta').get('tenantId'))
         self.assertEqual('all',
@@ -437,7 +437,7 @@ class SparkTest(SparkContextTest):
         self.assertEqual('useast',
                          total_allocated_disk_agg_metric.get('meta')
                          .get('region'))
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          total_allocated_disk_agg_metric.get('meta')
                          .get('tenantId'))
         self.assertEqual('all',
@@ -478,7 +478,7 @@ class SparkTest(SparkContextTest):
                          vm_disk_allocation_agg_metric
                          .get('meta').get('region'))
 
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          vm_disk_allocation_agg_metric
                          .get('meta').get('tenantId'))
         self.assertEqual('all',
@@ -519,7 +519,7 @@ class SparkTest(SparkContextTest):
                          vm_disk_allocation_agg_metric
                          .get('meta').get('region'))
 
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          vm_disk_allocation_agg_metric
                          .get('meta').get('tenantId'))
         self.assertEqual('all',
@@ -560,7 +560,7 @@ class SparkTest(SparkContextTest):
                          vm_disk_allocation_agg_metric
                          .get('meta').get('region'))
 
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          vm_disk_allocation_agg_metric
                          .get('meta').get('tenantId'))
         self.assertEqual('all',
@@ -598,7 +598,7 @@ class SparkTest(SparkContextTest):
         self.assertEqual('useast',
                          vm_cpu_util_perc_agg_metric.get('meta')
                          .get('region'))
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          vm_cpu_util_perc_agg_metric.get('meta')
                          .get('tenantId'))
         self.assertEqual('all',
@@ -637,7 +637,7 @@ class SparkTest(SparkContextTest):
         self.assertEqual('useast',
                          vm_cpu_util_perc_agg_metric.get('meta')
                          .get('region'))
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          vm_cpu_util_perc_agg_metric.get('meta')
                          .get('tenantId'))
         self.assertEqual('all',
@@ -676,7 +676,7 @@ class SparkTest(SparkContextTest):
                          disk_total_space_agg_metric
                          .get('meta').get('region'))
 
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          disk_total_space_agg_metric
                          .get('meta').get('tenantId'))
         self.assertEqual('all',
@@ -714,7 +714,7 @@ class SparkTest(SparkContextTest):
                          disk_total_used_agg_metric
                          .get('meta').get('region'))
 
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          disk_total_used_agg_metric
                          .get('meta').get('tenantId'))
         self.assertEqual('all',
@@ -754,7 +754,7 @@ class SparkTest(SparkContextTest):
                          cpu_util_cores_agg_metric
                          .get('meta').get('region'))
 
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          cpu_util_cores_agg_metric
                          .get('meta').get('tenantId'))
         self.assertEqual('all',
@@ -796,7 +796,7 @@ class SparkTest(SparkContextTest):
                          cpu_util_cores_agg_metric
                          .get('meta').get('region'))
 
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          cpu_util_cores_agg_metric
                          .get('meta').get('tenantId'))
         self.assertEqual('all',
@@ -838,7 +838,7 @@ class SparkTest(SparkContextTest):
                          cpu_util_cores_agg_metric
                          .get('meta').get('region'))
 
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          cpu_util_cores_agg_metric
                          .get('meta').get('tenantId'))
         self.assertEqual('all',
@@ -879,7 +879,7 @@ class SparkTest(SparkContextTest):
                          vm_mem_used_mb_agg_metric
                          .get('meta').get('region'))
 
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          vm_mem_used_mb_agg_metric
                          .get('meta').get('tenantId'))
         self.assertEqual('all',
@@ -918,7 +918,7 @@ class SparkTest(SparkContextTest):
                          vm_mem_used_mb_agg_metric
                          .get('meta').get('region'))
 
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          vm_mem_used_mb_agg_metric
                          .get('meta').get('tenantId'))
         self.assertEqual('all',
@@ -957,7 +957,7 @@ class SparkTest(SparkContextTest):
                          vm_mem_used_mb_agg_metric
                          .get('meta').get('region'))
 
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          vm_mem_used_mb_agg_metric
                          .get('meta').get('tenantId'))
         self.assertEqual('all',
@@ -991,7 +991,7 @@ class SparkTest(SparkContextTest):
                          used_swift_agg_metric.get('metric').get('value'))
         self.assertEqual('useast',
                          used_swift_agg_metric.get('meta').get('region'))
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          used_swift_agg_metric.get('meta').get('tenantId'))
         self.assertEqual('all',
                          used_swift_agg_metric.get('metric').get('dimensions')
@@ -1020,7 +1020,7 @@ class SparkTest(SparkContextTest):
                          used_swift_agg_metric.get('metric').get('value'))
         self.assertEqual('useast',
                          used_swift_agg_metric.get('meta').get('region'))
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          used_swift_agg_metric.get('meta').get('tenantId'))
         self.assertEqual('all',
                          used_swift_agg_metric.get('metric').get('dimensions')
@@ -1049,7 +1049,7 @@ class SparkTest(SparkContextTest):
                          used_swift_agg_metric.get('metric').get('value'))
         self.assertEqual('useast',
                          used_swift_agg_metric.get('meta').get('region'))
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          used_swift_agg_metric.get('meta').get('tenantId'))
         self.assertEqual('all',
                          used_swift_agg_metric.get('metric').get('dimensions')
@@ -1078,7 +1078,7 @@ class SparkTest(SparkContextTest):
                          avail_swift_agg_metric.get('metric').get('value'))
         self.assertEqual('useast',
                          avail_swift_agg_metric.get('meta').get('region'))
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          avail_swift_agg_metric.get('meta').get('tenantId'))
         self.assertEqual('all',
                          avail_swift_agg_metric.get('metric').get('dimensions')
@@ -1107,7 +1107,7 @@ class SparkTest(SparkContextTest):
                          avail_swift_agg_metric.get('metric').get('value'))
         self.assertEqual('useast',
                          avail_swift_agg_metric.get('meta').get('region'))
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          avail_swift_agg_metric.get('meta').get('tenantId'))
         self.assertEqual('all',
                          avail_swift_agg_metric.get('metric').get('dimensions')
@@ -1136,7 +1136,7 @@ class SparkTest(SparkContextTest):
                          avail_swift_agg_metric.get('metric').get('value'))
         self.assertEqual('useast',
                          avail_swift_agg_metric.get('meta').get('region'))
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          avail_swift_agg_metric.get('meta').get('tenantId'))
         self.assertEqual('all',
                          avail_swift_agg_metric.get('metric').get('dimensions')
@@ -1164,7 +1164,7 @@ class SparkTest(SparkContextTest):
                          diskusage_rate_agg_metric.get('metric').get('value'))
         self.assertEqual('useast',
                          diskusage_rate_agg_metric.get('meta').get('region'))
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          diskusage_rate_agg_metric.get('meta').get('tenantId'))
         self.assertEqual('all',
                          diskusage_rate_agg_metric.get('metric')
@@ -1202,7 +1202,7 @@ class SparkTest(SparkContextTest):
                          nova_vm_cpu_total_alloc_agg_metric
                          .get('meta').get('region'))
 
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          nova_vm_cpu_total_alloc_agg_metric
                          .get('meta').get('tenantId'))
         self.assertEqual('all',
@@ -1243,7 +1243,7 @@ class SparkTest(SparkContextTest):
                          nova_vm_mem_total_alloc_agg_metric
                          .get('meta').get('region'))
 
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          nova_vm_mem_total_alloc_agg_metric
                          .get('meta').get('tenantId'))
         self.assertEqual('all',
@@ -1284,7 +1284,7 @@ class SparkTest(SparkContextTest):
                          storage_objects_size_agg_metric
                          .get('meta').get('region'))
 
-        self.assertEqual(cfg.CONF.messaging.publish_kafka_tenant_id,
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
                          storage_objects_size_agg_metric
                          .get('meta').get('tenantId'))
         self.assertEqual('all',
