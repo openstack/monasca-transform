@@ -25,7 +25,6 @@ from pyspark.sql.functions import lit
 from pyspark.sql.functions import when
 from pyspark.sql import SQLContext
 
-import json
 import logging
 from monasca_common.simport import simport
 from oslo_config import cfg
@@ -147,18 +146,6 @@ class MonMetricsKafkaProcessor(object):
             '-', str(rdd.id),
             '.log'))
         rdd.saveAsTextFile(file_name)
-
-    @staticmethod
-    def print_unique_metric_count(kvs):
-        # print unique metric count
-        lines = kvs.map(lambda x: x[1])
-        counts = lines.map(
-            lambda x: json.loads(x)["metric"]["name"]
-        ).map(
-            lambda name: (name, 1)
-        ).reduceByKey(
-            lambda a, b: a + b)
-        counts.pprint(9999)
 
     @staticmethod
     def save_kafka_offsets(current_offsets, app_name,
@@ -563,9 +550,6 @@ def invoke():
 
     # transform to recordstore
     MonMetricsKafkaProcessor.transform_to_recordstore(kafka_stream)
-
-    # print unique metric count
-    MonMetricsKafkaProcessor.print_unique_metric_count(kafka_stream)
 
     # catch interrupt, stop streaming context gracefully
     # signal.signal(signal.SIGINT, signal_handler)
