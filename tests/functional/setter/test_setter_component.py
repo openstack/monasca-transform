@@ -12,36 +12,32 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 from pyspark.sql import SQLContext
-
-from monasca_transform.transform.transform_utils import RecordStoreUtils
-from monasca_transform.transform.transform_utils import TransformSpecsUtils
-from monasca_transform.transform import TransformContextUtils
+from tests.unit.spark_context_test import SparkContextTest
 
 from monasca_transform.component.setter.rollup_quantity \
     import RollupQuantity
-from monasca_transform.component.setter.set_aggregated_metric_name \
-    import SetAggregatedMetricName
 from monasca_transform.component.usage.fetch_quantity \
     import FetchQuantity
-from tests.unit.spark_context_test import SparkContextTest
-from tests.unit.test_resources.mem_total_all.data_provider import DataProvider
+from monasca_transform.transform.transform_utils import RecordStoreUtils
+from monasca_transform.transform.transform_utils import TransformSpecsUtils
+from monasca_transform.transform import TransformContextUtils
+from tests.functional.test_resources.mem_total_all.data_provider \
+    import DataProvider
 
 
-class SetAggregatedMetricNameTest(SparkContextTest):
+class UsageComponentTest(SparkContextTest):
 
     def setUp(self):
-        super(SetAggregatedMetricNameTest, self).setUp()
+        super(UsageComponentTest, self).setUp()
         self.sql_context = SQLContext(self.spark_context)
 
-    def test_set_aggregated_metric_name(self):
+    def test_sum_quantity_all_component(self):
 
         record_store_df = RecordStoreUtils.create_df_from_json(
-            self.sql_context,
-            DataProvider.record_store_path)
+            self.sql_context, DataProvider.record_store_path)
 
         transform_spec_df = TransformSpecsUtils.create_df_from_json(
-            self.sql_context,
-            DataProvider.transform_spec_path)
+            self.sql_context, DataProvider.transform_spec_path)
 
         transform_context = TransformContextUtils.get_context(
             transform_spec_df_info=transform_spec_df,
@@ -50,18 +46,14 @@ class SetAggregatedMetricNameTest(SparkContextTest):
         instance_usage_df = FetchQuantity.usage(
             transform_context, record_store_df)
 
-        instance_usage_df_1 = RollupQuantity.setter(
+        instance_usage_df_all = RollupQuantity.setter(
             transform_context, instance_usage_df)
 
-        instance_usage_df_2 = SetAggregatedMetricName.setter(
-            transform_context, instance_usage_df_1)
-
         result_list = [(row.usage_date, row.usage_hour,
-                        row.tenant_id, row.host, row.quantity,
-                        row.aggregated_metric_name)
-                       for row in instance_usage_df_2.rdd.collect()]
+                        row.tenant_id, row.host, row.quantity)
+                       for row in instance_usage_df_all.rdd.collect()]
 
         expected_result = [
-            ('2016-02-08', '18', 'all', 'all', 12946.0, 'mem.total_mb_agg')]
+            ('2016-02-08', '18', 'all', 'all', 12946.0)]
 
         self.assertItemsEqual(result_list, expected_result)

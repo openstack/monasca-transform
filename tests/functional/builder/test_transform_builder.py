@@ -20,11 +20,11 @@ from monasca_transform.transform.builder.generic_transform_builder \
 from monasca_transform.transform.transform_utils import RecordStoreUtils
 from monasca_transform.transform.transform_utils import TransformSpecsUtils
 from monasca_transform.transform import TransformContextUtils
-
-from tests.unit.spark_context_test import SparkContextTest
-from tests.unit.test_resources.mem_total_all.data_provider import DataProvider
-from tests.unit.test_resources.mock_component_manager \
+from tests.functional.test_resources.mem_total_all.data_provider \
+    import DataProvider
+from tests.unit \
     import MockComponentManager
+from tests.unit import SparkContextTest
 
 
 class TransformBuilderTest(SparkContextTest):

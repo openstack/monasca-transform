@@ -14,7 +14,7 @@
 
 from stevedore.extension import Extension
 from stevedore.extension import ExtensionManager
-
+from tests.unit.component.insert.dummy_insert import DummyInsert
 
 from monasca_transform.component.insert.prepare_data import PrepareData
 from monasca_transform.component.setter.rollup_quantity \
@@ -29,8 +29,7 @@ from monasca_transform.component.usage.fetch_quantity \
     import FetchQuantity
 from monasca_transform.component.usage.fetch_quantity_util \
     import FetchQuantityUtil
-from tests.unit.component.insert.dummy_insert import DummyInsert
-from tests.unit.component.insert.dummy_insert_pre_hourly \
+from tests.functional.component.insert.dummy_insert_pre_hourly \
     import DummyInsertPreHourly
 
 

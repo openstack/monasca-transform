@@ -12,9 +12,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from monasca_transform.component.insert import InsertComponent
 from oslo_config import cfg
-from tests.unit.messaging.adapter import DummyAdapter
+
+from monasca_transform.component.insert import InsertComponent
+from tests.functional.messaging.adapter import DummyAdapter
 
 
 class DummyInsert(InsertComponent):

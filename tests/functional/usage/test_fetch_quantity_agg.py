@@ -12,11 +12,18 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 import json
-import mock
 import unittest
 
+import mock
 from oslo_config import cfg
 from pyspark.streaming.kafka import OffsetRange
+from tests.unit.spark_context_test import SparkContextTest
+from tests.unit.test_resources.fetch_quantity_data.data_provider \
+    import DataProvider
+from tests.unit.test_resources.mock_component_manager \
+    import MockComponentManager
+from tests.unit.test_resources.mock_data_driven_specs_repo \
+    import MockDataDrivenSpecsRepo
 
 from monasca_transform.component.usage.fetch_quantity \
     import FetchQuantityException
@@ -25,15 +32,7 @@ from monasca_transform.driver.mon_metrics_kafka \
     import MonMetricsKafkaProcessor
 from monasca_transform.transform import RddTransformContext
 from monasca_transform.transform import TransformContextUtils
-
-from tests.unit.messaging.adapter import DummyAdapter
-from tests.unit.spark_context_test import SparkContextTest
-from tests.unit.test_resources.fetch_quantity_data.data_provider \
-    import DataProvider
-from tests.unit.test_resources.mock_component_manager \
-    import MockComponentManager
-from tests.unit.test_resources.mock_data_driven_specs_repo \
-    import MockDataDrivenSpecsRepo
+from tests.functional.messaging.adapter import DummyAdapter
 
 
 class TestFetchQuantityAgg(SparkContextTest):

@@ -1,3 +1,4 @@
+pbr>=1.8 # Apache-2.0
 PyMySQL
 six>=1.7.0 # MIT
 SQLAlchemy<1.1.0,>=0.9.9

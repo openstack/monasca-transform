@@ -11,26 +11,24 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-import mock
 import os
 import random
 import sys
 import unittest
 import uuid
 
+import mock
 from oslo_config import cfg
 from pyspark.streaming.kafka import OffsetRange
-
-from monasca_transform.config.config_initializer import ConfigInitializer
-from monasca_transform.processor.pre_hourly_processor import PreHourlyProcessor
-
 from tests.unit.component.insert.dummy_insert import DummyInsert
-from tests.unit.messaging.adapter import DummyAdapter
 from tests.unit.spark_context_test import SparkContextTest
 from tests.unit.test_resources.metrics_pre_hourly_data.data_provider \
     import DataProvider
 
+from monasca_transform.config.config_initializer import ConfigInitializer
 from monasca_transform.offset_specs import JSONOffsetSpecs
+from monasca_transform.processor.pre_hourly_processor import PreHourlyProcessor
+from tests.functional.messaging.adapter import DummyAdapter
 
 
 class TestPreHourlyProcessorAgg(SparkContextTest):

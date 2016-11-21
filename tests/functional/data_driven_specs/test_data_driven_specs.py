@@ -24,7 +24,7 @@ from monasca_transform.data_driven_specs.json_data_driven_specs_repo \
     import JSONDataDrivenSpecsRepo
 from monasca_transform.data_driven_specs.mysql_data_driven_specs_repo \
     import MySQLDataDrivenSpecsRepo
-from tests.unit.spark_context_test import SparkContextTest
+from tests.functional.spark_context_test import SparkContextTest
 
 
 class TestDataDrivenSpecsRepo(SparkContextTest):

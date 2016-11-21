@@ -11,9 +11,9 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-import mock
 import unittest
 
+import mock
 from oslo_config import cfg
 from pyspark.streaming.kafka import OffsetRange
 
@@ -22,12 +22,11 @@ from monasca_transform.driver.mon_metrics_kafka \
     import MonMetricsKafkaProcessor
 from monasca_transform.transform import RddTransformContext
 from monasca_transform.transform import TransformContextUtils
-
-from tests.unit.messaging.adapter import DummyAdapter
-from tests.unit.spark_context_test import SparkContextTest
-from tests.unit.test_resources.cpu_kafka_data.data_provider import DataProvider
-from tests.unit.test_resources.mock_component_manager \
+from tests.functional.messaging.adapter import DummyAdapter
+from tests.unit import DataProvider
+from tests.unit \
     import MockComponentManager
+from tests.unit import SparkContextTest
 
 
 class SparkTest(SparkContextTest):
