@@ -21,5 +21,5 @@ fi
 if [ -d monasca-transform ]
 then
     echo removing monasca-transform
-    rm -rf monasca-transform
+    sudo rm -rf monasca-transform
 fi
