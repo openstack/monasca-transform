@@ -1,0 +1,9 @@
+[Unit]
+Description=Spark Worker
+After=zookeeper.service
+
+[Service]
+User=spark
+Group=spark
+ExecStart=/etc/spark/init/start-spark-worker.sh
+Restart=on-failure

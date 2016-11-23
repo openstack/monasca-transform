@@ -12,5 +12,5 @@ else
 fi
 
 echo Now we need to move the settings.xml into place...
-cp /home/vagrant/settings.xml /root/.m2/.
+cp /home/ubuntu/settings.xml /root/.m2/.
 chown root:root /root/.m2/settings.xml
