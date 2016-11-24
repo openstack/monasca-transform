@@ -34,6 +34,8 @@ from monasca_transform.data_driven_specs.data_driven_specs_repo \
     import DataDrivenSpecsRepoFactory
 from monasca_transform.log_utils import LogUtils
 from monasca_transform.processor import Processor
+from monasca_transform.processor.processor_util import PreHourlyProcessorUtil
+from monasca_transform.processor.processor_util import ProcessUtilDataProvider
 from monasca_transform.transform.storage_utils import \
     InvalidCacheStorageLevelException
 from monasca_transform.transform.storage_utils import StorageUtils
@@ -42,6 +44,18 @@ from monasca_transform.transform import TransformContextUtils
 
 ConfigInitializer.basic_config()
 log = LogUtils.init_logger(__name__)
+
+
+class PreHourlyProcessorDataProvider(ProcessUtilDataProvider):
+
+    def get_last_processed(self):
+        offset_specifications = PreHourlyProcessor.get_offset_specs()
+        app_name = PreHourlyProcessor.get_app_name()
+        topic = PreHourlyProcessor.get_kafka_topic()
+        most_recent_batch_time = (
+            offset_specifications.get_most_recent_batch_time_from_offsets(
+                app_name, topic))
+        return most_recent_batch_time
 
 
 class PreHourlyProcessor(Processor):
@@ -90,17 +104,7 @@ class PreHourlyProcessor(Processor):
 
     @staticmethod
     def is_time_to_run(check_time):
-        """return True if its time to run this processor.
-        For now it just checks to see if its start of the hour
-        i.e. the minute is 00.
-        """
-        this_min = int(datetime.datetime.strftime(check_time, '%M'))
-
-        # run pre hourly processor only at top of the hour
-        if this_min == 0:
-            return True
-        else:
-            return False
+        return PreHourlyProcessorUtil.is_time_to_run(check_time)
 
     @staticmethod
     def _get_offsets_from_kafka(brokers,
@@ -220,7 +224,7 @@ class PreHourlyProcessor(Processor):
             until_offset = latest_dict[item].offsets[0]
 
             # from
-            if (spec_until_offset is not None and int(spec_until_offset) >= 0):
+            if spec_until_offset is not None and int(spec_until_offset) >= 0:
                 from_offset = spec_until_offset
             else:
                 from_offset = earliest_dict[item].offsets[0]
