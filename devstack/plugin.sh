@@ -47,25 +47,22 @@ set -o errexit
 # monasca-transform database password
 export MONASCA_TRANSFORM_DB_PASSWORD=${MONASCA_TRANSFORM_DB_PASSWORD:-"password"}
 
-# Determine if we are running in devstack-gate or devstack.
-if [[ $DEST ]]; then
-
-    # We are running in devstack-gate.
-    export MONASCA_TRANSFORM_BASE=${MONASCA_TRANSFORM_BASE:-"${DEST}"}
-
-else
-
-    # We are running in devstack.
-    export MONASCA_TRANSFORM_BASE=${MONASCA_TRANSFORM_BASE:-"/opt/stack"}
-
-fi
+export MONASCA_TRANSFORM_FILES="${DEST}"/monasca-transform/devstack/files
+export DOWNLOADS_DIRECTORY=${DOWNLOADS_DIRECTORY:-"/home/${USER}/downloads"}
 
 function pre_install_monasca_transform {
 :
 }
 
 function pre_install_spark {
-:
+    for SPARK_JAVA_LIB in "${SPARK_JAVA_LIBS[@]}"
+    do
+        SPARK_LIB_NAME=`echo ${SPARK_JAVA_LIB} | sed 's/.*\///'`
+        download_through_cache ${MAVEN_REPO}/${SPARK_JAVA_LIB} ${SPARK_LIB_NAME}
+    done
+    download_through_cache ${APACHE_MIRROR}/spark/spark-${SPARK_VERSION}/${SPARK_TARBALL_NAME} ${SPARK_TARBALL_NAME} 1000
+
+
 }
 
 function install_java_libs {
@@ -74,8 +71,7 @@ function install_java_libs {
     for SPARK_JAVA_LIB in "${SPARK_JAVA_LIBS[@]}"
     do
         SPARK_LIB_NAME=`echo ${SPARK_JAVA_LIB} | sed 's/.*\///'`
-
-        sudo -u spark curl ${MAVEN_REPO}/${SPARK_JAVA_LIB} -o ${SPARK_LIB_NAME}
+        copy_from_cache ${SPARK_LIB_NAME}
     done
     popd
 }
@@ -88,19 +84,32 @@ function link_spark_streaming_lib {
 
 }
 
+
+function copy_from_cache {
+    resource_name=$1
+    target_directory=${2:-"./."}
+    cp ${DOWNLOADS_DIRECTORY}/${resource_name} ${target_directory}/.
+}
+
+function download_through_cache {
+    resource_location=$1
+    resource_name=$2
+    resource_timeout=${3:-"300"}
+    if [[ ! -d ${DOWNLOADS_DIRECTORY} ]]; then
+        _safe_permission_operation mkdir -p ${DOWNLOADS_DIRECTORY}
+        _safe_permission_operation chown ${USER} ${DOWNLOADS_DIRECTORY}
+    fi
+    pushd ${DOWNLOADS_DIRECTORY}
+    if [[ ! -f ${resource_name} ]]; then
+        curl -m ${resource_timeout} --retry 3 --retry-delay 5 ${resource_location} -o ${resource_name}
+    fi
+    popd
+}
+
 function unstack_monasca_transform {
 
     echo_summary "Unstack Monasca-transform"
-    sudo service monasca-transform stop || true
-
-    delete_monasca_transform_files
-
-    sudo rm /etc/init/monasca-transform.conf || true
-    sudo rm -rf /etc/monasca/transform || true
-
-    drop_monasca_transform_database
-
-    unstack_spark
+    stop_process "monasca-transform" || true
 
 }
 
@@ -126,30 +135,44 @@ function unstack_spark {
 
     echo_summary "Unstack Spark"
 
-    sudo service spark-worker stop || true
+    stop_spark_worker
 
-    sudo service spark-master stop || true
+    stop_spark_master
 
+}
+
+function stop_spark_worker {
+
+    stop_process "spark-worker"
+
+}
+
+function stop_spark_master {
+
+    stop_process "spark-master"
+
+}
+
+function clean_spark {
+    echo_summary "Clean spark"
+    set +o errexit
     delete_spark_start_scripts
     delete_spark_upstart_definitions
     unlink_spark_commands
     delete_spark_directories
     sudo rm -rf `readlink /opt/spark/current` || true
-    sudo rm /opt/spark/current || true
-    sudo rm -rf /opt/spark/download || true
+    sudo rm -rf /opt/spark || true
     sudo userdel spark || true
     sudo groupdel spark || true
-
+    set -o errexit
 }
 
 function clean_monasca_transform {
-
     set +o errexit
-
-    unstack_monasca_transform
-
-    clean_monasca_transform
-
+    delete_monasca_transform_files
+    sudo rm /etc/init/monasca-transform.conf || true
+    sudo rm -rf /etc/monasca/transform || true
+    drop_monasca_transform_database
     set -o errexit
 }
 
@@ -158,13 +181,10 @@ function create_spark_directories {
     for SPARK_DIRECTORY in "${SPARK_DIRECTORIES[@]}"
     do
        sudo mkdir -p ${SPARK_DIRECTORY}
-       sudo chown spark:spark ${SPARK_DIRECTORY}
+       sudo chown ${USER} ${SPARK_DIRECTORY}
        sudo chmod 755 ${SPARK_DIRECTORY}
     done
 
-    sudo mkdir -p /var/log/spark/events
-    sudo chown spark:spark /var/log/spark/events
-    sudo chmod 775 /var/log/spark/events
 
 }
 
@@ -174,8 +194,6 @@ function delete_spark_directories {
         do
            sudo rm -rf ${SPARK_DIRECTORY} || true
         done
-
-    sudo rm -rf /var/log/spark/events || true
 
 }
 
@@ -205,8 +223,8 @@ function copy_and_link_config {
     SPARK_ENV_FILES=("spark-env.sh" "spark-worker-env.sh" "spark-defaults.conf")
     for SPARK_ENV_FILE in "${SPARK_ENV_FILES[@]}"
     do
-        sudo cp -f "${MONASCA_TRANSFORM_BASE}"/monasca-transform/devstack/files/spark/"${SPARK_ENV_FILE}" /etc/spark/conf/.
-        sudo ln -sf /etc/spark/conf/"${SPARK_ENV_FILE}" /opt/spark/current/conf/"${SPARK_ENV_FILE}"
+        cp -f "${MONASCA_TRANSFORM_FILES}"/spark/"${SPARK_ENV_FILE}" /etc/spark/conf/.
+        ln -sf /etc/spark/conf/"${SPARK_ENV_FILE}" /opt/spark/current/conf/"${SPARK_ENV_FILE}"
     done
 
 }
@@ -216,8 +234,8 @@ function copy_spark_start_scripts {
     SPARK_START_SCRIPTS=("start-spark-master.sh" "start-spark-worker.sh")
     for SPARK_START_SCRIPT in "${SPARK_START_SCRIPTS[@]}"
     do
-        sudo cp -f "${MONASCA_TRANSFORM_BASE}"/monasca-transform/devstack/files/spark/"${SPARK_START_SCRIPT}" /etc/spark/init/.
-        sudo chmod 755 /etc/spark/init/"${SPARK_START_SCRIPT}"
+        cp -f "${MONASCA_TRANSFORM_FILES}"/spark/"${SPARK_START_SCRIPT}" /etc/spark/init/.
+        chmod 755 /etc/spark/init/"${SPARK_START_SCRIPT}"
     done
 }
 
@@ -226,29 +244,8 @@ function delete_spark_start_scripts {
     SPARK_START_SCRIPTS=("start-spark-master.sh" "start-spark-worker.sh")
     for SPARK_START_SCRIPT in "${SPARK_START_SCRIPTS[@]}"
     do
-        sudo rm /etc/spark/init/"${SPARK_START_SCRIPT}" || true
+        rm /etc/spark/init/"${SPARK_START_SCRIPT}" || true
     done
-}
-
-function copy_spark_upstart_definitions {
-
-    SPARK_SERVICE_DEFINITIONS=("spark-master.service" "spark-worker.service")
-    for SPARK_SERVICE_DEFINITION in "${SPARK_SERVICE_DEFINITIONS[@]}"
-    do
-        sudo cp -f "${MONASCA_TRANSFORM_BASE}"/monasca-transform/devstack/files/spark/"${SPARK_SERVICE_DEFINITION}" /etc/systemd/system/.
-        sudo chmod 644 /etc/systemd/system/"${SPARK_SERVICE_DEFINITION}"
-    done
-
-}
-
-function delete_spark_upstart_definitions {
-
-    SPARK_SERVICE_DEFINITIONS=("spark-master.service" "spark-worker.service")
-    for SPARK_SERVICE_DEFINITION in "${SPARK_SERVICE_DEFINITIONS[@]}"
-    do
-        sudo rm /etc/systemd/system/${SPARK_SERVICE_DEFINITION} || true
-    done
-
 }
 
 
@@ -256,36 +253,27 @@ function install_monasca_transform {
 
     echo_summary "Install Monasca-Transform"
 
-    sudo groupadd --system monasca-transform || true
-
-    sudo useradd --system -g monasca-transform monasca-transform || true
-    sudo usermod -a -G spark monasca-transform
-
     create_monasca_transform_directories
     copy_monasca_transform_files
     create_monasca_transform_venv
 
-    sudo cp -f "${MONASCA_TRANSFORM_BASE}"/monasca-transform/devstack/files/monasca-transform/monasca-transform.service /etc/systemd/system/.
-    sudo cp -f "${MONASCA_TRANSFORM_BASE}"/monasca-transform/devstack/files/monasca-transform/start-monasca-transform.sh /etc/monasca/transform/init/.
+    sudo cp -f "${MONASCA_TRANSFORM_FILES}"/monasca-transform/monasca-transform.service /etc/systemd/system/.
+    sudo cp -f "${MONASCA_TRANSFORM_FILES}"/monasca-transform/start-monasca-transform.sh /etc/monasca/transform/init/.
     sudo chmod +x /etc/monasca/transform/init/start-monasca-transform.sh
-    sudo cp -f "${MONASCA_TRANSFORM_BASE}"/monasca-transform/devstack/files/monasca-transform/service_runner.py /etc/monasca/transform/init/.
+    sudo cp -f "${MONASCA_TRANSFORM_FILES}"/monasca-transform/service_runner.py /etc/monasca/transform/init/.
 
-    create_and_populate_monasca_transform_database
-
-    # create metrics pre hourly topic in kafka
-    /opt/kafka/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 64 --topic metrics_pre_hourly
 }
 
 
 function create_monasca_transform_directories {
 
-    MONASCA_TRANSFORM_DIRECTORIES=("/var/log/monasca/transform" "/opt/monasca/transform/lib" "/var/run/monasca/transform" "/etc/monasca/transform/init")
+    MONASCA_TRANSFORM_DIRECTORIES=("/var/log/monasca/transform" "/opt/monasca/transform" "/opt/monasca/transform/lib" "/var/run/monasca/transform" "/etc/monasca/transform/init")
 
     for MONASCA_TRANSFORM_DIRECTORY in "${MONASCA_TRANSFORM_DIRECTORIES[@]}"
     do
        sudo mkdir -p ${MONASCA_TRANSFORM_DIRECTORY}
-       sudo chown monasca-transform:monasca-transform ${MONASCA_TRANSFORM_DIRECTORY}
-       sudo chmod 755 ${MONASCA_TRANSFORM_DIRECTORY}
+       sudo chown ${USER} ${MONASCA_TRANSFORM_DIRECTORY}
+       chmod 755 ${MONASCA_TRANSFORM_DIRECTORY}
     done
 
 }
@@ -303,19 +291,16 @@ function ascertain_admin_project_id {
 
 function copy_monasca_transform_files {
 
-    sudo cp -f "${MONASCA_TRANSFORM_BASE}"/monasca-transform/devstack/files/monasca-transform/service_runner.py /opt/monasca/transform/lib/.
-    sudo cp -f "${MONASCA_TRANSFORM_BASE}"/monasca-transform/devstack/files/monasca-transform/monasca-transform.conf /etc/.
-    sudo cp -f "${MONASCA_TRANSFORM_BASE}"/monasca-transform/devstack/files/monasca-transform/driver.py /opt/monasca/transform/lib/.
-    ${MONASCA_TRANSFORM_BASE}/monasca-transform/scripts/create_zip.sh
-    sudo cp -f "${MONASCA_TRANSFORM_BASE}"/monasca-transform/scripts/monasca-transform.zip /opt/monasca/transform/lib/.
-    ${MONASCA_TRANSFORM_BASE}/monasca-transform/scripts/generate_ddl_for_devstack.sh
-    sudo cp -f "${MONASCA_TRANSFORM_BASE}"/monasca-transform/devstack/files/monasca-transform/monasca-transform_mysql.sql /opt/monasca/transform/lib/.
-    sudo cp -f "${MONASCA_TRANSFORM_BASE}"/monasca-transform/devstack/files/monasca-transform/transform_specs.sql /opt/monasca/transform/lib/.
-    sudo cp -f "${MONASCA_TRANSFORM_BASE}"/monasca-transform/devstack/files/monasca-transform/pre_transform_specs.sql /opt/monasca/transform/lib/.
-    sudo chown -R monasca-transform:monasca-transform /opt/monasca/transform
-    sudo touch /var/log/monasca/transform/monasca-transform.log
-    sudo chown monasca-transform:monasca-transform /var/log/monasca/transform/monasca-transform.log
-
+    cp -f "${MONASCA_TRANSFORM_FILES}"/monasca-transform/service_runner.py /opt/monasca/transform/lib/.
+    sudo cp -f "${MONASCA_TRANSFORM_FILES}"/monasca-transform/monasca-transform.conf /etc/.
+    cp -f "${MONASCA_TRANSFORM_FILES}"/monasca-transform/driver.py /opt/monasca/transform/lib/.
+    ${DEST}/monasca-transform/scripts/create_zip.sh
+    cp -f "${DEST}"/monasca-transform/scripts/monasca-transform.zip /opt/monasca/transform/lib/.
+    ${DEST}/monasca-transform/scripts/generate_ddl_for_devstack.sh
+    cp -f "${MONASCA_TRANSFORM_FILES}"/monasca-transform/monasca-transform_mysql.sql /opt/monasca/transform/lib/.
+    cp -f "${MONASCA_TRANSFORM_FILES}"/monasca-transform/transform_specs.sql /opt/monasca/transform/lib/.
+    cp -f "${MONASCA_TRANSFORM_FILES}"/monasca-transform/pre_transform_specs.sql /opt/monasca/transform/lib/.
+    touch /var/log/monasca/transform/monasca-transform.log
     # set passwords and other variables in configuration files
     sudo sudo sed -i "s/brokers=192\.168\.15\.6:9092/brokers=${SERVICE_HOST}:9092/g" /etc/monasca-transform.conf
     sudo sudo sed -i "s/password\s=\spassword/password = ${MONASCA_TRANSFORM_DB_PASSWORD}/g" /etc/monasca-transform.conf
@@ -323,50 +308,38 @@ function copy_monasca_transform_files {
 
 function create_monasca_transform_venv {
 
-    sudo chown -R monasca-transform:monasca-transform /opt/stack/monasca-transform
-    sudo su - monasca-transform -c "
-        virtualenv /opt/monasca/transform/venv ;
-        . /opt/monasca/transform/venv/bin/activate ;
-        pip install -e "${MONASCA_TRANSFORM_BASE}"/monasca-transform/ ;
-        deactivate"
+    sudo chown -R ${USER} ${DEST}/monasca-transform
+    virtualenv /opt/monasca/transform/venv ;
+    . /opt/monasca/transform/venv/bin/activate ;
+    pip install -e "${DEST}"/monasca-transform/ ;
+    deactivate
 
 }
 
 function create_and_populate_monasca_transform_database {
     # must login as root@localhost
-    sudo mysql -u$DATABASE_USER -p$DATABASE_PASSWORD -h$MYSQL_HOST < /opt/monasca/transform/lib/monasca-transform_mysql.sql || echo "Did the schema change? This process will fail on schema changes."
+    mysql -u$DATABASE_USER -p$DATABASE_PASSWORD -h$MYSQL_HOST < /opt/monasca/transform/lib/monasca-transform_mysql.sql || echo "Did the schema change? This process will fail on schema changes."
 
     # set grants for m-transform user (needs to be done from localhost)
-    sudo mysql -u$DATABASE_USER -p$DATABASE_PASSWORD -h$MYSQL_HOST -e "GRANT ALL ON monasca_transform.* TO 'm-transform'@'%' IDENTIFIED BY '${MONASCA_TRANSFORM_DB_PASSWORD}';"
-    sudo mysql -u$DATABASE_USER -p$DATABASE_PASSWORD -h$MYSQL_HOST -e "GRANT ALL ON monasca_transform.* TO 'm-transform'@'localhost' IDENTIFIED BY '${MONASCA_TRANSFORM_DB_PASSWORD}';"
+    mysql -u$DATABASE_USER -p$DATABASE_PASSWORD -h$MYSQL_HOST -e "GRANT ALL ON monasca_transform.* TO 'm-transform'@'%' IDENTIFIED BY '${MONASCA_TRANSFORM_DB_PASSWORD}';"
+    mysql -u$DATABASE_USER -p$DATABASE_PASSWORD -h$MYSQL_HOST -e "GRANT ALL ON monasca_transform.* TO 'm-transform'@'localhost' IDENTIFIED BY '${MONASCA_TRANSFORM_DB_PASSWORD}';"
 
     # copy rest of files after grants are ready
-    sudo mysql -um-transform -p$MONASCA_TRANSFORM_DB_PASSWORD -h$MYSQL_HOST < /opt/monasca/transform/lib/pre_transform_specs.sql
-    sudo mysql -um-transform -p$MONASCA_TRANSFORM_DB_PASSWORD -h$MYSQL_HOST <  /opt/monasca/transform/lib/transform_specs.sql
+    mysql -um-transform -p$MONASCA_TRANSFORM_DB_PASSWORD -h$MYSQL_HOST < /opt/monasca/transform/lib/pre_transform_specs.sql
+    mysql -um-transform -p$MONASCA_TRANSFORM_DB_PASSWORD -h$MYSQL_HOST <  /opt/monasca/transform/lib/transform_specs.sql
 }
 
 function install_spark {
 
     echo_summary "Install Spark"
 
-    sudo groupadd --system spark || true
+    sudo mkdir /opt/spark || true
 
-    sudo useradd --system -g spark spark || true
+    sudo chown -R ${USER} /opt/spark
 
-    sudo mkdir -p /opt/spark/download
+    tar -xzf ${DOWNLOADS_DIRECTORY}/${SPARK_TARBALL_NAME} -C /opt/spark/
 
-    sudo chown -R spark:spark /opt/spark
-
-    if [ ! -f /opt/spark/download/${SPARK_TARBALL_NAME} ]
-    then
-        sudo curl -m 600 ${APACHE_MIRROR}/spark/spark-${SPARK_VERSION}/${SPARK_TARBALL_NAME} -o /opt/spark/download/${SPARK_TARBALL_NAME}
-    fi
-
-    sudo chown spark:spark /opt/spark/download/${SPARK_TARBALL_NAME}
-
-    sudo -u spark tar -xzf /opt/spark/download/${SPARK_TARBALL_NAME}  -C /opt/spark/
-
-    sudo -u spark ln -sf /opt/spark/${SPARK_HADOOP_VERSION} /opt/spark/current
+    ln -sf /opt/spark/${SPARK_HADOOP_VERSION} /opt/spark/current
 
     install_java_libs
 
@@ -378,34 +351,52 @@ function install_spark {
 
     copy_spark_start_scripts
 
-    copy_spark_upstart_definitions
-
 }
 
 function extra_spark {
 
-    sudo service spark-master start
-    sleep 10
-    sudo service spark-worker start
+    start_spark_master
+    start_spark_worker
+
+}
+
+function start_spark_worker {
+
+    run_process "spark-worker" "/etc/spark/init/start-spark-worker.sh"
+
+}
+
+function start_spark_master {
+
+    run_process "spark-master" "/etc/spark/init/start-spark-master.sh"
 
 }
 
 function post_config_monasca_transform {
+
+    create_and_populate_monasca_transform_database
+
+}
+
+function post_config_spark {
 :
 }
 
 function extra_monasca_transform {
 
+    /opt/kafka/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 64 --topic metrics_pre_hourly
+
     ascertain_admin_project_id
     sudo sed -i "s/publish_kafka_project_id=d2cb21079930415a9f2a33588b9f2bb6/publish_kafka_project_id=${ADMIN_PROJECT_ID}/g" /etc/monasca-transform.conf
-    sudo service monasca-transform start
+    start_monasca_transform
 
 }
 
+function start_monasca_transform {
+    run_process "monasca-transform" "/etc/monasca/transform/init/start-monasca-transform.sh"
+}
+
 # check for service enabled
-
-echo_summary "Monasca-transform plugin with service enabled = `is_service_enabled monasca-transform`"
-
 if is_service_enabled monasca-transform; then
 
     if [[ "$1" == "stack" && "$2" == "pre-install" ]]; then
@@ -424,6 +415,8 @@ if is_service_enabled monasca-transform; then
 
     elif [[ "$1" == "stack" && "$2" == "post-config" ]]; then
         # Configure after the other layer 1 and 2 services have been configured
+        echo_summary "Configuring Spark"
+        post_config_spark
         echo_summary "Configuring Monasca-transform"
         post_config_monasca_transform
 
@@ -438,6 +431,8 @@ if is_service_enabled monasca-transform; then
     if [[ "$1" == "unstack" ]]; then
         echo_summary "Unstacking Monasca-transform"
         unstack_monasca_transform
+        echo_summary "Unstacking Spark"
+        unstack_spark
     fi
 
     if [[ "$1" == "clean" ]]; then
@@ -445,6 +440,8 @@ if is_service_enabled monasca-transform; then
         # Remember clean.sh first calls unstack.sh
         echo_summary "Cleaning Monasca-transform"
         clean_monasca_transform
+        echo_summary "Cleaning Spark"
+        clean_spark
     fi
 
     else
