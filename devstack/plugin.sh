@@ -232,21 +232,21 @@ function delete_spark_start_scripts {
 
 function copy_spark_upstart_definitions {
 
-    SPARK_UPSTART_DEFINITIONS=("spark-master.conf" "spark-worker.conf")
-    for SPARK_UPSTART_DEFINITION in "${SPARK_UPSTART_DEFINITIONS[@]}"
+    SPARK_SERVICE_DEFINITIONS=("spark-master.service" "spark-worker.service")
+    for SPARK_SERVICE_DEFINITION in "${SPARK_SERVICE_DEFINITIONS[@]}"
     do
-        sudo cp -f "${MONASCA_TRANSFORM_BASE}"/monasca-transform/devstack/files/spark/"${SPARK_UPSTART_DEFINITION}" /etc/init/.
-        sudo chmod 644 /etc/init/"${SPARK_UPSTART_DEFINITION}"
+        sudo cp -f "${MONASCA_TRANSFORM_BASE}"/monasca-transform/devstack/files/spark/"${SPARK_SERVICE_DEFINITION}" /etc/systemd/system/.
+        sudo chmod 644 /etc/systemd/system/"${SPARK_SERVICE_DEFINITION}"
     done
 
 }
 
 function delete_spark_upstart_definitions {
 
-    SPARK_UPSTART_DEFINITIONS=("spark-master.conf" "spark-worker.conf")
-    for SPARK_UPSTART_DEFINITION in "${SPARK_UPSTART_DEFINITIONS[@]}"
+    SPARK_SERVICE_DEFINITIONS=("spark-master.service" "spark-worker.service")
+    for SPARK_SERVICE_DEFINITION in "${SPARK_SERVICE_DEFINITIONS[@]}"
     do
-        sudo rm /etc/init/${SPARK_UPSTART_DEFINITION} || true
+        sudo rm /etc/systemd/system/${SPARK_SERVICE_DEFINITION} || true
     done
 
 }
@@ -265,7 +265,7 @@ function install_monasca_transform {
     copy_monasca_transform_files
     create_monasca_transform_venv
 
-    sudo cp -f "${MONASCA_TRANSFORM_BASE}"/monasca-transform/devstack/files/monasca-transform/monasca_transform_init.conf /etc/init/monasca-transform.conf
+    sudo cp -f "${MONASCA_TRANSFORM_BASE}"/monasca-transform/devstack/files/monasca-transform/monasca-transform.service /etc/systemd/system/.
     sudo cp -f "${MONASCA_TRANSFORM_BASE}"/monasca-transform/devstack/files/monasca-transform/start-monasca-transform.sh /etc/monasca/transform/init/.
     sudo chmod +x /etc/monasca/transform/init/start-monasca-transform.sh
     sudo cp -f "${MONASCA_TRANSFORM_BASE}"/monasca-transform/devstack/files/monasca-transform/service_runner.py /etc/monasca/transform/init/.

@@ -1,0 +1,12 @@
+[Unit]
+Description=Spark Master
+After=zookeeper.service
+
+[Service]
+User=spark
+Group=spark
+ExecStart=/etc/spark/init/start-spark-master.sh
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

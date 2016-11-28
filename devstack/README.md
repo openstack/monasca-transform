@@ -1,6 +1,6 @@
 # Monasca-transform DevStack Plugin
 
-The Monasca-transform DevStack plugin is tested only on Ubuntu 14.04 (Trusty).
+The Monasca-transform DevStack plugin is tested only on Ubuntu 16.04 (Xenial).
 
 A short cut to running monasca-transform in devstack is implemented with vagrant.
 
@@ -28,6 +28,13 @@ and deploys using that.  Changes made by the user need to be committed in order
 to be used in the devstack instance.  It is important therefore that changes
 should not be pushed from the vm as the unevaluated commit would be pushed.
 
+N.B. If you are running with virtualbox you may find that the `./stack.sh` fails with the filesystem becoming read only.  There is a work around:
+ 
+ 1. vagrant up --no-provision && vagrant halt 
+ 2. open virtualbox gui 
+ 3. open target vm settings and change storage controller from SCSI to SATA 
+ 4. vagrant up
+
 ### Using the upstream committed state of monasca-transform
 
 This should operate the same as for any other devstack plugin.  However, to use
@@ -42,7 +49,7 @@ above it is sufficient to do:
 
 and change the line
 
-    enable_plugin monasca-transform /home/vagrant/monasca-transform
+    enable_plugin monasca-transform /home/ubuntu/monasca-transform
 
 to
 
@@ -63,7 +70,7 @@ The devstack vm vagrant up process generates a private key which can be used for
 passwordless ssh to the host as follows:
 
     cd tools/vagrant
-    ssh -i .vagrant/machines/default/virtualbox/private_key vagrant@192.168.15.6
+    ssh -i .vagrant/machines/default/virtualbox/private_key ubuntu@192.168.15.6
 
 ### Running tox on devstack
 
