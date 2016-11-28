@@ -1,11 +1,14 @@
+# The order of packages is significant, because pip processes them in the order
+# of appearance. Changing the order has an impact on the overall integration
+# process, which may cause wedges in the gate later.
 pbr>=1.8 # Apache-2.0
-PyMySQL
-six>=1.7.0 # MIT
-SQLAlchemy<1.1.0,>=0.9.9
-kafka-python<=0.9.5
-stevedore>=1.5.0 # Apache-2.0
-monasca-common
-oslo.config>=1.2.1
-oslo.log
-oslo.service
-tooz
+PyMySQL!=0.7.7,>=0.7.6 # MIT License
+six>=1.9.0 # MIT
+SQLAlchemy<1.1.0,>=1.0.10 # MIT
+kafka-python<1.0.0,>=0.9.5 # Apache-2.0
+stevedore>=1.17.1 # Apache-2.0
+monasca-common>=1.0.0 # Apache-2.0
+oslo.config!=3.18.0,>=3.14.0 # Apache-2.0
+oslo.log>=3.11.0 # Apache-2.0
+oslo.service>=1.10.0 # Apache-2.0
+tooz>=1.28.0 # Apache-2.0
