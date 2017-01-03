@@ -11,13 +11,6 @@ else
     git clone https://git.openstack.org/openstack-dev/devstack
 fi
 
-if [ -d monasca-api ]
-then
-    echo monasca-api directory already cloned
-else
-    git clone https://github.com/openstack/monasca-api.git
-fi
-
 if [ -d monasca-transform ]
 then
     echo removing monasca-transform
