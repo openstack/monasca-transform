@@ -579,5 +579,9 @@ def invoke():
 
         MonMetricsKafkaProcessor.reset_kafka_offsets(application_name)
 
+        # delete pre hourly processor offsets
+        if cfg.CONF.stage_processors.pre_hourly_processor_enabled:
+            PreHourlyProcessor.reset_kafka_offsets()
+
 if __name__ == "__main__":
     invoke()

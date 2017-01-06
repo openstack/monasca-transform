@@ -84,8 +84,11 @@ class PreHourlyProcessor(Processor):
                                      batch_time_info)
 
     @staticmethod
-    def reset_kafka_offsets(app_name):
+    def reset_kafka_offsets():
         """delete all offsets from the offset specification."""
+
+        app_name = PreHourlyProcessor.get_app_name()
+
         # get the offsets from global var
         offset_specs = simport.load(cfg.CONF.repositories.offsets)()
         offset_specs.delete_all_kafka_offsets(app_name)
