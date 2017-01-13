@@ -15,7 +15,7 @@ echo Move the settings.xml into place
 
 ACTUAL_PROXY=`echo ${http_proxy} | awk 'BEGIN { FS = "//"} ;{ print $2 }'`
 PROXY_HOST=`echo $ACTUAL_PROXY | awk 'BEGIN { FS = ":"} ;{ print $1 }'`
-PROXY_PORT=`echo $ACTUAL_PROXY | awk 'BEGIN { FS = ":"} ;{ print $2 }'`
+PROXY_PORT=`echo $ACTUAL_PROXY | awk 'BEGIN { FS = ":"} ;{ gsub("[^0-9]", "", $2) ; print $2 }'`
 echo Assuming http proxy host = ${PROXY_HOST}, port = ${PROXY_PORT}
 sed -i "s/proxy_host/${PROXY_HOST}/g" /home/ubuntu/settings.xml
 sed -i "s/proxy_port/${PROXY_PORT}/g" /home/ubuntu/settings.xml
