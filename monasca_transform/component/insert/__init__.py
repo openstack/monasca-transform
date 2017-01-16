@@ -48,8 +48,7 @@ class InsertComponent(Component):
             metric_validator.validate(metric["metric"])
         except Exception as e:
             log.info("Metric %s is invalid: Exception : %s"
-                     % (json.dumps(metric),
-                        e.message))
+                     % (json.dumps(metric), str(e)))
             return False
         return True
 
