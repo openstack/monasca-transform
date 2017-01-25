@@ -53,7 +53,7 @@ and change the line
 
 to
 
-    enable_plugin monasca-transform https://gitlab.gozer.hpcloud.net/host/capacityplanning.git
+    enable_plugin monasca-transform https://git.openstack.org/openstack/monasca-transform
 
 before running
 
@@ -99,6 +99,16 @@ during the spark-submit call.  The configuration and the contents of the
 database are updated with fresh copies also though the start scripts, driver and
 service python code are left as they are (because I'm not envisaging much change
 in those).
+
+## To run monasca-transform using a different deployment technology
+
+Monasca-transform requires supporting services, such as Kafka and
+Zookeeper, also are set up. So just adding "enable_plugin monasca-transform"
+to a default DevStack local.conf is not sufficient to configure a working
+DevStack deployment unless these services are also added.
+
+Please reference the devstack/settings file for an example of a working list of
+plugins and services as used by the Vagrant deployment.
 
 ## WIP
 
