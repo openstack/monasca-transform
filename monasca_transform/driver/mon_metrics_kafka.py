@@ -406,6 +406,34 @@ class MonMetricsKafkaProcessor(object):
                      gen_mon_metrics_df.metric.dimensions.device).otherwise(
                     'NA').alias("device"),
 
+                when(gen_mon_metrics_df.metric.dimensions.namespace != '',
+                     gen_mon_metrics_df.metric.dimensions.namespace).otherwise(
+                    'NA').alias("namespace"),
+
+                when(gen_mon_metrics_df.metric.dimensions.pod_name != '',
+                     gen_mon_metrics_df.metric.dimensions.pod_name).otherwise(
+                    'NA').alias("pod_name"),
+
+                when(gen_mon_metrics_df.metric.dimensions.container_name != '',
+                     gen_mon_metrics_df.metric.dimensions
+                     .container_name).otherwise('NA').alias("container_name"),
+
+                when(gen_mon_metrics_df.metric.dimensions.app != '',
+                     gen_mon_metrics_df.metric.dimensions.app).otherwise(
+                    'NA').alias("app"),
+
+                when(gen_mon_metrics_df.metric.dimensions.interface != '',
+                     gen_mon_metrics_df.metric.dimensions.interface).otherwise(
+                    'NA').alias("interface"),
+
+                when(gen_mon_metrics_df.metric.dimensions.deployment != '',
+                     gen_mon_metrics_df.metric.dimensions
+                     .deployment).otherwise('NA').alias("deployment"),
+
+                when(gen_mon_metrics_df.metric.dimensions.daemon_set != '',
+                     gen_mon_metrics_df.metric.dimensions
+                     .daemon_set).otherwise('NA').alias("daemon_set"),
+
                 when(gen_mon_metrics_df.meta.userId != '',
                      gen_mon_metrics_df.meta.userId).otherwise('NA').alias(
                     "user_id"),

@@ -71,6 +71,20 @@ class PreHourlyCalculateRate(SetterComponent):
                                latest_dict.get("user_id", "all"),
                                "resource_uuid":
                                latest_dict.get("resource_uuid", "all"),
+                               "namespace":
+                                   latest_dict.get("namespace", "all"),
+                               "pod_name":
+                                   latest_dict.get("pod_name", "all"),
+                               "app":
+                                   latest_dict.get("app", "all"),
+                               "container_name":
+                                   latest_dict.get("container_name", "all"),
+                               "interface":
+                                   latest_dict.get("interface", "all"),
+                               "deployment":
+                                   latest_dict.get("deployment", "all"),
+                               "daemon_set":
+                                   latest_dict.get("daemon_set", "all"),
                                "geolocation":
                                latest_dict.get("geolocation", "all"),
                                "region":

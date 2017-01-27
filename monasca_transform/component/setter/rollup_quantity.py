@@ -116,6 +116,20 @@ class RollupQuantity(SetterComponent):
                                        getattr(row, "user_id", "all"),
                                    "resource_uuid":
                                        getattr(row, "resource_uuid", "all"),
+                                   "namespace":
+                                       getattr(row, "namespace", "all"),
+                                   "pod_name":
+                                       getattr(row, "pod_name", "all"),
+                                   "app":
+                                       getattr(row, "app", "all"),
+                                   "container_name":
+                                       getattr(row, "container_name", "all"),
+                                   "interface":
+                                       getattr(row, "interface", "all"),
+                                   "deployment":
+                                       getattr(row, "deployment", "all"),
+                                   "daemon_set":
+                                       getattr(row, "daemon_set", "all"),
                                    "geolocation":
                                        getattr(row, "geolocation", "all"),
                                    "region":

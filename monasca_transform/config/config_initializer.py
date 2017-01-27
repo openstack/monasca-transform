@@ -19,6 +19,7 @@ class ConfigInitializer(object):
 
     @staticmethod
     def basic_config(default_config_files=None):
+        cfg.CONF.reset()
         ConfigInitializer.load_repositories_options()
         ConfigInitializer.load_database_options()
         ConfigInitializer.load_messaging_options()

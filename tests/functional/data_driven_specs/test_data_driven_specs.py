@@ -20,10 +20,10 @@ from pyspark import SQLContext
 from monasca_transform.config.config_initializer import ConfigInitializer
 from monasca_transform.data_driven_specs.data_driven_specs_repo \
     import DataDrivenSpecsRepo
-from monasca_transform.data_driven_specs.json_data_driven_specs_repo \
-    import JSONDataDrivenSpecsRepo
 from monasca_transform.data_driven_specs.mysql_data_driven_specs_repo \
     import MySQLDataDrivenSpecsRepo
+from tests.functional.data_driven_specs.json_data_driven_specs_repo \
+    import JSONDataDrivenSpecsRepo
 from tests.functional.spark_context_test import SparkContextTest
 
 
