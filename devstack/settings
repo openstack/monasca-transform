@@ -37,7 +37,7 @@ enable_service spark-worker
 
 # spark vars
 SPARK_DIRECTORIES=("/var/spark" "/var/log/spark" "/var/log/spark/events" "/var/run/spark" "/var/run/spark/work" "/etc/spark/conf" "/etc/spark/init" )
-SPARK_VERSION=${SPARK_VERSION:-1.6.1}
+SPARK_VERSION=${SPARK_VERSION:-1.6.3}
 HADOOP_VERSION=${HADOOP_VERSION:-2.6}
 SPARK_HADOOP_VERSION=spark-$SPARK_VERSION-bin-hadoop$HADOOP_VERSION
 SPARK_TARBALL_NAME=${SPARK_HADOOP_VERSION}.tgz
