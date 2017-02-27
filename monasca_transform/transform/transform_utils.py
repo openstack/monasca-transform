@@ -32,7 +32,7 @@ class TransformUtils(object):
     def _rdd_to_df(rdd, schema):
         """convert rdd to dataframe using schema."""
         spark_context = rdd.context
-        sql_context = SQLContext(spark_context)
+        sql_context = SQLContext.getOrCreate(spark_context)
         if schema is None:
             df = sql_context.createDataFrame(rdd)
         else:

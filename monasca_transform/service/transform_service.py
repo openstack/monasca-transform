@@ -165,10 +165,13 @@ class TransformService(threading.Thread):
                 coordinator.heartbeat()
                 coordinator.run_watchers()
                 if self.previously_running is True:
-                    # Leave/exit the coordination/election group
-                    request = coordinator.leave_group(group)
-                    request.get()
-
+                    try:
+                        # Leave/exit the coordination/election group
+                        request = coordinator.leave_group(group)
+                        request.get()
+                    except coordination.MemberNotJoined:
+                        LOG.info('Host has not yet joined group %s as %s' %
+                                 (group, self.my_host_name))
                 time.sleep(float(CONF.service.election_polling_frequency))
 
             coordinator.stop()

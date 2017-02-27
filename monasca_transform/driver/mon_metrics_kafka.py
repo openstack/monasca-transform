@@ -296,7 +296,8 @@ class MonMetricsKafkaProcessor(object):
                 "rdd_to_recordstore: nothing to process...")
         else:
 
-            sql_context = SQLContext(rdd_transform_context_rdd.context)
+            sql_context = SQLContext.getOrCreate(
+                rdd_transform_context_rdd.context)
             data_driven_specs_repo = DataDrivenSpecsRepoFactory.\
                 get_data_driven_specs_repo()
             pre_transform_specs_df = data_driven_specs_repo.\
