@@ -15,6 +15,12 @@ import datetime
 import unittest
 
 from monasca_transform.config.config_initializer import ConfigInitializer
+
+ConfigInitializer.basic_config(
+    default_config_files=[
+        'tests/unit/test_resources/config/'
+        'test_config.conf']
+)
 from monasca_transform.processor.processor_util import PreHourlyProcessorUtil
 from monasca_transform.processor.processor_util import ProcessUtilDataProvider
 
@@ -22,11 +28,7 @@ from monasca_transform.processor.processor_util import ProcessUtilDataProvider
 class PreHourlyProcessorTest(unittest.TestCase):
 
     def setUp(self):
-        ConfigInitializer.basic_config(
-            default_config_files=[
-                'tests/unit/test_resources/config/'
-                'test_config.conf']
-        )
+        pass
 
     def test_is_time_to_run_before_late_metric_slack_time(self):
         check_time = datetime.datetime(
@@ -69,6 +71,15 @@ class PreHourlyProcessorTest(unittest.TestCase):
         PreHourlyProcessorUtil.get_data_provider().set_last_processed(
             date_time=(check_time + datetime.timedelta(hours=-1)))
         self.assertTrue(PreHourlyProcessorUtil.is_time_to_run(check_time))
+
+    def test_after_midnight_having_already_run(
+            self):
+        check_time = datetime.datetime(
+            year=2016, month=11, day=7, hour=0,
+            minute=20, second=0, microsecond=1)
+        PreHourlyProcessorUtil.get_data_provider().set_last_processed(
+            date_time=(check_time + datetime.timedelta(minutes=-10)))
+        self.assertFalse(PreHourlyProcessorUtil.is_time_to_run(check_time))
 
     def test_am_pm_behaviour(self):
         check_time = datetime.datetime(
