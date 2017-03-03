@@ -149,7 +149,21 @@ class InsertComponent(Component):
                                "usage_hour": row.usage_hour,
                                    "usage_minute": row.usage_minute,
                                "aggregation_period":
-                                   row.aggregation_period}
+                                   row.aggregation_period,
+                               "namespace":
+                                   row.namespace,
+                               "pod_name":
+                                   row.pod_name,
+                               "app":
+                                   row.app,
+                               "container_name":
+                                   row.container_name,
+                               "interface":
+                                   row.interface,
+                               "deployment":
+                                   row.deployment,
+                               "daemon_set":
+                                   row.daemon_set}
         metric = InsertComponent._prepare_metric(instance_usage_dict,
                                                  agg_params)
         return metric
@@ -195,7 +209,21 @@ class InsertComponent(Component):
                                "usage_minute": row.usage_minute,
                                "aggregation_period":
                                    row.aggregation_period,
-                               "processing_meta": processing_meta}
+                               "processing_meta": processing_meta,
+                               "namespace":
+                                   row.namespace,
+                               "pod_name":
+                                   row.pod_name,
+                               "app":
+                                   row.app,
+                               "container_name":
+                                   row.container_name,
+                               "interface":
+                                   row.interface,
+                               "deployment":
+                                   row.deployment,
+                               "daemon_set":
+                                   row.daemon_set}
         return instance_usage_dict
 
     @staticmethod

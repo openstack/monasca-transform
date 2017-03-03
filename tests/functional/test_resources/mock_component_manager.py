@@ -14,7 +14,6 @@
 
 from stevedore.extension import Extension
 from stevedore.extension import ExtensionManager
-from tests.unit.component.insert.dummy_insert import DummyInsert
 
 from monasca_transform.component.insert.prepare_data import PrepareData
 from monasca_transform.component.setter.rollup_quantity \
@@ -29,8 +28,9 @@ from monasca_transform.component.usage.fetch_quantity \
     import FetchQuantity
 from monasca_transform.component.usage.fetch_quantity_util \
     import FetchQuantityUtil
-from tests.functional.component.insert.dummy_insert_pre_hourly \
-    import DummyInsertPreHourly
+from tests.functional.component.insert.dummy_insert import DummyInsert
+from tests.functional.component.insert.dummy_insert_pre_hourly import \
+    DummyInsertPreHourly
 
 
 class MockComponentManager(object):
@@ -88,12 +88,12 @@ class MockComponentManager(object):
             PrepareData(),
             None),
             Extension('insert_data',
-                      'tests.unit.component.insert.dummy_insert:'
+                      'tests.functional.component.insert.dummy_insert:'
                       'DummyInsert',
                       DummyInsert(),
                       None),
             Extension('insert_data_pre_hourly',
-                      'tests.unit.component.insert.dummy_insert:'
+                      'tests.functional.component.insert.dummy_insert:'
                       'DummyInsert',
                       DummyInsert(),
                       None),
@@ -107,12 +107,12 @@ class MockComponentManager(object):
             PrepareData(),
             None),
             Extension('insert_data',
-                      'tests.unit.component.insert.dummy_insert:'
+                      'tests.functional.component.insert.dummy_insert:'
                       'DummyInsert',
                       DummyInsert(),
                       None),
             Extension('insert_data_pre_hourly',
-                      'tests.unit.component.insert.'
+                      'tests.functional.component.insert.'
                       'dummy_insert_pre_hourly:'
                       'DummyInsertPreHourly',
                       DummyInsertPreHourly(),

@@ -97,6 +97,20 @@ class FetchQuantity(UsageComponent):
                                           Component.DEFAULT_UNAVAILABLE_VALUE)
         user_id = group_by_dict.get("user_id",
                                     Component.DEFAULT_UNAVAILABLE_VALUE)
+        namespace = group_by_dict.get("namespace",
+                                      Component.DEFAULT_UNAVAILABLE_VALUE)
+        pod_name = group_by_dict.get("pod_name",
+                                     Component.DEFAULT_UNAVAILABLE_VALUE)
+        app = group_by_dict.get("app",
+                                Component.DEFAULT_UNAVAILABLE_VALUE)
+        container_name = group_by_dict.get("container_name",
+                                           Component.DEFAULT_UNAVAILABLE_VALUE)
+        interface = group_by_dict.get("interface",
+                                      Component.DEFAULT_UNAVAILABLE_VALUE)
+        deployment = group_by_dict.get("deployment",
+                                       Component.DEFAULT_UNAVAILABLE_VALUE)
+        daemon_set = group_by_dict.get("daemon_set",
+                                       Component.DEFAULT_UNAVAILABLE_VALUE)
 
         geolocation = group_by_dict.get("geolocation",
                                         Component.DEFAULT_UNAVAILABLE_VALUE)
@@ -145,6 +159,13 @@ class FetchQuantity(UsageComponent):
 
         instance_usage_dict = {"tenant_id": tenant_id, "user_id": user_id,
                                "resource_uuid": resource_uuid,
+                               "namespace": namespace,
+                               "pod_name": pod_name,
+                               "app": app,
+                               "container_name": container_name,
+                               "interface": interface,
+                               "deployment": deployment,
+                               "daemon_set": daemon_set,
                                "geolocation": geolocation, "region": region,
                                "zone": zone, "host": host,
                                "aggregated_metric_name":
@@ -237,6 +258,34 @@ class FetchQuantity(UsageComponent):
                                            DEFAULT_UNAVAILABLE_VALUE),
                                "project_id":
                                    getattr(row, "tenant_id",
+                                           Component.
+                                           DEFAULT_UNAVAILABLE_VALUE),
+                               "namespace":
+                                   getattr(row, "namespace",
+                                           Component.
+                                           DEFAULT_UNAVAILABLE_VALUE),
+                               "pod_name":
+                                   getattr(row, "pod_name",
+                                           Component.
+                                           DEFAULT_UNAVAILABLE_VALUE),
+                               "app":
+                                   getattr(row, "app",
+                                           Component.
+                                           DEFAULT_UNAVAILABLE_VALUE),
+                               "container_name":
+                                   getattr(row, "container_name",
+                                           Component.
+                                           DEFAULT_UNAVAILABLE_VALUE),
+                               "interface":
+                                   getattr(row, "interface",
+                                           Component.
+                                           DEFAULT_UNAVAILABLE_VALUE),
+                               "deployment":
+                                   getattr(row, "deployment",
+                                           Component.
+                                           DEFAULT_UNAVAILABLE_VALUE),
+                               "daemon_set":
+                                   getattr(row, "daemon_set",
                                            Component.
                                            DEFAULT_UNAVAILABLE_VALUE),
                                "aggregated_metric_name":

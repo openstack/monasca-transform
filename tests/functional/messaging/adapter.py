@@ -25,7 +25,7 @@ class DummyAdapter(MessageAdapter):
     def init():
         # object to keep track of offsets
         DummyAdapter.adapter_impl = simport.load(
-            "tests.unit.messaging.adapter:DummyAdapter")()
+            "tests.functional.messaging.adapter:DummyAdapter")()
 
     def do_send_metric(self, metric):
         self.metric_list.append(metric)

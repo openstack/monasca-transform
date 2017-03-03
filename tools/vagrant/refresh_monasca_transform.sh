@@ -15,7 +15,8 @@ fi
 SCRIPT_HOME=$(dirname $(readlink -f $BASH_SOURCE))
 pushd $SCRIPT_HOME
 
-
+# TODO not sure how to stop monasca-transform from here now that
+# the control for it in DevStack is via screen -x stack
 if grep -q running <<<`sudo service monasca-transform status`; then
     sudo service monasca-transform stop
 else
@@ -48,12 +49,11 @@ sudo rm -rf /opt/monasca/transform/venv
 sudo rm -rf /opt/stack/monasca-transform
 pushd /opt/stack
 sudo git clone /home/ubuntu/monasca-transform
-sudo chown -R monasca-transform:monasca-transform /opt/stack/monasca-transform
-sudo su - monasca-transform -c "
-        virtualenv /opt/monasca/transform/venv ;
-        . /opt/monasca/transform/venv/bin/activate ;
-        pip install -e /opt/stack/monasca-transform/ ;
-        deactivate"
+sudo chown -R ubuntu:ubuntu /opt/stack/monasca-transform
+virtualenv /opt/monasca/transform/venv
+. /opt/monasca/transform/venv/bin/activate
+pip install -e /opt/stack/monasca-transform/
+deactivate
 popd
 
 function get_id () {
@@ -64,6 +64,8 @@ source ~/devstack/openrc admin admin
 export ADMIN_PROJECT_ID=$(get_id openstack project show admin)
 sudo sed -i "s/publish_kafka_project_id=d2cb21079930415a9f2a33588b9f2bb6/publish_kafka_project_id=${ADMIN_PROJECT_ID}/g" /etc/monasca-transform.conf
 
+# TODO not sure how to start monasca-transform from here now that
+# the control for it in DevStack is via screen -x stack
 sudo service monasca-transform start
 
 popd

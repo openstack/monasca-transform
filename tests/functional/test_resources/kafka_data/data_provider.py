@@ -17,7 +17,7 @@ import os
 
 class DataProvider(object):
 
-    _resource_path = 'tests/unit/test_resources/kafka_data/'
+    _resource_path = 'tests/functional/test_resources/kafka_data/'
 
     kafka_data_path = os.path.join(_resource_path,
                                    "kafka_data.txt")

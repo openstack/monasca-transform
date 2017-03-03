@@ -31,7 +31,7 @@ class JSONDataDrivenSpecsRepo(DataDrivenSpecsRepo):
         if data_driven_spec_type == self.transform_specs_type:
             path = (os.path.join(
                     self._common_file_system_stub_path,
-                    "monasca_transform/data_driven_specs/"
+                    "tests/functional/data_driven_specs/"
                     "transform_specs/transform_specs.json"
                     ))
             if os.path.exists(path):
@@ -41,7 +41,7 @@ class JSONDataDrivenSpecsRepo(DataDrivenSpecsRepo):
         elif data_driven_spec_type == self.pre_transform_specs_type:
             path = (os.path.join(
                     self._common_file_system_stub_path,
-                    "monasca_transform/data_driven_specs/"
+                    "tests/functional/data_driven_specs/"
                     "pre_transform_specs/pre_transform_specs.json"
                     ))
             if os.path.exists(path):

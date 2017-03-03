@@ -17,30 +17,32 @@ import sys
 import unittest
 import uuid
 
+from collections import defaultdict
+
 import mock
 from oslo_config import cfg
 from pyspark.streaming.kafka import OffsetRange
-from tests.unit.component.insert.dummy_insert import DummyInsert
-from tests.unit.spark_context_test import SparkContextTest
-from tests.unit.test_resources.metrics_pre_hourly_data.data_provider \
-    import DataProvider
 
 from monasca_transform.config.config_initializer import ConfigInitializer
-from monasca_transform.offset_specs import JSONOffsetSpecs
 from monasca_transform.processor.pre_hourly_processor import PreHourlyProcessor
+from tests.functional.component.insert.dummy_insert import DummyInsert
+from tests.functional.json_offset_specs import JSONOffsetSpecs
 from tests.functional.messaging.adapter import DummyAdapter
+from tests.functional.spark_context_test import SparkContextTest
+from tests.functional.test_resources.metrics_pre_hourly_data.data_provider \
+    import DataProvider
 
 
 class TestPreHourlyProcessorAgg(SparkContextTest):
 
-    test_resources_path = 'tests/unit/test_resources'
+    test_resources_path = 'tests/functional/test_resources'
 
     def setUp(self):
         super(TestPreHourlyProcessorAgg, self).setUp()
         # configure the system with a dummy messaging adapter
         ConfigInitializer.basic_config(
             default_config_files=[
-                'tests/unit/test_resources/config/'
+                'tests/functional/test_resources/config/'
                 'test_config_with_dummy_messaging_adapter.conf'])
         # reset metric_id list dummy adapter
         if not DummyAdapter.adapter_impl:
@@ -105,15 +107,22 @@ class TestPreHourlyProcessorAgg(SparkContextTest):
         metrics = DummyAdapter.adapter_impl.metric_list
 
         # Verify count of instance usage data
-        self.assertEqual(result, 9)
+        self.assertEqual(result, 57)
 
-        # check aggregation result
+        # make a dictionary of all metrics so that they can be directly
+        # referenced in the verifications that follow
+        metrics_dict = defaultdict(list)
+        for metric in metrics:
+            metric_name = metric.get('metric').get('name')
+            metrics_dict[metric_name].append(metric)
+
+        # Verify mem.total_mb_agg metrics for all hosts
+        metric_list = metrics_dict['mem.total_mb_agg']
         mem_total_mb_agg_metric = [
-            value for value in metrics
-            if value.get('metric').get('name') ==
-            'mem.total_mb_agg' and
-            value.get('metric').get('dimensions').get('host') ==
+            value for value in metric_list
+            if value.get('metric').get('dimensions').get('host') ==
             'all'][0]
+
         self.assertTrue(mem_total_mb_agg_metric is not None)
         self.assertEqual(16049.0,
                          mem_total_mb_agg_metric
@@ -134,13 +143,14 @@ class TestPreHourlyProcessorAgg(SparkContextTest):
                          .get("metric")
                          .get('value_meta').get('record_count'))
 
+        # Verify mem.usable_mb_agg metrics for all hosts
+        metric_list = metrics_dict['mem.usable_mb_agg']
         mem_usable_mb_agg_metric = [
-            value for value in metrics
-            if value.get('metric').get('name') ==
-            'mem.usable_mb_agg' and
-            value.get('metric').get('dimensions').get('host') ==
+            value for value in metric_list
+            if value.get('metric').get('dimensions').get('host') ==
             'all'][0]
-        self.assertTrue(mem_usable_mb_agg_metric is not None)
+
+        self.assertTrue(mem_total_mb_agg_metric is not None)
         self.assertEqual(10283.1,
                          mem_usable_mb_agg_metric
                          .get('metric').get('value'))
@@ -160,11 +170,10 @@ class TestPreHourlyProcessorAgg(SparkContextTest):
                          .get("metric")
                          .get('value_meta').get('record_count'))
 
-        # check aggregation result for swiftlm.diskusage.rate_agg
-        swift_disk_rate_agg_metric = [
-            value for value in metrics
-            if value.get('metric').get('name') ==
+        # Verify swiftlm.diskusage.rate_agg metrics
+        swift_disk_rate_agg_metric = metrics_dict[
             'swiftlm.diskusage.rate_agg'][0]
+
         self.assertTrue(swift_disk_rate_agg_metric is not None)
         self.assertEqual(37.25140584281991,
                          swift_disk_rate_agg_metric
@@ -196,6 +205,769 @@ class TestPreHourlyProcessorAgg(SparkContextTest):
                          .get('dimensions').get('project_id'))
         self.assertEqual('hourly',
                          swift_disk_rate_agg_metric.get('metric')
+                         .get('dimensions').get('aggregation_period'))
+
+        # Verify total pod.net.in_bytes_sec_agg metrics
+        metric_list = metrics_dict['pod.net.in_bytes_sec_agg']
+        pod_net_in_bytes_sec_agg_metric = [
+            value for value in metric_list
+            if value.get('metric').get('dimensions').get('app') ==
+            'all'][0]
+
+        self.assertTrue(pod_net_in_bytes_sec_agg_metric is not None)
+        self.assertEqual(75.0,
+                         pod_net_in_bytes_sec_agg_metric
+                         .get('metric').get('value'))
+        self.assertEqual('2016-06-20 11:39:44',
+                         pod_net_in_bytes_sec_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('lastrecord_timestamp_string'))
+        self.assertEqual('2016-06-20 11:24:59',
+                         pod_net_in_bytes_sec_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('firstrecord_timestamp_string'))
+        self.assertEqual(6.0,
+                         pod_net_in_bytes_sec_agg_metric
+                         .get('metric')
+                         .get('value_meta').get('record_count'))
+        self.assertEqual('useast',
+                         pod_net_in_bytes_sec_agg_metric.get('meta')
+                         .get('region'))
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
+                         pod_net_in_bytes_sec_agg_metric.get('meta')
+                         .get('tenantId'))
+        self.assertEqual('all',
+                         pod_net_in_bytes_sec_agg_metric.get('metric')
+                         .get('dimensions').get('deployment'))
+        self.assertEqual('all',
+                         pod_net_in_bytes_sec_agg_metric.get('metric')
+                         .get('dimensions').get('interface'))
+        self.assertEqual('all',
+                         pod_net_in_bytes_sec_agg_metric.get('metric')
+                         .get('dimensions').get('namespace'))
+        self.assertEqual('all',
+                         pod_net_in_bytes_sec_agg_metric.get('metric')
+                         .get('dimensions').get('pod_name'))
+        self.assertEqual('hourly',
+                         pod_net_in_bytes_sec_agg_metric.get('metric')
+                         .get('dimensions').get('aggregation_period'))
+
+        # Verify pod.net.in_bytes_sec_agg metrics for wordpress app
+        metric_list = metrics_dict['pod.net.in_bytes_sec_agg']
+        pod_net_in_bytes_sec_agg_metric = [
+            value for value in metric_list
+            if value.get('metric').get('dimensions').get('app') ==
+            'wordpress'][0]
+
+        self.assertTrue(pod_net_in_bytes_sec_agg_metric is not None)
+        self.assertEqual(175.0,
+                         pod_net_in_bytes_sec_agg_metric
+                         .get('metric').get('value'))
+        self.assertEqual('2016-06-20 11:39:44',
+                         pod_net_in_bytes_sec_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('lastrecord_timestamp_string'))
+        self.assertEqual('2016-06-20 11:24:59',
+                         pod_net_in_bytes_sec_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('firstrecord_timestamp_string'))
+        self.assertEqual(14.0,
+                         pod_net_in_bytes_sec_agg_metric
+                         .get('metric')
+                         .get('value_meta').get('record_count'))
+        self.assertEqual('useast',
+                         pod_net_in_bytes_sec_agg_metric.get('meta')
+                         .get('region'))
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
+                         pod_net_in_bytes_sec_agg_metric.get('meta')
+                         .get('tenantId'))
+        self.assertEqual('all',
+                         pod_net_in_bytes_sec_agg_metric.get('metric')
+                         .get('dimensions').get('deployment'))
+        self.assertEqual('all',
+                         pod_net_in_bytes_sec_agg_metric.get('metric')
+                         .get('dimensions').get('interface'))
+        self.assertEqual('all',
+                         pod_net_in_bytes_sec_agg_metric.get('metric')
+                         .get('dimensions').get('namespace'))
+        self.assertEqual('all',
+                         pod_net_in_bytes_sec_agg_metric.get('metric')
+                         .get('dimensions').get('pod_name'))
+        self.assertEqual('hourly',
+                         pod_net_in_bytes_sec_agg_metric.get('metric')
+                         .get('dimensions').get('aggregation_period'))
+
+        # Verify total pod.cpu.total_time_agg metrics
+        metric_list = metrics_dict['pod.cpu.total_time_agg']
+        pod_cpu_total_time_agg_metric = [
+            value for value in metric_list
+            if value.get('metric').get('dimensions').get('namespace') ==
+            'all'][0]
+
+        self.assertTrue(pod_cpu_total_time_agg_metric is not None)
+        self.assertEqual(275.0,
+                         pod_cpu_total_time_agg_metric
+                         .get('metric').get('value'))
+        self.assertEqual('2016-06-20 11:39:44',
+                         pod_cpu_total_time_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('lastrecord_timestamp_string'))
+        self.assertEqual('2016-06-20 11:24:59',
+                         pod_cpu_total_time_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('firstrecord_timestamp_string'))
+        self.assertEqual(22.0,
+                         pod_cpu_total_time_agg_metric
+                         .get('metric')
+                         .get('value_meta').get('record_count'))
+        self.assertEqual('useast',
+                         pod_cpu_total_time_agg_metric.get('meta')
+                         .get('region'))
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
+                         pod_cpu_total_time_agg_metric.get('meta')
+                         .get('tenantId'))
+        self.assertEqual('hourly',
+                         pod_cpu_total_time_agg_metric.get('metric')
+                         .get('dimensions').get('aggregation_period'))
+
+        # Verify for pod.cpu.total_time_agg metrics for first_namespace
+        metric_list = metrics_dict['pod.cpu.total_time_agg']
+        pod_cpu_total_time_agg_metric = [
+            value for value in metric_list
+            if value.get('metric').get('dimensions').get('namespace') ==
+            'first_namespace'][0]
+
+        self.assertTrue(pod_cpu_total_time_agg_metric is not None)
+        self.assertEqual(375.0,
+                         pod_cpu_total_time_agg_metric
+                         .get('metric').get('value'))
+        self.assertEqual('2016-06-20 11:39:44',
+                         pod_cpu_total_time_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('lastrecord_timestamp_string'))
+        self.assertEqual('2016-06-20 11:24:59',
+                         pod_cpu_total_time_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('firstrecord_timestamp_string'))
+        self.assertEqual(30.0,
+                         pod_cpu_total_time_agg_metric
+                         .get('metric')
+                         .get('value_meta').get('record_count'))
+        self.assertEqual('useast',
+                         pod_cpu_total_time_agg_metric.get('meta')
+                         .get('region'))
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
+                         pod_cpu_total_time_agg_metric.get('meta')
+                         .get('tenantId'))
+        self.assertEqual('hourly',
+                         pod_cpu_total_time_agg_metric.get('metric')
+                         .get('dimensions').get('aggregation_period'))
+
+        # Verify pod.cpu.total_time_agg metrics second_namespace
+        metric_list = metrics_dict['pod.cpu.total_time_agg']
+        pod_cpu_total_time_agg_metric = [
+            value for value in metric_list
+            if value.get('metric').get('dimensions').get('namespace') ==
+            'second_namespace'][0]
+
+        self.assertTrue(pod_cpu_total_time_agg_metric is not None)
+        self.assertEqual(475.0,
+                         pod_cpu_total_time_agg_metric
+                         .get('metric').get('value'))
+        self.assertEqual('2016-06-20 11:39:44',
+                         pod_cpu_total_time_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('lastrecord_timestamp_string'))
+        self.assertEqual('2016-06-20 11:24:59',
+                         pod_cpu_total_time_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('firstrecord_timestamp_string'))
+        self.assertEqual(38.0,
+                         pod_cpu_total_time_agg_metric
+                         .get('metric')
+                         .get('value_meta').get('record_count'))
+        self.assertEqual('useast',
+                         pod_cpu_total_time_agg_metric.get('meta')
+                         .get('region'))
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
+                         pod_cpu_total_time_agg_metric.get('meta')
+                         .get('tenantId'))
+        self.assertEqual('hourly',
+                         pod_cpu_total_time_agg_metric.get('metric')
+                         .get('dimensions').get('aggregation_period'))
+
+        # Verify total pod.net.out_bytes_sec_agg metrics
+        metric_list = metrics_dict['pod.net.out_bytes_sec_agg']
+        pod_net_out_bytes_sec_agg_metric = [
+            value for value in metric_list
+            if value.get('metric').get('dimensions').get('namespace') ==
+            'all'][0]
+
+        self.assertTrue(pod_net_out_bytes_sec_agg_metric is not None)
+        self.assertEqual(775.0,
+                         pod_net_out_bytes_sec_agg_metric
+                         .get('metric').get('value'))
+        self.assertEqual('2016-06-20 11:39:44',
+                         pod_net_out_bytes_sec_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('lastrecord_timestamp_string'))
+        self.assertEqual('2016-06-20 11:24:59',
+                         pod_net_out_bytes_sec_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('firstrecord_timestamp_string'))
+        self.assertEqual(62.0,
+                         pod_net_out_bytes_sec_agg_metric
+                         .get('metric')
+                         .get('value_meta').get('record_count'))
+        self.assertEqual('useast',
+                         pod_net_out_bytes_sec_agg_metric.get('meta')
+                         .get('region'))
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
+                         pod_net_out_bytes_sec_agg_metric.get('meta')
+                         .get('tenantId'))
+        self.assertEqual('all',
+                         pod_net_out_bytes_sec_agg_metric.get('metric')
+                         .get('dimensions').get('interface'))
+        self.assertEqual('all',
+                         pod_net_out_bytes_sec_agg_metric.get('metric')
+                         .get('dimensions').get('pod_name'))
+        self.assertEqual('hourly',
+                         pod_net_out_bytes_sec_agg_metric.get('metric')
+                         .get('dimensions').get('aggregation_period'))
+
+        # Verify pod.net.out_bytes_sec_agg metrics for first_namespace
+        metric_list = metrics_dict['pod.net.out_bytes_sec_agg']
+        pod_net_out_bytes_sec_agg_metric = [
+            value for value in metric_list
+            if value.get('metric').get('dimensions').get('namespace') ==
+            'first_namespace'][0]
+
+        self.assertTrue(pod_net_out_bytes_sec_agg_metric is not None)
+        self.assertEqual(875.0,
+                         pod_net_out_bytes_sec_agg_metric
+                         .get('metric').get('value'))
+        self.assertEqual('2016-06-20 11:39:44',
+                         pod_net_out_bytes_sec_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('lastrecord_timestamp_string'))
+        self.assertEqual('2016-06-20 11:24:59',
+                         pod_net_out_bytes_sec_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('firstrecord_timestamp_string'))
+        self.assertEqual(70.0,
+                         pod_net_out_bytes_sec_agg_metric
+                         .get('metric')
+                         .get('value_meta').get('record_count'))
+        self.assertEqual('useast',
+                         pod_net_out_bytes_sec_agg_metric.get('meta')
+                         .get('region'))
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
+                         pod_net_out_bytes_sec_agg_metric.get('meta')
+                         .get('tenantId'))
+        self.assertEqual('all',
+                         pod_net_out_bytes_sec_agg_metric.get('metric')
+                         .get('dimensions').get('interface'))
+        self.assertEqual('all',
+                         pod_net_out_bytes_sec_agg_metric.get('metric')
+                         .get('dimensions').get('pod_name'))
+        self.assertEqual('hourly',
+                         pod_net_out_bytes_sec_agg_metric.get('metric')
+                         .get('dimensions').get('aggregation_period'))
+
+        # Verify total pod.mem.used_bytes_agg metrics
+        metric_list = metrics_dict['pod.mem.used_bytes_agg']
+        pod_mem_used_bytes_agg_metric = [
+            value for value in metric_list
+            if value.get('metric').get('dimensions').get('namespace') ==
+            'all' and
+            value.get('metric').get('dimensions').get('pod_name') ==
+            'all'][0]
+
+        self.assertTrue(pod_mem_used_bytes_agg_metric is not None)
+        self.assertEqual(975.0,
+                         pod_mem_used_bytes_agg_metric
+                         .get('metric').get('value'))
+        self.assertEqual('2016-06-20 11:39:44',
+                         pod_mem_used_bytes_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('lastrecord_timestamp_string'))
+        self.assertEqual('2016-06-20 11:24:59',
+                         pod_mem_used_bytes_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('firstrecord_timestamp_string'))
+        self.assertEqual(82.0,
+                         pod_mem_used_bytes_agg_metric
+                         .get('metric')
+                         .get('value_meta').get('record_count'))
+        self.assertEqual('useast',
+                         pod_mem_used_bytes_agg_metric.get('meta')
+                         .get('region'))
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
+                         pod_mem_used_bytes_agg_metric.get('meta')
+                         .get('tenantId'))
+        self.assertEqual('all',
+                         pod_mem_used_bytes_agg_metric.get('metric')
+                         .get('dimensions').get('deployment'))
+        self.assertEqual('hourly',
+                         pod_mem_used_bytes_agg_metric.get('metric')
+                         .get('dimensions').get('aggregation_period'))
+
+        # Verify pod.mem.used_bytes_agg metrics for first_namespace
+        metric_list = metrics_dict['pod.mem.used_bytes_agg']
+        pod_mem_used_bytes_agg_metric = [
+            value for value in metric_list
+            if value.get('metric').get('dimensions').get('namespace') ==
+            'first_namespace' and
+            value.get('metric').get('dimensions').get('pod_name') ==
+            'all'][0]
+
+        self.assertTrue(pod_mem_used_bytes_agg_metric is not None)
+        self.assertEqual(1075.0,
+                         pod_mem_used_bytes_agg_metric
+                         .get('metric').get('value'))
+        self.assertEqual('2016-06-20 11:39:44',
+                         pod_mem_used_bytes_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('lastrecord_timestamp_string'))
+        self.assertEqual('2016-06-20 11:24:59',
+                         pod_mem_used_bytes_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('firstrecord_timestamp_string'))
+        self.assertEqual(90.0,
+                         pod_mem_used_bytes_agg_metric
+                         .get('metric')
+                         .get('value_meta').get('record_count'))
+        self.assertEqual('useast',
+                         pod_mem_used_bytes_agg_metric.get('meta')
+                         .get('region'))
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
+                         pod_mem_used_bytes_agg_metric.get('meta')
+                         .get('tenantId'))
+        self.assertEqual('all',
+                         pod_mem_used_bytes_agg_metric.get('metric')
+                         .get('dimensions').get('deployment'))
+        self.assertEqual('hourly',
+                         pod_mem_used_bytes_agg_metric.get('metric')
+                         .get('dimensions').get('aggregation_period'))
+
+        # Verify pod.mem.used_bytes_agg metrics for second_namespace
+        metric_list = metrics_dict['pod.mem.used_bytes_agg']
+        pod_mem_used_bytes_agg_metric = [
+            value for value in metric_list
+            if value.get('metric').get('dimensions').get('namespace') ==
+            'second_namespace' and
+            value.get('metric').get('dimensions').get('pod_name') ==
+            'all'][0]
+
+        self.assertTrue(pod_mem_used_bytes_agg_metric is not None)
+        self.assertEqual(1175.0,
+                         pod_mem_used_bytes_agg_metric
+                         .get('metric').get('value'))
+        self.assertEqual('2016-06-20 11:39:44',
+                         pod_mem_used_bytes_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('lastrecord_timestamp_string'))
+        self.assertEqual('2016-06-20 11:24:59',
+                         pod_mem_used_bytes_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('firstrecord_timestamp_string'))
+        self.assertEqual(98.0,
+                         pod_mem_used_bytes_agg_metric
+                         .get('metric')
+                         .get('value_meta').get('record_count'))
+        self.assertEqual('useast',
+                         pod_mem_used_bytes_agg_metric.get('meta')
+                         .get('region'))
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
+                         pod_mem_used_bytes_agg_metric.get('meta')
+                         .get('tenantId'))
+        self.assertEqual('all',
+                         pod_mem_used_bytes_agg_metric.get('metric')
+                         .get('dimensions').get('deployment'))
+        self.assertEqual('hourly',
+                         pod_mem_used_bytes_agg_metric.get('metric')
+                         .get('dimensions').get('aggregation_period'))
+
+        # Verify pod.mem.used_bytes_agg metrics for first_pod
+        metric_list = metrics_dict['pod.mem.used_bytes_agg']
+        pod_mem_used_bytes_agg_metric = [
+            value for value in metric_list
+            if value.get('metric').get('dimensions').get('namespace') ==
+            'all' and
+            value.get('metric').get('dimensions').get('pod_name') ==
+            'first_pod'][0]
+
+        self.assertTrue(pod_mem_used_bytes_agg_metric is not None)
+        self.assertEqual(1275.0,
+                         pod_mem_used_bytes_agg_metric
+                         .get('metric').get('value'))
+        self.assertEqual('2016-06-20 11:39:44',
+                         pod_mem_used_bytes_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('lastrecord_timestamp_string'))
+        self.assertEqual('2016-06-20 11:24:59',
+                         pod_mem_used_bytes_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('firstrecord_timestamp_string'))
+        self.assertEqual(106.0,
+                         pod_mem_used_bytes_agg_metric
+                         .get('metric')
+                         .get('value_meta').get('record_count'))
+        self.assertEqual('useast',
+                         pod_mem_used_bytes_agg_metric.get('meta')
+                         .get('region'))
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
+                         pod_mem_used_bytes_agg_metric.get('meta')
+                         .get('tenantId'))
+        self.assertEqual('all',
+                         pod_mem_used_bytes_agg_metric.get('metric')
+                         .get('dimensions').get('deployment'))
+        self.assertEqual('hourly',
+                         pod_mem_used_bytes_agg_metric.get('metric')
+                         .get('dimensions').get('aggregation_period'))
+
+        # Verify pod.mem.used_bytes_agg metrics for second_pod
+        metric_list = metrics_dict['pod.mem.used_bytes_agg']
+        pod_mem_used_bytes_agg_metric = [
+            value for value in metric_list
+            if value.get('metric').get('dimensions').get('namespace') ==
+            'all' and
+            value.get('metric').get('dimensions').get('pod_name') ==
+            'second_pod'][0]
+
+        self.assertTrue(pod_mem_used_bytes_agg_metric is not None)
+        self.assertEqual(1375.0,
+                         pod_mem_used_bytes_agg_metric
+                         .get('metric').get('value'))
+        self.assertEqual('2016-06-20 11:39:44',
+                         pod_mem_used_bytes_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('lastrecord_timestamp_string'))
+        self.assertEqual('2016-06-20 11:24:59',
+                         pod_mem_used_bytes_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('firstrecord_timestamp_string'))
+        self.assertEqual(114.0,
+                         pod_mem_used_bytes_agg_metric
+                         .get('metric')
+                         .get('value_meta').get('record_count'))
+        self.assertEqual('useast',
+                         pod_mem_used_bytes_agg_metric.get('meta')
+                         .get('region'))
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
+                         pod_mem_used_bytes_agg_metric.get('meta')
+                         .get('tenantId'))
+        self.assertEqual('all',
+                         pod_mem_used_bytes_agg_metric.get('metric')
+                         .get('dimensions').get('deployment'))
+        self.assertEqual('hourly',
+                         pod_mem_used_bytes_agg_metric.get('metric')
+                         .get('dimensions').get('aggregation_period'))
+
+        # Verify total container.cpu.total_time_agg metrics
+        metric_list = metrics_dict['container.cpu.total_time_agg']
+        container_cpu_total_time_agg_metric = [
+            value for value in metric_list
+            if value.get('metric').get('dimensions').get('container_name') ==
+            'all'][0]
+
+        self.assertTrue(container_cpu_total_time_agg_metric is not None)
+        self.assertEqual(275.0,
+                         container_cpu_total_time_agg_metric
+                         .get('metric').get('value'))
+        self.assertEqual('2016-06-20 11:39:44',
+                         container_cpu_total_time_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('lastrecord_timestamp_string'))
+        self.assertEqual('2016-06-20 11:24:59',
+                         container_cpu_total_time_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('firstrecord_timestamp_string'))
+        self.assertEqual(22.0,
+                         container_cpu_total_time_agg_metric
+                         .get('metric')
+                         .get('value_meta').get('record_count'))
+        self.assertEqual('useast',
+                         container_cpu_total_time_agg_metric.get('meta')
+                         .get('region'))
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
+                         container_cpu_total_time_agg_metric.get('meta')
+                         .get('tenantId'))
+        self.assertEqual('hourly',
+                         container_cpu_total_time_agg_metric.get('metric')
+                         .get('dimensions').get('aggregation_period'))
+
+        # Verify container.cpu.total_time_agg metrics by container_name
+        metric_list = metrics_dict['container.cpu.total_time_agg']
+        container_cpu_total_time_agg_metric = [
+            value for value in metric_list
+            if value.get('metric').get('dimensions').get('container_name') ==
+            'container_1'][0]
+
+        self.assertTrue(container_cpu_total_time_agg_metric is not None)
+        self.assertEqual(400.0,
+                         container_cpu_total_time_agg_metric
+                         .get('metric').get('value'))
+        self.assertEqual('2016-06-20 11:29:44',
+                         container_cpu_total_time_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('lastrecord_timestamp_string'))
+        self.assertEqual('2016-06-20 11:24:59',
+                         container_cpu_total_time_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('firstrecord_timestamp_string'))
+        self.assertEqual(32.0,
+                         container_cpu_total_time_agg_metric
+                         .get('metric')
+                         .get('value_meta').get('record_count'))
+        self.assertEqual('useast',
+                         container_cpu_total_time_agg_metric.get('meta')
+                         .get('region'))
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
+                         container_cpu_total_time_agg_metric.get('meta')
+                         .get('tenantId'))
+        self.assertEqual('hourly',
+                         container_cpu_total_time_agg_metric.get('metric')
+                         .get('dimensions').get('aggregation_period'))
+
+        # Verify total kubernetes.node.capacity.cpu_agg metrics
+        metric_list = metrics_dict['kubernetes.node.capacity.cpu_agg']
+        kubernetes_node_capacity_cpu_agg_metric = [
+            value for value in metric_list
+            if value.get('metric').get('dimensions').get('host') ==
+            'all'][0]
+
+        self.assertTrue(kubernetes_node_capacity_cpu_agg_metric is not None)
+        self.assertEqual(275.0,
+                         kubernetes_node_capacity_cpu_agg_metric
+                         .get('metric').get('value'))
+        self.assertEqual('2016-06-20 11:39:44',
+                         kubernetes_node_capacity_cpu_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('lastrecord_timestamp_string'))
+        self.assertEqual('2016-06-20 11:24:59',
+                         kubernetes_node_capacity_cpu_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('firstrecord_timestamp_string'))
+        self.assertEqual(22.0,
+                         kubernetes_node_capacity_cpu_agg_metric
+                         .get('metric')
+                         .get('value_meta').get('record_count'))
+        self.assertEqual('useast',
+                         kubernetes_node_capacity_cpu_agg_metric.get('meta')
+                         .get('region'))
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
+                         kubernetes_node_capacity_cpu_agg_metric.get('meta')
+                         .get('tenantId'))
+        self.assertEqual('hourly',
+                         kubernetes_node_capacity_cpu_agg_metric.get('metric')
+                         .get('dimensions').get('aggregation_period'))
+
+        # Verify kubernetes.node.capacity.cpu_agg metrics by host
+        metric_list = metrics_dict['kubernetes.node.capacity.cpu_agg']
+        kubernetes_node_capacity_cpu_agg_metric = [
+            value for value in metric_list
+            if value.get('metric').get('dimensions').get('host') ==
+            'host1'][0]
+
+        self.assertTrue(kubernetes_node_capacity_cpu_agg_metric is not None)
+        self.assertEqual(400.0,
+                         kubernetes_node_capacity_cpu_agg_metric
+                         .get('metric').get('value'))
+        self.assertEqual('2016-06-20 11:29:44',
+                         kubernetes_node_capacity_cpu_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('lastrecord_timestamp_string'))
+        self.assertEqual('2016-06-20 11:24:59',
+                         kubernetes_node_capacity_cpu_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('firstrecord_timestamp_string'))
+        self.assertEqual(32.0,
+                         kubernetes_node_capacity_cpu_agg_metric
+                         .get('metric')
+                         .get('value_meta').get('record_count'))
+        self.assertEqual('useast',
+                         kubernetes_node_capacity_cpu_agg_metric.get('meta')
+                         .get('region'))
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
+                         kubernetes_node_capacity_cpu_agg_metric.get('meta')
+                         .get('tenantId'))
+        self.assertEqual('hourly',
+                         kubernetes_node_capacity_cpu_agg_metric.get('metric')
+                         .get('dimensions').get('aggregation_period'))
+
+        # Verify total cpu.total_time_sec_agg metrics
+        metric_list = metrics_dict['cpu.total_time_sec_agg']
+        cpu_total_time_sec_agg_metric = [
+            value for value in metric_list
+            if value.get('metric').get('dimensions').get('host') ==
+            'all'][0]
+
+        self.assertTrue(cpu_total_time_sec_agg_metric is not None)
+        self.assertEqual(275.0,
+                         cpu_total_time_sec_agg_metric
+                         .get('metric').get('value'))
+        self.assertEqual('2016-06-20 11:39:44',
+                         cpu_total_time_sec_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('lastrecord_timestamp_string'))
+        self.assertEqual('2016-06-20 11:24:59',
+                         cpu_total_time_sec_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('firstrecord_timestamp_string'))
+        self.assertEqual(22.0,
+                         cpu_total_time_sec_agg_metric
+                         .get('metric')
+                         .get('value_meta').get('record_count'))
+        self.assertEqual('useast',
+                         cpu_total_time_sec_agg_metric.get('meta')
+                         .get('region'))
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
+                         cpu_total_time_sec_agg_metric.get('meta')
+                         .get('tenantId'))
+        self.assertEqual('hourly',
+                         cpu_total_time_sec_agg_metric.get('metric')
+                         .get('dimensions').get('aggregation_period'))
+
+        # Verify cpu.total_time_sec_agg metrics by host
+        metric_list = metrics_dict['cpu.total_time_sec_agg']
+        cpu_total_time_sec_agg_metric = [
+            value for value in metric_list
+            if value.get('metric').get('dimensions').get('host') ==
+            'host1'][0]
+
+        self.assertTrue(cpu_total_time_sec_agg_metric is not None)
+        self.assertEqual(400.0,
+                         cpu_total_time_sec_agg_metric
+                         .get('metric').get('value'))
+        self.assertEqual('2016-06-20 11:29:44',
+                         cpu_total_time_sec_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('lastrecord_timestamp_string'))
+        self.assertEqual('2016-06-20 11:24:59',
+                         cpu_total_time_sec_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('firstrecord_timestamp_string'))
+        self.assertEqual(32.0,
+                         cpu_total_time_sec_agg_metric
+                         .get('metric')
+                         .get('value_meta').get('record_count'))
+        self.assertEqual('useast',
+                         cpu_total_time_sec_agg_metric.get('meta')
+                         .get('region'))
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
+                         cpu_total_time_sec_agg_metric.get('meta')
+                         .get('tenantId'))
+        self.assertEqual('hourly',
+                         cpu_total_time_sec_agg_metric.get('metric')
+                         .get('dimensions').get('aggregation_period'))
+
+        # Verify total kubernetes.node.allocatable.cpu_agg metrics
+        metric_list = metrics_dict['kubernetes.node.allocatable.cpu_agg']
+        kubernetes_node_allocatable_cpu_agg_metric = [
+            value for value in metric_list
+            if value.get('metric').get('dimensions').get('host') ==
+            'all'][0]
+
+        self.assertTrue(kubernetes_node_allocatable_cpu_agg_metric is not None)
+        self.assertEqual(275.0,
+                         kubernetes_node_allocatable_cpu_agg_metric
+                         .get('metric').get('value'))
+        self.assertEqual('2016-06-20 11:39:44',
+                         kubernetes_node_allocatable_cpu_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('lastrecord_timestamp_string'))
+        self.assertEqual('2016-06-20 11:24:59',
+                         kubernetes_node_allocatable_cpu_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('firstrecord_timestamp_string'))
+        self.assertEqual(22.0,
+                         kubernetes_node_allocatable_cpu_agg_metric
+                         .get('metric')
+                         .get('value_meta').get('record_count'))
+        self.assertEqual('useast',
+                         kubernetes_node_allocatable_cpu_agg_metric.get('meta')
+                         .get('region'))
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
+                         kubernetes_node_allocatable_cpu_agg_metric.get('meta')
+                         .get('tenantId'))
+        self.assertEqual('hourly',
+                         kubernetes_node_allocatable_cpu_agg_metric
+                         .get('metric')
+                         .get('dimensions').get('aggregation_period'))
+
+        # Verify kubernetes.node.allocatable.cpu_agg metrics by host
+        metric_list = metrics_dict['kubernetes.node.allocatable.cpu_agg']
+        kubernetes_node_allocatable_cpu_agg_metric = [
+            value for value in metric_list
+            if value.get('metric').get('dimensions').get('host') ==
+            'host1'][0]
+
+        self.assertTrue(kubernetes_node_allocatable_cpu_agg_metric is not None)
+        self.assertEqual(400.0,
+                         kubernetes_node_allocatable_cpu_agg_metric
+                         .get('metric').get('value'))
+        self.assertEqual('2016-06-20 11:29:44',
+                         kubernetes_node_allocatable_cpu_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('lastrecord_timestamp_string'))
+        self.assertEqual('2016-06-20 11:24:59',
+                         kubernetes_node_allocatable_cpu_agg_metric
+                         .get('metric')
+                         .get('value_meta')
+                         .get('firstrecord_timestamp_string'))
+        self.assertEqual(32.0,
+                         kubernetes_node_allocatable_cpu_agg_metric
+                         .get('metric')
+                         .get('value_meta').get('record_count'))
+        self.assertEqual('useast',
+                         kubernetes_node_allocatable_cpu_agg_metric.get('meta')
+                         .get('region'))
+        self.assertEqual(cfg.CONF.messaging.publish_kafka_project_id,
+                         kubernetes_node_allocatable_cpu_agg_metric.get('meta')
+                         .get('tenantId'))
+        self.assertEqual('hourly',
+                         kubernetes_node_allocatable_cpu_agg_metric
+                         .get('metric')
                          .get('dimensions').get('aggregation_period'))
 
         os.remove(file_path)

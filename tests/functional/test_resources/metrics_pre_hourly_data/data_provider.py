@@ -17,7 +17,7 @@ import os
 
 class DataProvider(object):
 
-    _resource_path = 'tests/unit/test_resources/metrics_pre_hourly_data/'
+    _resource_path = 'tests/functional/test_resources/metrics_pre_hourly_data/'
 
     metrics_pre_hourly_data_path = os.path.join(_resource_path,
                                                 "metrics_pre_hourly_data.txt")

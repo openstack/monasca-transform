@@ -53,7 +53,8 @@ class InstanceUsageUtils(TransformUtils):
                    "lastrecord_timestamp_string",
                    "service_group", "service_id",
                    "usage_date", "usage_hour", "usage_minute",
-                   "aggregation_period"]
+                   "aggregation_period", "namespace", "pod_name", "app",
+                   "container_name", "interface", "deployment", "daemon_set"]
 
         columns_struct_fields = [StructField(field_name, StringType(), True)
                                  for field_name in columns]
@@ -98,7 +99,9 @@ class RecordStoreUtils(TransformUtils):
                    "user_id", "region", "zone",
                    "host", "project_id", "service_group", "service_id",
                    "event_date", "event_hour", "event_minute",
-                   "event_second", "metric_group", "metric_id"]
+                   "event_second", "metric_group", "metric_id",
+                   "namespace", "pod_name", "app", "container_name",
+                   "interface", "deployment", "daemon_set"]
 
         columns_struct_fields = [StructField(field_name, StringType(), True)
                                  for field_name in columns]
@@ -225,7 +228,9 @@ class MonMetricUtils(TransformUtils):
                       "mode", "mount", "mount_point", "observer_host",
                       "process_name", "project_id", "resource_id", "service",
                       "test_type", "tenantId", "tenant_id", "topic", "url",
-                      "state", "state_description", "instanceId"]
+                      "state", "state_description", "instanceId",
+                      "namespace", "pod_name", "app", "container_name",
+                      "interface", "deployment", "daemon_set"]
 
         dimensions_struct_fields = [
             StructField(field_name, StringType(), True)
