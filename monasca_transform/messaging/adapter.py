@@ -14,8 +14,8 @@
 
 import abc
 import json
-from kafka import KafkaClient
-from kafka import SimpleProducer
+from monasca_common.kafka_lib.client import KafkaClient
+from monasca_common.kafka_lib.producer import SimpleProducer
 from monasca_common.simport import simport
 from oslo_config import cfg
 

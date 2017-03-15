@@ -11,8 +11,8 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from kafka.common import OffsetRequest
-from kafka import KafkaClient
+from monasca_common.kafka_lib.client import KafkaClient
+from monasca_common.kafka_lib.common import OffsetRequest
 
 from pyspark.sql import SQLContext
 from pyspark.streaming.kafka import KafkaUtils
