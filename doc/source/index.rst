@@ -17,3 +17,8 @@
 =================
 Monasca-transform
 =================
+
+.. toctree::
+
+   api/autoindex.rst
+
