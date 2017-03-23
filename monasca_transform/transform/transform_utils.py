@@ -12,8 +12,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import logging
-
 from pyspark.sql import SQLContext
 from pyspark.sql.types import ArrayType
 from pyspark.sql.types import DoubleType
@@ -21,8 +19,6 @@ from pyspark.sql.types import MapType
 from pyspark.sql.types import StringType
 from pyspark.sql.types import StructField
 from pyspark.sql.types import StructType
-
-LOG = logging.getLogger(__name__)
 
 
 class TransformUtils(object):
