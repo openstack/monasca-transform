@@ -16,10 +16,11 @@ import datetime
 import random
 import sys
 import unittest
-import uuid
 
 from monasca_transform.config.config_initializer import ConfigInitializer
 from monasca_transform.mysql_offset_specs import MySQLOffsetSpecs
+
+from oslo_utils import uuidutils
 
 
 class TestMySQLOffsetSpecs(unittest.TestCase):
@@ -39,11 +40,11 @@ class TestMySQLOffsetSpecs(unittest.TestCase):
 
     def test_add_offset(self):
 
-        topic_1 = str(uuid.uuid4())
+        topic_1 = uuidutils.generate_uuid()
         partition_1 = random.randint(0, 1024)
         until_offset_1 = random.randint(0, sys.maxsize)
         from_offset_1 = random.randint(0, sys.maxsize)
-        app_name_1 = str(uuid.uuid4())
+        app_name_1 = uuidutils.generate_uuid()
         offset_key_1 = "%s_%s_%s" % (app_name_1, topic_1, partition_1)
 
         my_batch_time = self.get_dummy_batch_time()
@@ -66,11 +67,11 @@ class TestMySQLOffsetSpecs(unittest.TestCase):
                                   offset_value=offset_value_1)
 
     def test_add_another_offset(self):
-        topic_1 = str(uuid.uuid4())
+        topic_1 = uuidutils.generate_uuid()
         partition_1 = random.randint(0, 1024)
         until_offset_1 = random.randint(0, sys.maxsize)
         from_offset_1 = random.randint(0, sys.maxsize)
-        app_name_1 = str(uuid.uuid4())
+        app_name_1 = uuidutils.generate_uuid()
         offset_key_1 = "%s_%s_%s" % (app_name_1, topic_1, partition_1)
         my_batch_time = self.get_dummy_batch_time()
 
@@ -95,11 +96,11 @@ class TestMySQLOffsetSpecs(unittest.TestCase):
                              app_name_1)))
 
     def test_update_offset_values(self):
-        topic_1 = str(uuid.uuid4())
+        topic_1 = uuidutils.generate_uuid()
         partition_1 = random.randint(0, 1024)
         until_offset_1 = random.randint(0, sys.maxsize)
         from_offset_1 = random.randint(0, sys.maxsize)
-        app_name_1 = str(uuid.uuid4())
+        app_name_1 = uuidutils.generate_uuid()
         offset_key_1 = "%s_%s_%s" % (app_name_1, topic_1, partition_1)
 
         my_batch_time = self.get_dummy_batch_time()
@@ -132,11 +133,11 @@ class TestMySQLOffsetSpecs(unittest.TestCase):
                          updated_offset_value.get_until_offset())
 
     def test_get_most_recent_batch_time(self):
-        topic_1 = str(uuid.uuid4())
+        topic_1 = uuidutils.generate_uuid()
         partition_1 = 0
         until_offset_1 = random.randint(0, sys.maxsize)
         from_offset_1 = random.randint(0, sys.maxsize)
-        app_name_1 = str(uuid.uuid4())
+        app_name_1 = uuidutils.generate_uuid()
 
         my_batch_time = self.get_dummy_batch_time()
 
