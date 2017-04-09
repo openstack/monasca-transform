@@ -46,7 +46,9 @@ class MySQLOffsetSpecs(OffsetSpecs):
         db = create_engine(DbUtil.get_python_db_connection_string(),
                            isolation_level="READ UNCOMMITTED")
 
-        db.echo = True
+        if cfg.CONF.service.enable_debug_log_entries:
+            db.echo = True
+
         # reflect the tables
         Base.prepare(db, reflect=True)
 

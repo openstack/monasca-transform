@@ -33,9 +33,11 @@ class DummyInsert(InsertComponent):
                                               ".dimension_list"
                                               ).collect()[0].asDict()
 
-        cfg.CONF.set_override('adapter',
-                              'tests.unit.messaging.adapter:DummyAdapter',
-                              group='messaging')
+        cfg.CONF.set_override(
+            'adapter',
+            'tests.functional.messaging.adapter:DummyAdapter',
+            group='messaging')
+
         # Approach 1
         # using foreachPartition to iterate through elements in an
         # RDD is the recommended approach so as to not overwhelm kafka with the

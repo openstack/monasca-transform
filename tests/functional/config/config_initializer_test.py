@@ -24,7 +24,7 @@ class TestConfigInitializer(unittest.TestCase):
 
         ConfigInitializer.basic_config(
             default_config_files=[
-                'tests/unit/test_resources/config/test_config.conf'
+                'tests/functional/test_resources/config/test_config.conf'
             ])
         self.assertEqual('test_offsets_repo_class',
                          cfg.CONF.repositories.offsets)

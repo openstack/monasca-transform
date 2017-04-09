@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 
-if grep -q pg-tips <<<`hostname`; then
+if grep -q devstack <<<`hostname`; then
     echo Refreshing monasca-transform
 else
-    echo Yikes, no - this is not pg-tips!
+    echo Yikes, no - this is not devstack!
     exit 1
 fi
-if [ -d "/home/ubuntu/devstack" ] ; then
+if [ -d "/home/vagrant/devstack" ] ; then
 
-. /home/ubuntu/devstack/.stackenv
+. /home/vagrant/devstack/.stackenv
 
 fi
 
@@ -23,21 +23,21 @@ else
     echo "monasca-transform service not running"
 fi
 
-sudo rm -rf /home/ubuntu/monasca-transform-source /home/ubuntu/monasca-transform
+sudo rm -rf /home/vagrant/monasca-transform-source /home/vagrant/monasca-transform
 
 sudo ./setup_local_repos.sh
 
 # update the database with configuration
-sudo cp /home/ubuntu/monasca-transform/scripts/ddl/pre_transform_specs.sql /opt/monasca/transform/lib/pre_transform_specs.sql
-sudo cp /home/ubuntu/monasca-transform/scripts/ddl/transform_specs.sql /opt/monasca/transform/lib/transform_specs.sql
+sudo cp /home/vagrant/monasca-transform/scripts/ddl/pre_transform_specs.sql /opt/monasca/transform/lib/pre_transform_specs.sql
+sudo cp /home/vagrant/monasca-transform/scripts/ddl/transform_specs.sql /opt/monasca/transform/lib/transform_specs.sql
 sudo mysql -h "127.0.0.1" -um-transform -ppassword < /opt/monasca/transform/lib/pre_transform_specs.sql
 sudo mysql -h "127.0.0.1" -um-transform -ppassword <  /opt/monasca/transform/lib/transform_specs.sql
 
 # update the zip file used for spark submit
-sudo cp /home/ubuntu/monasca-transform/scripts/monasca-transform.zip /opt/monasca/transform/lib/.
+sudo cp /home/vagrant/monasca-transform/scripts/monasca-transform.zip /opt/monasca/transform/lib/.
 
 # update the configuration file
-sudo cp /home/ubuntu/monasca-transform/devstack/files/monasca-transform/monasca-transform.conf /etc/.
+sudo cp /home/vagrant/monasca-transform/devstack/files/monasca-transform/monasca-transform.conf /etc/.
 if [ -n "$SERVICE_HOST" ]; then
     sudo sudo sed -i "s/brokers=192\.168\.15\.6:9092/brokers=${SERVICE_HOST}:9092/g" /etc/monasca-transform.conf
 fi
@@ -48,8 +48,8 @@ sudo rm -rf /opt/monasca/transform/venv
 # refresh the monasca-transform code to /opt/stack
 sudo rm -rf /opt/stack/monasca-transform
 pushd /opt/stack
-sudo git clone /home/ubuntu/monasca-transform
-sudo chown -R ubuntu:ubuntu /opt/stack/monasca-transform
+sudo git clone /home/vagrant/monasca-transform
+sudo chown -R vagrant:vagrant /opt/stack/monasca-transform
 virtualenv /opt/monasca/transform/venv
 . /opt/monasca/transform/venv/bin/activate
 pip install -e /opt/stack/monasca-transform/

@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 import mock
+
 from pyspark.sql import SQLContext
 
 from monasca_transform.config.config_initializer import ConfigInitializer
@@ -20,11 +21,12 @@ from monasca_transform.transform.builder.generic_transform_builder \
 from monasca_transform.transform.transform_utils import RecordStoreUtils
 from monasca_transform.transform.transform_utils import TransformSpecsUtils
 from monasca_transform.transform import TransformContextUtils
+
+from tests.functional.spark_context_test import SparkContextTest
 from tests.functional.test_resources.mem_total_all.data_provider \
     import DataProvider
-from tests.unit \
+from tests.functional.test_resources.mock_component_manager \
     import MockComponentManager
-from tests.unit import SparkContextTest
 
 
 class TransformBuilderTest(SparkContextTest):
@@ -34,7 +36,7 @@ class TransformBuilderTest(SparkContextTest):
         # configure the system with a dummy messaging adapter
         ConfigInitializer.basic_config(
             default_config_files=[
-                'tests/unit/test_resources/config/test_config.conf'])
+                'tests/functional/test_resources/config/test_config.conf'])
 
     @mock.patch('monasca_transform.transform.builder.generic_transform_builder'
                 '.GenericTransformBuilder._get_insert_component_manager')

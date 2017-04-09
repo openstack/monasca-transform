@@ -115,24 +115,60 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
                          agg_params_json["aggregated_metric_name"])
 
     def check_pre_transform_specs_data_frame(
-            self, pre_transform_specs_data_frame):
+            self, pre_transform_specs_data_frame, is_json_specs=False):
 
-        # gather the references and uses here
-        self.assertEqual(
-            Counter([u'mem.usable_mb',
-                     u'mem.total_mb',
-                     u'disk.total_used_space_mb', u'disk.total_space_mb',
-                     u'cpu.total_logical_cores',
-                     u'cpu.idle_perc', u'nova.vm.cpu.total_allocated',
-                     u'nova.vm.mem.total_allocated_mb', u'vcpus',
-                     u'vm.mem.total_mb', u'vm.mem.used_mb',
-                     u'nova.vm.disk.total_allocated_gb',
-                     u'vm.disk.allocation', u'vm.cpu.utilization_perc',
-                     u'swiftlm.diskusage.host.val.size',
-                     u'swiftlm.diskusage.host.val.avail',
-                     u'storage.objects.size']),
-            Counter([row.event_type for row in
-                     pre_transform_specs_data_frame.collect()]))
+        if is_json_specs:
+            # gather the references and uses here
+            self.assertEqual(Counter([u'container.cpu.total_time',
+                                      u'cpu.idle_perc',
+                                      u'cpu.total_logical_cores',
+                                      u'cpu.total_time_sec',
+                                      u'disk.total_space_mb',
+                                      u'disk.total_used_space_mb',
+                                      u'kubernetes.node.allocatable.cpu',
+                                      u'kubernetes.node.capacity.cpu',
+                                      u'mem.total_mb',
+                                      u'mem.usable_mb',
+                                      u'nova.vm.cpu.total_allocated',
+                                      u'nova.vm.disk.total_allocated_gb',
+                                      u'nova.vm.mem.total_allocated_mb',
+                                      u'pod.cpu.total_time',
+                                      u'pod.mem.used_bytes',
+                                      u'pod.net.in_bytes_sec',
+                                      u'pod.net.out_bytes_sec',
+                                      u'storage.objects.size',
+                                      u'swiftlm.diskusage.host.val.avail',
+                                      u'swiftlm.diskusage.host.val.size',
+                                      u'vcpus',
+                                      u'vm.cpu.utilization_perc',
+                                      u'vm.disk.allocation',
+                                      u'vm.mem.total_mb',
+                                      u'vm.mem.used_mb']),
+                             Counter(
+                                 [row.event_type for row in
+                                  pre_transform_specs_data_frame.collect()]))
+        else:
+            # gather the references and uses here
+            self.assertEqual(Counter([u'cpu.idle_perc',
+                                      u'cpu.total_logical_cores',
+                                      u'disk.total_space_mb',
+                                      u'disk.total_used_space_mb',
+                                      u'mem.total_mb',
+                                      u'mem.usable_mb',
+                                      u'nova.vm.cpu.total_allocated',
+                                      u'nova.vm.disk.total_allocated_gb',
+                                      u'nova.vm.mem.total_allocated_mb',
+                                      u'storage.objects.size',
+                                      u'swiftlm.diskusage.host.val.avail',
+                                      u'swiftlm.diskusage.host.val.size',
+                                      u'vcpus',
+                                      u'vm.cpu.utilization_perc',
+                                      u'vm.disk.allocation',
+                                      u'vm.mem.total_mb',
+                                      u'vm.mem.used_mb']),
+                             Counter(
+                                 [row.event_type for row in
+                                  pre_transform_specs_data_frame.collect()]))
 
         # mem.usable_mb
         event_type = 'mem.usable_mb'
@@ -601,4 +637,5 @@ class TestJSONDataDrivenSpecsRepo(TestDataDrivenSpecsRepo):
                 pre_transform_specs_type))
 
         self.check_pre_transform_specs_data_frame(
-            json_pre_transform_specs_data_frame)
+            json_pre_transform_specs_data_frame,
+            is_json_specs=True)

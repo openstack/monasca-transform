@@ -19,13 +19,14 @@ import sys
 import unittest
 import uuid
 
-from monasca_transform.offset_specs import JSONOffsetSpecs
 from monasca_transform.offset_specs import OffsetSpec
+
+from tests.functional.json_offset_specs import JSONOffsetSpecs
 
 
 class TestJSONOffsetSpecs(unittest.TestCase):
 
-    test_resources_path = 'tests/unit/test_resources'
+    test_resources_path = 'tests/functional/test_resources'
 
     def setUp(self):
         pass
@@ -269,7 +270,7 @@ class TestJSONOffsetSpecs(unittest.TestCase):
             json_file = json.load(f)
         return json_file
 
-    @unittest.skip
+    @unittest.skip("skipping not implemented")
     def test_get_offsets_is_obj_based(self):
         self.fail('We need to assert that we get objects back '
                   'from the get offsets method')

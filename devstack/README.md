@@ -29,10 +29,10 @@ to be used in the devstack instance.  It is important therefore that changes
 should not be pushed from the vm as the unevaluated commit would be pushed.
 
 N.B. If you are running with virtualbox you may find that the `./stack.sh` fails with the filesystem becoming read only.  There is a work around:
- 
- 1. vagrant up --no-provision && vagrant halt 
- 2. open virtualbox gui 
- 3. open target vm settings and change storage controller from SCSI to SATA 
+
+ 1. vagrant up --no-provision && vagrant halt
+ 2. open virtualbox gui
+ 3. open target vm settings and change storage controller from SCSI to SATA
  4. vagrant up
 
 ### Using the upstream committed state of monasca-transform
@@ -99,6 +99,63 @@ during the spark-submit call.  The configuration and the contents of the
 database are updated with fresh copies also though the start scripts, driver and
 service python code are left as they are (because I'm not envisaging much change
 in those).
+
+### Development workflow
+
+Here are the normal steps a developer can take to make any code changes. It is
+essential that the developer runs all tests in functional tests in a devstack
+environment before submitting any changes for review/merge.
+
+Please follow steps mentioned in
+"To run monasca-transform using the provided vagrant environment" section above
+to create a devstack VM environment before following steps below:
+
+    1. Make code changes on the host machine (e.g. ~/monasca-transform)
+    2. vagrant ssh (to connect to the devstack VM)
+    3. cd /opt/stack/monasca-transform
+    4. tools/vagrant/refresh_monasca_transform.sh (See "Updating the code for dev"
+                                                   section above)
+    5. cd /opt/stack/monasca-transform (since monasca-transform folder
+                                        gets recreated in Step 4. above)
+    6. tox -e pep8
+    7. tox -e py27
+    8. tox -e functional
+
+Note: It is mandatory to run functional unit tests before submitting any changes
+for review/merge. These can be currently be run only in a devstack VM since tests
+need access to Apache Spark libraries. This is accomplished by setting
+SPARK_HOME environment variable which is being done in tox.ini.
+
+    export SPARK_HOME=/opt/spark/current
+
+#### How to find and fix test failures ?
+
+To find which tests failed after running functional tests (After you have run
+functional tests as per steps in Development workflow)
+
+    export OS_TEST_PATH=tests/functional
+    export SPARK_HOME=/opt/spark/current
+    source .tox/functional/bin/activate
+    testr run
+    testr failing (to get list of tests that failed)
+
+You can add
+
+    import pdb
+    pdb.set_trace()
+
+in test or in code where you want to start python debugger.
+
+Run test using
+
+    python -m testtools.run <test>
+
+For example:
+
+    python -m testtools.run  \
+        tests.functional.usage.test_host_cpu_usage_component_second_agg.SparkTest
+
+Reference: https://wiki.openstack.org/wiki/Testr
 
 ## To run monasca-transform using a different deployment technology
 

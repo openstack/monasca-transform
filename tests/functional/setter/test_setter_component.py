@@ -12,7 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 from pyspark.sql import SQLContext
-from tests.unit.spark_context_test import SparkContextTest
+from tests.functional.spark_context_test import SparkContextTest
 
 from monasca_transform.component.setter.rollup_quantity \
     import RollupQuantity

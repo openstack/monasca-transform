@@ -25,17 +25,19 @@ from monasca_transform.driver.mon_metrics_kafka \
 from monasca_transform.processor.pre_hourly_processor import PreHourlyProcessor
 from monasca_transform.transform import RddTransformContext
 from monasca_transform.transform import TransformContextUtils
+
+from tests.functional.component.insert.dummy_insert import DummyInsert
 from tests.functional.messaging.adapter import DummyAdapter
-from tests.unit import DataProvider
-from tests.unit \
-    import DataProvider as SecondStageDataProvider
-from tests.unit import DummyInsert
-from tests.unit import dump_as_ascii_string
-from tests.unit \
-    import MockComponentManager
-from tests.unit \
+from tests.functional.test_resources.cpu_kafka_data.data_provider \
+    import DataProvider
+from tests.functional.test_resources.fetch_quantity_util_second_stage.\
+    data_provider import DataProvider as SecondStageDataProvider
+from tests.functional.spark_context_test import SparkContextTest
+from tests.functional.test_resources.mock_component_manager import \
+    MockComponentManager
+from tests.functional.test_resources.mock_data_driven_specs_repo \
     import MockDataDrivenSpecsRepo
-from tests.unit import SparkContextTest
+from tests.functional.usage import dump_as_ascii_string
 
 
 class TestFetchQuantityUtilAgg(SparkContextTest):
@@ -45,12 +47,12 @@ class TestFetchQuantityUtilAgg(SparkContextTest):
         # configure the system with a dummy messaging adapter
         ConfigInitializer.basic_config(
             default_config_files=[
-                'tests/unit/test_resources/config/'
+                'tests/functional/test_resources/config/'
                 'test_config_with_dummy_messaging_adapter.conf'])
         # reset metric_id list dummy adapter
         if not DummyAdapter.adapter_impl:
             DummyAdapter.init()
-        DummyAdapter.adapter_impl.metric_list = []
+            DummyAdapter.adapter_impl.metric_list = []
 
     def get_pre_transform_specs_json(self):
         """get pre_transform_specs driver table info."""
@@ -194,7 +196,7 @@ class TestFetchQuantityUtilAgg(SparkContextTest):
             if value.get('metric').get(
                 'name') == 'cpu.utilized_logical_cores_agg'][0]
 
-        self.assertEqual(8.0,
+        self.assertEqual(7.134214285714285,
                          utilized_cpu_logical_agg_metric.get(
                              'metric').get('value'))
         self.assertEqual('useast',
@@ -283,7 +285,7 @@ class TestFetchQuantityUtilAgg(SparkContextTest):
             if value.get('metric').get(
                 'name') == 'cpu.utilized_logical_cores_agg'][0]
 
-        self.assertEqual(8.0,
+        self.assertEqual(7.134214285714285,
                          utilized_cpu_logical_agg_metric.get(
                              'metric').get('value'))
         self.assertEqual('useast',
@@ -301,7 +303,7 @@ class TestFetchQuantityUtilAgg(SparkContextTest):
                          utilized_cpu_logical_agg_metric.get(
                              'metric').get('dimensions')
                          .get('project_id'))
-        self.assertEqual('prehourly',
+        self.assertEqual('hourly',
                          utilized_cpu_logical_agg_metric.get(
                              'metric').get('dimensions')
                          .get('aggregation_period'))

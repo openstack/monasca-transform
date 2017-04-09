@@ -17,14 +17,17 @@ import mock
 from oslo_config import cfg
 from pyspark.sql import SQLContext
 from pyspark.streaming.kafka import OffsetRange
-from tests.unit.component.insert.dummy_insert import DummyInsert
-from tests.unit.messaging.adapter import DummyAdapter
-from tests.unit.spark_context_test import SparkContextTest
-from tests.unit.test_resources.cpu_kafka_data.data_provider import DataProvider
-from tests.unit.test_resources.cpu_kafka_data_second_stage.data_provider \
+
+from tests.functional.component.insert.dummy_insert import DummyInsert
+from tests.functional.messaging.adapter import DummyAdapter
+from tests.functional.spark_context_test import SparkContextTest
+from tests.functional.test_resources.cpu_kafka_data.data_provider \
+    import DataProvider
+from tests.functional.test_resources.cpu_kafka_data_second_stage.data_provider \
     import DataProvider as SecondStageDataProvider
-from tests.unit.test_resources.mock_component_manager \
+from tests.functional.test_resources.mock_component_manager \
     import MockComponentManager
+from tests.functional.usage import dump_as_ascii_string
 
 from monasca_transform.config.config_initializer import ConfigInitializer
 from monasca_transform.driver.mon_metrics_kafka \
@@ -32,7 +35,6 @@ from monasca_transform.driver.mon_metrics_kafka \
 from monasca_transform.processor.pre_hourly_processor import PreHourlyProcessor
 from monasca_transform.transform import RddTransformContext
 from monasca_transform.transform import TransformContextUtils
-from tests.functional.usage import dump_as_ascii_string
 
 
 class SparkTest(SparkContextTest):
@@ -42,7 +44,7 @@ class SparkTest(SparkContextTest):
         # configure the system with a dummy messaging adapter
         ConfigInitializer.basic_config(
             default_config_files=[
-                'tests/unit/test_resources/config/'
+                'tests/functional/test_resources/config/'
                 'test_config_with_dummy_messaging_adapter.conf'])
         # reset metric_id list dummy adapter
         if not DummyAdapter.adapter_impl:
@@ -150,7 +152,7 @@ class SparkTest(SparkContextTest):
             if value.get('metric').get('name') ==
             'cpu.total_logical_cores_agg' and
             value.get('metric').get('dimensions').get('host') ==
-            'mini-mon'][0]
+            'test-cp1-comp0333-mgmt'][0]
 
         self.assertEqual(9.0,
                          total_cpu_logical_agg_metric.get(
@@ -189,7 +191,7 @@ class SparkTest(SparkContextTest):
             if value.get('metric').get('name') ==
             'cpu.total_logical_cores_agg' and
             value.get('metric').get('dimensions').get('host') ==
-            'devstack'][0]
+            'test-cp1-comp0027-mgmt'][0]
 
         self.assertEqual(6.0,
                          total_cpu_logical_agg_metric.get(
@@ -230,7 +232,7 @@ class SparkTest(SparkContextTest):
             value.get('metric').get('dimensions').get('host') ==
             'all'][0]
 
-        self.assertEqual(8.0,
+        self.assertEqual(7.134214285714285,
                          utilized_cpu_logical_agg_metric.get(
                              'metric').get('value'))
         self.assertEqual('useast',
@@ -268,9 +270,9 @@ class SparkTest(SparkContextTest):
             if value.get('metric').get('name') ==
             'cpu.utilized_logical_cores_agg' and
             value.get('metric').get('dimensions').get('host') ==
-            'mini-mon'][0]
+            'test-cp1-comp0333-mgmt'][0]
 
-        self.assertEqual(5.0,
+        self.assertEqual(4.9665,
                          utilized_cpu_logical_agg_metric.get(
                              'metric').get('value'))
         self.assertEqual('useast',
@@ -308,9 +310,9 @@ class SparkTest(SparkContextTest):
             if value.get('metric').get('name') ==
             'cpu.utilized_logical_cores_agg' and
             value.get('metric').get('dimensions').get('host') ==
-            'devstack'][0]
+            'test-cp1-comp0027-mgmt'][0]
 
-        self.assertEqual(3.0,
+        self.assertEqual(2.1677142857142853,
                          utilized_cpu_logical_agg_metric.get(
                              'metric').get('value'))
         self.assertEqual('useast',

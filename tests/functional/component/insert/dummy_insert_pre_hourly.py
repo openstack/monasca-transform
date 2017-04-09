@@ -33,9 +33,10 @@ class DummyInsertPreHourly(InsertComponent):
                                               ).collect()[0].asDict()
         metric_id = agg_params['metric_id']
 
-        cfg.CONF.set_override('adapter',
-                              'tests.unit.messaging.adapter:DummyAdapter',
-                              group='messaging')
+        cfg.CONF.set_override(
+            'adapter',
+            'tests.functional.messaging.adapter:DummyAdapter',
+            group='messaging')
         # Approach 1
         # using foreachPartition to iterate through elements in an
         # RDD is the recommended approach so as to not overwhelm kafka with the

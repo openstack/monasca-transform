@@ -17,7 +17,7 @@ import os
 
 class DataProvider(object):
 
-    _resource_path = 'tests/unit/test_resources/mem_total_all/'
+    _resource_path = 'tests/functional/test_resources/mem_total_all/'
 
     record_store_path = os.path.join(_resource_path,
                                      "record_store_df.txt")

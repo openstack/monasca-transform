@@ -18,9 +18,10 @@ from monasca_transform.component.usage.fetch_quantity \
 from monasca_transform.transform.transform_utils import RecordStoreUtils
 from monasca_transform.transform.transform_utils import TransformSpecsUtils
 from monasca_transform.transform import TransformContextUtils
+
+from tests.functional.spark_context_test import SparkContextTest
 from tests.functional.test_resources.mem_total_all.data_provider \
     import DataProvider
-from tests.unit import SparkContextTest
 
 
 class UsageComponentTest(SparkContextTest):

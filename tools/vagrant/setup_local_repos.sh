@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-rsync -a --exclude='tools/vagrant/.vagrant' /monasca-transform-source /home/ubuntu/
-mv /home/ubuntu/monasca-transform-source /home/ubuntu/monasca-transform
-pushd /home/ubuntu/monasca-transform
+rsync -a --exclude='tools/vagrant/.vagrant' /monasca-transform-source /home/vagrant/
+mv /home/vagrant/monasca-transform-source /home/vagrant/monasca-transform
+pushd /home/vagrant/monasca-transform
 # prepare the codebase
 #
 # generate the sql scripts to populate the database
@@ -20,11 +20,11 @@ if [ ${CURRENT_BRANCH} != 'master' ]
 then
     echo Maintaining current branch ${CURRENT_BRANCH}
     # set the branch to what we're using in local.conf
-    if [[ -z `grep ${CURRENT_BRANCH} /home/ubuntu/devstack/local.conf` ]]; then
-        sed -i "s/enable_plugin monasca-transform \/home\/ubuntu\/monasca-transform//g" /home/ubuntu/devstack/local.conf
-        sed -i "s/# END DEVSTACK LOCAL.CONF CONTENTS//g" /home/ubuntu/devstack/local.conf
-        printf "enable_plugin monasca-transform /home/ubuntu/monasca-transform ${CURRENT_BRANCH}\n" >> /home/ubuntu/devstack/local.conf
-        printf "# END DEVSTACK LOCAL.CONF CONTENTS" >> /home/ubuntu/devstack/local.conf
+    if [[ -z `grep ${CURRENT_BRANCH} /home/vagrant/devstack/local.conf` ]]; then
+        sed -i "s/enable_plugin monasca-transform \/home\/vagrant\/monasca-transform//g" /home/vagrant/devstack/local.conf
+        sed -i "s/# END DEVSTACK LOCAL.CONF CONTENTS//g" /home/vagrant/devstack/local.conf
+        printf "enable_plugin monasca-transform /home/vagrant/monasca-transform ${CURRENT_BRANCH}\n" >> /home/vagrant/devstack/local.conf
+        printf "# END DEVSTACK LOCAL.CONF CONTENTS" >> /home/vagrant/devstack/local.conf
     fi
 fi
 

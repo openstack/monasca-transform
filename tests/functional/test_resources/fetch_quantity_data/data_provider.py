@@ -17,7 +17,7 @@ import os
 
 class DataProvider(object):
 
-    _resource_path = 'tests/unit/test_resources/fetch_quantity_data/'
+    _resource_path = 'tests/functional/test_resources/fetch_quantity_data/'
 
     fetch_quantity_data_path = os.path.join(_resource_path,
                                             "fetch_quantity_data.txt")

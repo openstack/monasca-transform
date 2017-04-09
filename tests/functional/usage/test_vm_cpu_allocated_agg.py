@@ -24,12 +24,13 @@ from monasca_transform.driver.mon_metrics_kafka \
 from monasca_transform.transform import RddTransformContext
 from monasca_transform.transform import TransformContextUtils
 from tests.functional.messaging.adapter import DummyAdapter
-from tests.unit import DataProvider
-from tests.unit \
+from tests.functional.spark_context_test import SparkContextTest
+from tests.functional.test_resources.kafka_data.data_provider \
+    import DataProvider
+from tests.functional.test_resources.mock_component_manager \
     import MockComponentManager
-from tests.unit \
+from tests.functional.test_resources.mock_data_driven_specs_repo \
     import MockDataDrivenSpecsRepo
-from tests.unit import SparkContextTest
 
 
 class TestVmCpuAllocatedAgg(SparkContextTest):
@@ -39,7 +40,7 @@ class TestVmCpuAllocatedAgg(SparkContextTest):
         # configure the system with a dummy messaging adapter
         ConfigInitializer.basic_config(
             default_config_files=[
-                'tests/unit/test_resources/config/'
+                'tests/functional/test_resources/config/'
                 'test_config_with_dummy_messaging_adapter.conf'])
         # reset metric_id list dummy adapter
         if not DummyAdapter.adapter_impl:

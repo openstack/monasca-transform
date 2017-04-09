@@ -27,7 +27,6 @@ class SparkContextTest(unittest.TestCase):
             setAppName("monasca-transform unit tests").\
             set("spark.sql.shuffle.partitions", "10")
         self.spark_context = SparkContext.getOrCreate(conf=spark_conf)
-
         # quiet logging
         logger = self.spark_context._jvm.org.apache.log4j
         logger.LogManager.getLogger("org").setLevel(logger.Level.WARN)

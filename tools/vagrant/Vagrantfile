@@ -12,8 +12,8 @@ Vagrant.configure(2) do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
-  config.vm.box = "ubuntu/xenial64"
-  config.vm.hostname = "pg-tips"
+  config.vm.box = "bento/ubuntu-16.04"
+  config.vm.hostname = "devstack"
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
@@ -57,28 +57,32 @@ Vagrant.configure(2) do |config|
   config.vm.provider "virtualbox" do |vb|
   #   # Display the VirtualBox GUI when booting the machine
   #   vb.gui = true
-     vb.name = "pg-tips"
+     vb.name = "devstack"
 
   #   # Customize the amount of memory on the VM:
      vb.memory = "16384"
      vb.cpus = "4"
+     # bento box bug
+     # https://github.com/chef/bento/issues/688
+     vb.customize ["modifyvm", :id, "--cableconnected1", "on"]
+     # increase the root partition to 100G
      vb.customize [
-         "clonehd", "#{ENV["HOME"]}/VirtualBox VMs/#{vb.name}/ubuntu-xenial-16.04-cloudimg.vmdk",
-                    "#{ENV["HOME"]}/VirtualBox VMs/#{vb.name}/ubuntu-xenial-16.04-cloudimg.vdi",
+         "clonehd", "#{ENV["HOME"]}/VirtualBox VMs/#{vb.name}/ubuntu-16.04-amd64-disk001.vmdk",
+                    "#{ENV["HOME"]}/VirtualBox VMs/#{vb.name}/ubuntu-16.04-amd64-disk001.vdi",
          "--format", "VDI"
      ]
      vb.customize [
-         "modifyhd", "#{ENV["HOME"]}/VirtualBox VMs/#{vb.name}/ubuntu-xenial-16.04-cloudimg.vdi",
+         "modifyhd", "#{ENV["HOME"]}/VirtualBox VMs/#{vb.name}/ubuntu-16.04-amd64-disk001.vdi",
          "--resize", 100 * 1024
      ]
      vb.customize [
          "storageattach", :id,
-         "--storagectl", "SCSI Controller",
+         "--storagectl", "SATA Controller",
          "--port", "0",
          "--device", "0",
          "--type", "hdd",
          "--nonrotational", "on",
-         "--medium", "#{ENV["HOME"]}/VirtualBox VMs/#{vb.name}/ubuntu-xenial-16.04-cloudimg.vdi"
+         "--medium", "#{ENV["HOME"]}/VirtualBox VMs/#{vb.name}/ubuntu-16.04-amd64-disk001.vdi"
      ]
 
   end
@@ -95,11 +99,11 @@ Vagrant.configure(2) do |config|
   #  install dependencies for our process
   config.vm.provision "shell", path: "install.sh"
   # provision the environments
-  config.vm.provision "shell", path: "provision-pg-tips.sh", privileged: false
+  config.vm.provision "shell", path: "provision-devstack.sh", privileged: false
 
-  # pg-tips will now have devstack cloned so push our local.conf file into place
+  # devstack VM will now have devstack cloned so push our local.conf file into place
   config.vm.provision "file", source: "local.conf", \
-    destination: "/home/ubuntu/devstack/local.conf"
+    destination: "/home/vagrant/devstack/local.conf"
 
   if !ENV['LOCAL_REPO'] || ENV['LOCAL_REPO'].empty?
     puts "Using default repo"

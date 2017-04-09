@@ -12,16 +12,20 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 import json
-import unittest
-
 import mock
 from oslo_config import cfg
+import unittest
+
+
 from pyspark.streaming.kafka import OffsetRange
-from tests.unit.spark_context_test import SparkContextTest
-from tests.unit.test_resources.cpu_kafka_data.data_provider import DataProvider
-from tests.unit.test_resources.mock_component_manager \
+
+from tests.functional.messaging.adapter import DummyAdapter
+from tests.functional.spark_context_test import SparkContextTest
+from tests.functional.test_resources.cpu_kafka_data.data_provider \
+    import DataProvider
+from tests.functional.test_resources.mock_component_manager \
     import MockComponentManager
-from tests.unit.test_resources.mock_data_driven_specs_repo \
+from tests.functional.test_resources.mock_data_driven_specs_repo \
     import MockDataDrivenSpecsRepo
 
 from monasca_transform.component.usage.fetch_quantity_util import \
@@ -31,7 +35,6 @@ from monasca_transform.driver.mon_metrics_kafka \
     import MonMetricsKafkaProcessor
 from monasca_transform.transform import RddTransformContext
 from monasca_transform.transform import TransformContextUtils
-from tests.functional.messaging.adapter import DummyAdapter
 
 
 class TestFetchQuantityUtilAgg(SparkContextTest):
@@ -41,7 +44,7 @@ class TestFetchQuantityUtilAgg(SparkContextTest):
         # configure the system with a dummy messaging adapter
         ConfigInitializer.basic_config(
             default_config_files=[
-                'tests/unit/test_resources/config/'
+                'tests/functional/test_resources/config/'
                 'test_config_with_dummy_messaging_adapter.conf'])
         # reset metric_id list dummy adapter
         if not DummyAdapter.adapter_impl:
