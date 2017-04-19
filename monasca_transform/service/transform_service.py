@@ -73,6 +73,9 @@ class Transform(os_service.Service):
                           'Shutting down all threads and exiting')
             shutdown_all_threads_and_die()
 
+    def stop(self, graceful):
+        shutdown_all_threads_and_die()
+
 
 class TransformService(threading.Thread):
 
