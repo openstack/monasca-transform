@@ -289,15 +289,122 @@ class PreHourlyProcessor(Processor):
         return simport.load(cfg.CONF.repositories.offsets)()
 
     @staticmethod
+    def get_effective_offset_range_list(offset_range_list):
+        """get effective batch offset range.
+        Effective batch offset range covers offsets starting
+        from effective batch revision (defined by effective_batch_revision
+        config property). By default this method will set the
+        pyspark Offset.fromOffset for each partition
+        to have value older than the latest revision
+        (defaults to latest -1) so that prehourly processor has access
+        to entire data for the hour. This will also account for and cover
+        any early arriving data (data that arrives before the start hour).
+        """
+
+        offset_specifications = PreHourlyProcessor.get_offset_specs()
+
+        app_name = PreHourlyProcessor.get_app_name()
+
+        topic = PreHourlyProcessor.get_kafka_topic()
+
+        # start offset revision
+        effective_batch_revision = cfg.CONF.pre_hourly_processor.\
+            effective_batch_revision
+
+        effective_batch_spec = offset_specifications\
+            .get_kafka_offsets_by_revision(app_name,
+                                           effective_batch_revision)
+
+        # get latest revision, if penultimate is unavailable
+        if not effective_batch_spec:
+            log.debug("effective batch spec: offsets: revision %s unavailable,"
+                      " getting the latest revision instead..." % (
+                          effective_batch_revision))
+            # not available
+            effective_batch_spec = offset_specifications.get_kafka_offsets(
+                app_name)
+
+        effective_batch_offsets = PreHourlyProcessor._parse_saved_offsets(
+            app_name, topic,
+            effective_batch_spec)
+
+        # for debugging
+        for effective_key in effective_batch_offsets.keys():
+            effective_offset = effective_batch_offsets.get(effective_key,
+                                                           None)
+            (effect_app_name,
+             effect_topic_name,
+             effect_partition,
+             effect_from_offset,
+             effect_until_offset) = effective_offset
+            log.debug(
+                "effective batch offsets (from db):"
+                " OffSetRanges: %s %s %s %s" % (
+                    effect_topic_name, effect_partition,
+                    effect_from_offset, effect_until_offset))
+
+        # effective batch revision
+        effective_offset_range_list = []
+        for offset_range in offset_range_list:
+            part_topic_key = "_".join((offset_range.topic,
+                                       str(offset_range.partition)))
+            effective_offset = effective_batch_offsets.get(part_topic_key,
+                                                           None)
+            if effective_offset:
+                (effect_app_name,
+                 effect_topic_name,
+                 effect_partition,
+                 effect_from_offset,
+                 effect_until_offset) = effective_offset
+
+                log.debug(
+                    "Extending effective offset range:"
+                    " OffSetRanges: %s %s %s-->%s %s" % (
+                        effect_topic_name, effect_partition,
+                        offset_range.fromOffset,
+                        effect_from_offset,
+                        effect_until_offset))
+
+                effective_offset_range_list.append(
+                    OffsetRange(offset_range.topic,
+                                offset_range.partition,
+                                effect_from_offset,
+                                offset_range.untilOffset))
+            else:
+                effective_offset_range_list.append(
+                    OffsetRange(offset_range.topic,
+                                offset_range.partition,
+                                offset_range.fromOffset,
+                                offset_range.untilOffset))
+
+        # return effective offset range list
+        return effective_offset_range_list
+
+    @staticmethod
     def fetch_pre_hourly_data(spark_context,
                               offset_range_list):
         """get metrics pre hourly data from offset range list."""
+
+        for o in offset_range_list:
+            log.debug(
+                "fetch_pre_hourly: offset_range_list:"
+                " OffSetRanges: %s %s %s %s" % (
+                    o.topic, o.partition, o.fromOffset, o.untilOffset))
+
+        effective_offset_list = PreHourlyProcessor.\
+            get_effective_offset_range_list(offset_range_list)
+
+        for o in effective_offset_list:
+            log.debug(
+                "fetch_pre_hourly: effective_offset_range_list:"
+                " OffSetRanges: %s %s %s %s" % (
+                    o.topic, o.partition, o.fromOffset, o.untilOffset))
 
         # get kafka stream over the same offsets
         pre_hourly_rdd = KafkaUtils.createRDD(spark_context,
                                               {"metadata.broker.list":
                                                   cfg.CONF.messaging.brokers},
-                                              offset_range_list)
+                                              effective_offset_list)
         return pre_hourly_rdd
 
     @staticmethod
@@ -339,10 +446,17 @@ class PreHourlyProcessor(Processor):
                 app_name, topic))
 
         if most_recent_batch_time:
+            # batches can fire after late metrics slack time, not neccessarily
+            # at the top of the hour
+            most_recent_batch_time_truncated = most_recent_batch_time.replace(
+                minute=0, second=0, microsecond=0)
+            log.debug("filter out records before : %s" % (
+                most_recent_batch_time_truncated.strftime(
+                    '%Y-%m-%dT%H:%M:%S')))
             # filter out records before current batch
             instance_usage_df = instance_usage_df.filter(
                 instance_usage_df.lastrecord_timestamp_string >=
-                most_recent_batch_time)
+                most_recent_batch_time_truncated)
 
         # determine the timestamp of the most recent top-of-the-hour (which
         # is the end of the current batch).
@@ -351,6 +465,9 @@ class PreHourlyProcessor(Processor):
             minute=0, second=0, microsecond=0)
 
         # filter out records after current batch
+        log.debug("filter out records after : %s" % (
+            truncated_timestamp_to_current_hour.strftime(
+                '%Y-%m-%dT%H:%M:%S')))
         instance_usage_df = instance_usage_df.filter(
             instance_usage_df.firstrecord_timestamp_string <
             truncated_timestamp_to_current_hour)

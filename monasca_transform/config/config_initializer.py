@@ -143,7 +143,8 @@ class ConfigInitializer(object):
                                'PreHourlyProcessorDataProvider'),
             cfg.BoolOpt('enable_instance_usage_df_cache'),
             cfg.StrOpt('instance_usage_df_cache_storage_level'),
-            cfg.BoolOpt('enable_batch_time_filtering')
+            cfg.BoolOpt('enable_batch_time_filtering'),
+            cfg.IntOpt('effective_batch_revision', default=2)
         ]
         app_group = cfg.OptGroup(name='pre_hourly_processor',
                                  title='pre_hourly_processor')

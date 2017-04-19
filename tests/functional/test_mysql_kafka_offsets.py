@@ -164,3 +164,48 @@ class TestMySQLOffsetSpecs(unittest.TestCase):
                          int(offset_value.get_from_offset()))
         self.assertEqual(used_value.get('app_name'),
                          offset_value.get_app_name())
+
+    def test_get_offset_by_revision(self):
+        topic_1 = uuidutils.generate_uuid()
+        partition_1 = 0
+        until_offset_1 = 10
+        from_offset_1 = 0
+        app_name_1 = uuidutils.generate_uuid()
+
+        my_batch_time = datetime.datetime.strptime('2016-01-01 00:10:00',
+                                                   '%Y-%m-%d %H:%M:%S')
+
+        self.kafka_offset_specs.add(topic=topic_1, partition=partition_1,
+                                    app_name=app_name_1,
+                                    from_offset=from_offset_1,
+                                    until_offset=until_offset_1,
+                                    batch_time_info=my_batch_time)
+
+        until_offset_2 = 20
+        from_offset_2 = 10
+        my_batch_time2 = datetime.datetime.strptime('2016-01-01 01:10:00',
+                                                    '%Y-%m-%d %H:%M:%S')
+
+        self.kafka_offset_specs.add(topic=topic_1, partition=partition_1,
+                                    app_name=app_name_1,
+                                    from_offset=from_offset_2,
+                                    until_offset=until_offset_2,
+                                    batch_time_info=my_batch_time2)
+
+        # get penultimate revision
+        penultimate_revision = 2
+        kafka_offset_specs = self.kafka_offset_specs\
+            .get_kafka_offsets_by_revision(app_name_1,
+                                           penultimate_revision)
+
+        offset_key_1 = "%s_%s_%s" % (app_name_1, topic_1, partition_1)
+        offset_value_1 = kafka_offset_specs.get(offset_key_1)
+
+        used_values = {}
+        used_values[offset_key_1] = {
+            "topic": topic_1, "partition": partition_1, "app_name": app_name_1,
+            "from_offset": from_offset_1, "until_offset": until_offset_1
+        }
+
+        self.assertions_on_offset(used_value=used_values.get(offset_key_1),
+                                  offset_value=offset_value_1)

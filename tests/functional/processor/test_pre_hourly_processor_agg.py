@@ -11,6 +11,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+import datetime
 import os
 import random
 import sys
@@ -21,10 +22,15 @@ from collections import defaultdict
 
 import mock
 from oslo_config import cfg
+from oslo_utils import uuidutils
 from pyspark.streaming.kafka import OffsetRange
 
+from monasca_common.kafka_lib.common import OffsetResponse
+
 from monasca_transform.config.config_initializer import ConfigInitializer
+from monasca_transform.mysql_offset_specs import MySQLOffsetSpecs
 from monasca_transform.processor.pre_hourly_processor import PreHourlyProcessor
+
 from tests.functional.component.insert.dummy_insert import DummyInsert
 from tests.functional.json_offset_specs import JSONOffsetSpecs
 from tests.functional.messaging.adapter import DummyAdapter
@@ -48,6 +54,174 @@ class TestPreHourlyProcessorAgg(SparkContextTest):
         if not DummyAdapter.adapter_impl:
             DummyAdapter.init()
         DummyAdapter.adapter_impl.metric_list = []
+
+        # get mysql offset specs
+        self.kafka_offset_specs = MySQLOffsetSpecs()
+
+    def add_offset_for_test(self, my_app, my_topic, my_partition,
+                            my_from_offset, my_until_offset,
+                            my_batch_time):
+        """"utility method to populate mysql db with offsets."""
+        self.kafka_offset_specs.add(topic=my_topic, partition=my_partition,
+                                    app_name=my_app,
+                                    from_offset=my_from_offset,
+                                    until_offset=my_until_offset,
+                                    batch_time_info=my_batch_time)
+
+    @mock.patch('monasca_transform.processor.pre_hourly_processor.'
+                'PreHourlyProcessor.get_app_name')
+    @mock.patch('monasca_transform.processor.pre_hourly_processor.'
+                'PreHourlyProcessor.get_kafka_topic')
+    @mock.patch('monasca_transform.processor.pre_hourly_processor.'
+                'PreHourlyProcessor._get_offsets_from_kafka')
+    def test_get_processing_offset_range_list(self,
+                                              kafka_get_offsets,
+                                              kafka_topic_name,
+                                              app_name):
+
+        # setup
+        my_app = uuidutils.generate_uuid()
+        my_topic = uuidutils.generate_uuid()
+
+        # mock app_name, topic_name, partition
+        app_name.return_value = my_app
+        kafka_topic_name.return_value = my_topic
+        my_partition = 1
+
+        ret_offset_key = "_".join((my_topic, str(my_partition)))
+        kafka_get_offsets.side_effect = [
+            # mock latest offsets
+            {ret_offset_key: OffsetResponse(topic=my_topic,
+                                            partition=my_partition,
+                                            error=None,
+                                            offsets=[30])},
+            # mock earliest offsets
+            {ret_offset_key: OffsetResponse(topic=my_topic,
+                                            partition=my_partition,
+                                            error=None,
+                                            offsets=[0])}
+        ]
+
+        # add offsets
+        my_until_offset = 0
+        my_from_offset = 10
+        my_batch_time = datetime.datetime.strptime('2016-01-01 00:10:00',
+                                                   '%Y-%m-%d %H:%M:%S')
+        self.add_offset_for_test(my_app, my_topic,
+                                 my_partition, my_until_offset,
+                                 my_from_offset, my_batch_time)
+
+        my_until_offset_2 = 10
+        my_from_offset_2 = 20
+        my_batch_time_2 = datetime.datetime.strptime('2016-01-01 01:10:00',
+                                                     '%Y-%m-%d %H:%M:%S')
+        self.add_offset_for_test(my_app, my_topic,
+                                 my_partition, my_until_offset_2,
+                                 my_from_offset_2, my_batch_time_2)
+
+        # get latest offset spec as dict
+        current_batch_time = datetime.datetime.strptime('2016-01-01 02:10:00',
+                                                        '%Y-%m-%d %H:%M:%S')
+
+        # use mysql offset repositories
+        cfg.CONF.set_override(
+            'offsets',
+            'monasca_transform.mysql_offset_specs:MySQLOffsetSpecs',
+            group='repositories')
+
+        # list of pyspark.streaming.kafka.OffsetRange objects
+        offset_range_list = PreHourlyProcessor.\
+            get_processing_offset_range_list(
+                current_batch_time)
+
+        self.assertEqual(my_partition,
+                         offset_range_list[0].partition)
+        self.assertEqual(my_topic,
+                         offset_range_list[0].topic)
+        self.assertEqual(20,
+                         offset_range_list[0].fromOffset)
+        self.assertEqual(30,
+                         offset_range_list[0].untilOffset)
+
+    @mock.patch('monasca_transform.processor.pre_hourly_processor.'
+                'PreHourlyProcessor.get_app_name')
+    @mock.patch('monasca_transform.processor.pre_hourly_processor.'
+                'PreHourlyProcessor.get_kafka_topic')
+    @mock.patch('monasca_transform.processor.pre_hourly_processor.'
+                'PreHourlyProcessor._get_offsets_from_kafka')
+    def test_get_effective_offset_range_list(self,
+                                             kafka_get_offsets,
+                                             kafka_topic_name,
+                                             app_name):
+        # setup
+        my_app = uuidutils.generate_uuid()
+        my_topic = uuidutils.generate_uuid()
+
+        # mock app_name, topic_name, partition
+        app_name.return_value = my_app
+        kafka_topic_name.return_value = my_topic
+        my_partition = 1
+
+        ret_offset_key = "_".join((my_topic, str(my_partition)))
+        kafka_get_offsets.side_effect = [
+            # mock latest offsets in kafka
+            {ret_offset_key: OffsetResponse(topic=my_topic,
+                                            partition=my_partition,
+                                            error=None,
+                                            offsets=[3000])},
+            # mock earliest offsets in kafka
+            {ret_offset_key: OffsetResponse(topic=my_topic,
+                                            partition=my_partition,
+                                            error=None,
+                                            offsets=[0])}
+        ]
+
+        # add offsets
+        my_until_offset = 500
+        my_from_offset = 1000
+        my_batch_time = datetime.datetime.strptime('2016-01-01 00:10:00',
+                                                   '%Y-%m-%d %H:%M:%S')
+        self.add_offset_for_test(my_app, my_topic,
+                                 my_partition, my_until_offset,
+                                 my_from_offset, my_batch_time)
+
+        my_until_offset_2 = 1000
+        my_from_offset_2 = 2000
+        my_batch_time_2 = datetime.datetime.strptime('2016-01-01 01:10:00',
+                                                     '%Y-%m-%d %H:%M:%S')
+        self.add_offset_for_test(my_app, my_topic,
+                                 my_partition, my_until_offset_2,
+                                 my_from_offset_2, my_batch_time_2)
+
+        # get latest offset spec as dict
+        current_batch_time = datetime.datetime.strptime('2016-01-01 02:10:00',
+                                                        '%Y-%m-%d %H:%M:%S')
+
+        # use mysql offset repositories
+        cfg.CONF.set_override(
+            'offsets',
+            'monasca_transform.mysql_offset_specs:MySQLOffsetSpecs',
+            group='repositories')
+
+        # list of pyspark.streaming.kafka.OffsetRange objects
+        offset_range_list = PreHourlyProcessor.\
+            get_processing_offset_range_list(
+                current_batch_time)
+
+        # effective batch range list
+        # should cover range of starting from  (latest - 1) offset version to
+        # latest
+        offset_range_list = PreHourlyProcessor.get_effective_offset_range_list(
+            offset_range_list)
+
+        self.assertEqual(my_partition,
+                         offset_range_list[0].partition)
+        self.assertEqual(my_topic,
+                         offset_range_list[0].topic)
+        self.assertEqual(500,
+                         offset_range_list[0].fromOffset)
+        self.assertEqual(3000,
+                         offset_range_list[0].untilOffset)
 
     @mock.patch('monasca_transform.processor.pre_hourly_processor.KafkaInsert',
                 DummyInsert)

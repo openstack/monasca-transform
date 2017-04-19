@@ -79,9 +79,10 @@ class MySQLOffsetSpecs(OffsetSpecs):
                 version_spec.revision = revision
                 revision = revision + 1
 
-            self.session.query(MySQLOffsetSpec).filter(
-                MySQLOffsetSpec.revision > self.MAX_REVISIONS).delete(
-                    synchronize_session="fetch")
+        # delete any revisions excess than required
+        self.session.query(MySQLOffsetSpec).filter(
+            MySQLOffsetSpec.revision > self.MAX_REVISIONS).delete(
+                synchronize_session="fetch")
 
     def get_kafka_offsets(self, app_name):
         return {'%s_%s_%s' % (
@@ -89,6 +90,13 @@ class MySQLOffsetSpecs(OffsetSpecs):
         ): offset for offset in self.session.query(MySQLOffsetSpec).filter(
             MySQLOffsetSpec.app_name == app_name,
             MySQLOffsetSpec.revision == 1).all()}
+
+    def get_kafka_offsets_by_revision(self, app_name, revision):
+        return {'%s_%s_%s' % (
+            offset.get_app_name(), offset.get_topic(), offset.get_partition()
+        ): offset for offset in self.session.query(MySQLOffsetSpec).filter(
+            MySQLOffsetSpec.app_name == app_name,
+            MySQLOffsetSpec.revision == revision).all()}
 
     def get_most_recent_batch_time_from_offsets(self, app_name, topic):
         try:
