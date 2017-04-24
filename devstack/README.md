@@ -87,7 +87,10 @@ Once the deploy is up use the following commands to set up tox.
 
 To regenerate the environment for development purposes a script is provided
 on the devstack instance at
+/opt/stack/monasca-transform/tools/vagrant/refresh_monasca_transform.sh
+To run the refresh_monasca_transform.sh script on devstack instance
 
+    cd /opt/stack/monasca-transform
     tools/vagrant/refresh_monasca_transform.sh
 
 (note: to use/run tox after running this script, the
@@ -95,10 +98,18 @@ on the devstack instance at
 
 This mostly re-does the work of the devstack plugin, updating the code from the
 shared directory, regenerating the venv and the zip that is passed to spark
-during the spark-submit call.  The configuration and the contents of the
-database are updated with fresh copies also though the start scripts, driver and
-service python code are left as they are (because I'm not envisaging much change
-in those).
+during the spark-submit call.  The configuration and the transform and
+pre transform specs in the database are updated with fresh copies, along
+with driver and service python code.
+
+If refresh_monasca_transform.sh script completes successfully you should see
+a message like the following in the console.
+
+        ***********************************************
+        *                                             *
+        * SUCCESS!! refresh monasca transform done.   *
+        *                                             *
+        ***********************************************
 
 ### Development workflow
 
@@ -156,6 +167,19 @@ For example:
         tests.functional.usage.test_host_cpu_usage_component_second_agg.SparkTest
 
 Reference: https://wiki.openstack.org/wiki/Testr
+
+## Access Spark Streaming and Spark Master/Worker User Interface
+
+In a devstack environment ports on which Spark Streaming UI (4040), Spark Master(18080)
+and Spark Worker (18081) UI are available are forwarded to the host and are
+accessible from the host machine.
+
+    http://<host_machine_ip>:4040/ (Note: Spark Streaming UI,
+                                    is available only when
+                                    monasca-transform application
+                                    is running)
+    http://<host_machine_ip>:18080/ (Spark Master UI)
+    http://<host_machine_ip>:18081/ (Spark Worker UI)
 
 ## To run monasca-transform using a different deployment technology
 
