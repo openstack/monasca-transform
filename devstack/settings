@@ -42,7 +42,7 @@ HADOOP_VERSION=${HADOOP_VERSION:-2.6}
 SPARK_HADOOP_VERSION=spark-$SPARK_VERSION-bin-hadoop$HADOOP_VERSION
 SPARK_TARBALL_NAME=${SPARK_HADOOP_VERSION}.tgz
 MAVEN_REPO=${MAVEN_REPO:-https://repo1.maven.org/maven2}
-APACHE_MIRROR=${APACHE_MIRROR:-http://archive.apache.org/dist}
+APACHE_MIRROR=${APACHE_MIRROR:-http://archive.apache.org/dist/}
 
 # Kafka deb consists of the version of scala plus the version of kafka
 BASE_KAFKA_VERSION=${BASE_KAFKA_VERSION:-0.8.1.1}
