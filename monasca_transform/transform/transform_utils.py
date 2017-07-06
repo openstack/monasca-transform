@@ -78,7 +78,7 @@ class InstanceUsageUtils(TransformUtils):
     def create_df_from_json_rdd(sql_context, jsonrdd):
         """create instance usage df from json rdd."""
         schema = InstanceUsageUtils._get_instance_usage_schema()
-        instance_usage_schema_df = sql_context.jsonRDD(jsonrdd, schema)
+        instance_usage_schema_df = sql_context.read.json(jsonrdd, schema)
         return instance_usage_schema_df
 
 
@@ -269,7 +269,7 @@ class MonMetricUtils(TransformUtils):
     def create_mon_metrics_df_from_json_rdd(sql_context, jsonrdd):
         """create mon metrics df from json rdd."""
         schema = MonMetricUtils._get_mon_metric_json_schema()
-        mon_metrics_df = sql_context.jsonRDD(jsonrdd, schema)
+        mon_metrics_df = sql_context.read.json(jsonrdd, schema)
         return mon_metrics_df
 
 

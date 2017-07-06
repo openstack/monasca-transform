@@ -324,7 +324,7 @@ class MonMetricsKafkaProcessor(object):
             # filter out unwanted metrics and keep metrics we are interested in
             #
             cond = [
-                raw_mon_metrics_df.metric.name ==
+                raw_mon_metrics_df.metric["name"] ==
                 pre_transform_specs_df.event_type]
             filtered_metrics_df = raw_mon_metrics_df.join(
                 pre_transform_specs_df, cond)
