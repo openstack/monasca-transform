@@ -87,7 +87,7 @@ def stop_spark_submit_process():
 
     except Exception as e:
         LOG.error("Error killing spark submit "
-                  "process: got exception: {%s}" % e.message)
+                  "process: got exception: {%s}" % str(e))
 
 
 class Transform(os_service.Service):
@@ -175,12 +175,12 @@ class TransformService(threading.Thread):
                                       "leader for group %s: "
                                       "got exception {%s}" %
                                       (self.my_host_name, self.group,
-                                       e.message))
+                                       str(e)))
                     # reset state
                     self.previously_running = False
         except BaseException as e:
             self.LOG.info("periodic_leader_check: "
-                          "caught unhandled exception: {%s}" % e.message)
+                          "caught unhandled exception: {%s}" % str(e))
 
     def when_i_am_elected_leader(self, event):
         """Callback when this host gets elected leader."""
@@ -283,7 +283,7 @@ class TransformService(threading.Thread):
 
             except BaseException as e:
                 # catch any unhandled exception and continue
-                self.LOG.info("Ran into unhandled exception: {%s}" % e.message)
+                self.LOG.info("Ran into unhandled exception: {%s}" % str(e))
                 self.LOG.info("Going to restart coordinator again...")
                 traceback.print_exc()
 
