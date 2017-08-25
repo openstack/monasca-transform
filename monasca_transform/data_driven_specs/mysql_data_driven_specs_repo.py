@@ -56,7 +56,7 @@ class MySQLDataDrivenSpecsRepo(DataDrivenSpecsRepo):
             spec = json.loads(item['transform_spec'])
             data.append(json.dumps(spec))
 
-        data_frame = sql_context.jsonRDD(spark_context.parallelize(data))
+        data_frame = sql_context.read.json(spark_context.parallelize(data))
         self.transform_specs_data_frame = data_frame
 
     def generate_pre_transform_specs_data_frame(self, spark_context=None,
@@ -72,5 +72,5 @@ class MySQLDataDrivenSpecsRepo(DataDrivenSpecsRepo):
             spec = json.loads(item['pre_transform_spec'])
             data.append(json.dumps(spec))
 
-        data_frame = sql_context.jsonRDD(spark_context.parallelize(data))
+        data_frame = sql_context.read.json(spark_context.parallelize(data))
         self.pre_transform_specs_data_frame = data_frame

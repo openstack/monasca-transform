@@ -486,7 +486,7 @@ class FetchQuantity(UsageComponent):
             grouped_data = record_store_df_int.groupBy(*group_by_columns_list)
             grouped_record_store_df = grouped_data.agg(agg_operations_map)
 
-            grouped_data_rdd_with_operation = grouped_record_store_df.map(
+            grouped_data_rdd_with_operation = grouped_record_store_df.rdd.map(
                 lambda x:
                 GroupedDataWithOperation(x,
                                          str(usage_fetch_operation)))

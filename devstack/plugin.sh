@@ -1,4 +1,3 @@
-
 # (C) Copyright 2015 Hewlett Packard Enterprise Development Company LP
 # Copyright 2016 FUJITSU LIMITED
 #
@@ -60,6 +59,13 @@ function pre_install_spark {
         SPARK_LIB_NAME=`echo ${SPARK_JAVA_LIB} | sed 's/.*\///'`
         download_through_cache ${MAVEN_REPO}/${SPARK_JAVA_LIB} ${SPARK_LIB_NAME}
     done
+
+    for SPARK_JAR in "${SPARK_JARS[@]}"
+    do
+        SPARK_JAR_NAME=`echo ${SPARK_JAR} | sed 's/.*\///'`
+        download_through_cache ${MAVEN_REPO}/${SPARK_JAR} ${SPARK_JAR_NAME}
+    done
+
     download_through_cache ${APACHE_MIRROR}/spark/spark-${SPARK_VERSION}/${SPARK_TARBALL_NAME} ${SPARK_TARBALL_NAME} 1000
 
 
@@ -67,7 +73,7 @@ function pre_install_spark {
 
 function install_java_libs {
 
-    pushd /opt/spark/current/lib
+    pushd /opt/spark/current/assembly/target/scala-2.10/jars/
     for SPARK_JAVA_LIB in "${SPARK_JAVA_LIBS[@]}"
     do
         SPARK_LIB_NAME=`echo ${SPARK_JAVA_LIB} | sed 's/.*\///'`
@@ -76,14 +82,26 @@ function install_java_libs {
     popd
 }
 
-function link_spark_streaming_lib {
+function install_spark_jars {
 
-    pushd /opt/spark/current/lib
-    ln -sf spark-streaming-kafka.jar spark-streaming-kafka_2.10-1.6.3.jar
+    # create a directory for jars
+    mkdir -p /opt/spark/current/assembly/target/scala-2.10/jars
+
+    # copy jars to new location
+    pushd /opt/spark/current/assembly/target/scala-2.10/jars
+    for SPARK_JAR in "${SPARK_JARS[@]}"
+    do
+        SPARK_JAR_NAME=`echo ${SPARK_JAR} | sed 's/.*\///'`
+        copy_from_cache ${SPARK_JAR_NAME}
+    done
+
+    # copy all jars except spark and scala to assembly/target/scala_2.10/jars
+    find /opt/spark/current/jars/ -type f ! \( -iname 'spark*' -o -iname 'scala*' -o -iname 'jackson-module-scala*' -o -iname 'json4s-*' -o -iname 'breeze*' -o -iname 'spire*' -o -iname 'macro-compat*' -o -iname 'shapeless*' -o -iname 'machinist*' -o -iname 'chill*' \) -exec cp {} . \;
+
+    # rename jars directory
+    mv /opt/spark/current/jars/ /opt/spark/current/jars_original
     popd
-
 }
-
 
 function copy_from_cache {
     resource_name=$1
@@ -340,6 +358,8 @@ function install_spark {
     tar -xzf ${DOWNLOADS_DIRECTORY}/${SPARK_TARBALL_NAME} -C /opt/spark/
 
     ln -sf /opt/spark/${SPARK_HADOOP_VERSION} /opt/spark/current
+
+    install_spark_jars
 
     install_java_libs
 

@@ -37,8 +37,8 @@ enable_service spark-worker
 
 # spark vars
 SPARK_DIRECTORIES=("/var/spark" "/var/log/spark" "/var/log/spark/events" "/var/run/spark" "/var/run/spark/work" "/etc/spark/conf" "/etc/spark/init" )
-SPARK_VERSION=${SPARK_VERSION:-1.6.3}
-HADOOP_VERSION=${HADOOP_VERSION:-2.6}
+SPARK_VERSION=${SPARK_VERSION:-2.2.0}
+HADOOP_VERSION=${HADOOP_VERSION:-2.7}
 SPARK_HADOOP_VERSION=spark-$SPARK_VERSION-bin-hadoop$HADOOP_VERSION
 SPARK_TARBALL_NAME=${SPARK_HADOOP_VERSION}.tgz
 MAVEN_REPO=${MAVEN_REPO:-https://repo1.maven.org/maven2}
@@ -48,7 +48,10 @@ APACHE_MIRROR=${APACHE_MIRROR:-http://archive.apache.org/dist/}
 BASE_KAFKA_VERSION=${BASE_KAFKA_VERSION:-0.8.1.1}
 SCALA_VERSION=${SCALA_VERSION:-2.10}
 KAFKA_VERSION=${KAFKA_VERSION:-${SCALA_VERSION}-${BASE_KAFKA_VERSION}}
-SPARK_JAVA_LIBS=("org/apache/kafka/kafka_2.10/0.8.1.1/kafka_2.10-0.8.1.1.jar" "org/scala-lang/scala-library/2.10.1/scala-library-2.10.1.jar" "com/yammer/metrics/metrics-core/2.2.0/metrics-core-2.2.0.jar" "org/apache/spark/spark-streaming-kafka_2.10/${SPARK_VERSION}/spark-streaming-kafka_2.10-${SPARK_VERSION}.jar" "org/drizzle/jdbc/drizzle-jdbc/1.3/drizzle-jdbc-1.3.jar")
+SPARK_JAVA_LIBS=("org/apache/kafka/kafka_2.10/0.8.1.1/kafka_2.10-0.8.1.1.jar" "com/yammer/metrics/metrics-core/2.2.0/metrics-core-2.2.0.jar" "org/scala-lang/scala-library/2.10.6/scala-library-2.10.6.jar" "org/scala-lang/scala-compiler/2.10.6/scala-compiler-2.10.6.jar" "org/scala-lang/scala-reflect/2.10.6/scala-reflect-2.10.6.jar" "org/scala-lang/scalap/2.10.6/scalap-2.10.6.jar" "org/apache/spark/spark-streaming-kafka-0-8_2.10/${SPARK_VERSION}/spark-streaming-kafka-0-8_2.10-${SPARK_VERSION}.jar" "org/drizzle/jdbc/drizzle-jdbc/1.3/drizzle-jdbc-1.3.jar" "com/fasterxml/jackson/module/jackson-module-scala_2.10/2.6.5/jackson-module-scala_2.10-2.6.5.jar" "org/json4s/json4s-jackson_2.10/3.2.11/json4s-jackson_2.10-3.2.11.jar" "org/json4s/json4s-core_2.10/3.2.11/json4s-core_2.10-3.2.11.jar" "org/json4s/json4s-ast_2.10/3.2.11/json4s-ast_2.10-3.2.11.jar" "org/scalanlp/breeze-macros_2.10/0.13.1/breeze-macros_2.10-0.13.1.jar" "org/spire-math/spire_2.10/0.13.0/spire_2.10-0.13.0.jar" "org/typelevel/macro-compat_2.10/1.1.1/macro-compat_2.10-1.1.1.jar" "com/chuusai/shapeless_2.10/2.3.2/shapeless_2.10-2.3.2.jar" "org/spire-math/spire-macros_2.10/0.13.0/spire-macros_2.10-0.13.0.jar" "org/typelevel/machinist_2.10/0.6.1/machinist_2.10-0.6.1.jar" "org/scalanlp/breeze_2.10/0.13.1/breeze_2.10-0.13.1.jar" "com/twitter/chill_2.10/0.8.0/chill_2.10-0.8.0.jar" "com/twitter/chill-java/0.8.0/chill-java-0.8.0.jar")
+
+# Get Spark 2.2 jars compiled with Scala 2.10 from mvn
+SPARK_JARS=("org/apache/spark/spark-catalyst_2.10/${SPARK_VERSION}/spark-catalyst_2.10-2.2.0.jar" "org/apache/spark/spark-core_2.10/${SPARK_VERSION}/spark-core_2.10-2.2.0.jar" "org/apache/spark/spark-graphx_2.10/${SPARK_VERSION}/spark-graphx_2.10-2.2.0.jar" "org/apache/spark/spark-launcher_2.10/${SPARK_VERSION}/spark-launcher_2.10-2.2.0.jar" "org/apache/spark/spark-mllib_2.10/${SPARK_VERSION}/spark-mllib_2.10-2.2.0.jar" "org/apache/spark/spark-mllib-local_2.10/${SPARK_VERSION}/spark-mllib-local_2.10-2.2.0.jar" "org/apache/spark/spark-network-common_2.10/${SPARK_VERSION}/spark-network-common_2.10-2.2.0.jar" "org/apache/spark/spark-network-shuffle_2.10/${SPARK_VERSION}/spark-network-shuffle_2.10-2.2.0.jar" "org/apache/spark/spark-repl_2.10/${SPARK_VERSION}/spark-repl_2.10-2.2.0.jar" "org/apache/spark/spark-sketch_2.10/${SPARK_VERSION}/spark-sketch_2.10-2.2.0.jar" "org/apache/spark/spark-sql_2.10/${SPARK_VERSION}/spark-sql_2.10-2.2.0.jar" "org/apache/spark/spark-streaming_2.10/${SPARK_VERSION}/spark-streaming_2.10-2.2.0.jar" "org/apache/spark/spark-tags_2.10/${SPARK_VERSION}/spark-tags_2.10-2.2.0.jar" "org/apache/spark/spark-unsafe_2.10/${SPARK_VERSION}/spark-unsafe_2.10-2.2.0.jar" "org/apache/spark/spark-yarn_2.10/${SPARK_VERSION}/spark-yarn_2.10-2.2.0.jar")
 
 # monasca-api stuff
 

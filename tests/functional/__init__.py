@@ -20,7 +20,7 @@ import sys
 try:
     sys.path.append(os.path.join("/opt/spark/current", "python"))
     sys.path.append(os.path.join("/opt/spark/current",
-                                 "python", "lib", "py4j-0.9-src.zip"))
+                                 "python", "lib", "py4j-0.10.4-src.zip"))
 except KeyError:
     print("Error adding Spark location to the path")
     # TODO(someone) not sure what action is appropriate
