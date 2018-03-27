@@ -84,6 +84,9 @@ class ConfigInitializer(object):
             cfg.StrOpt('publish_kafka_project_id',
                        default='111111',
                        help='publish aggregated metrics tenant'),
+            cfg.StrOpt('publish_region',
+                       default='useast',
+                       help='publish aggregated metrics region'),
             cfg.StrOpt('adapter_pre_hourly',
                        default='monasca_transform.messaging.adapter:'
                        'KafkaMessageAdapterPreHourly',
