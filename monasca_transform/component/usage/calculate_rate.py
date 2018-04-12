@@ -25,6 +25,7 @@ import json
 
 class CalculateRateException(Exception):
     """Exception thrown when calculating rate
+
     Attributes:
     value: string representing the error
     """
@@ -40,7 +41,9 @@ class CalculateRate(UsageComponent):
 
     @staticmethod
     def usage(transform_context, record_store_df):
-        """component which groups together record store records by
+        """Method to return instance usage dataframe:
+
+        It groups together record store records by
         provided group by columns list,sorts within the group by event
         timestamp field, calculates the rate of change between the
         oldest and latest values, and returns the resultant value as an

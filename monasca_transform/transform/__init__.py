@@ -23,9 +23,7 @@ TransformContextBase = namedtuple("TransformContext",
 
 
 class TransformContext(TransformContextBase):
-    """A tuple which contains all the configuration information
-    to drive processing
-
+    """A tuple which contains all the configuration information to drive processing
 
     namedtuple contains:
 

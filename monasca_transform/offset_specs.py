@@ -60,6 +60,7 @@ class OffsetSpec(object):
 @six.add_metaclass(abc.ABCMeta)
 class OffsetSpecs(object):
     """Class representing offset specs to help recover.
+
     From where processing should pick up in case of failure
     """
 

@@ -42,7 +42,9 @@ class GroupSortbyTimestamp(Grouping):
 
     @staticmethod
     def _prepare_for_groupby(record_store_with_groupby_rdd):
-        """creates a new rdd where the first element of each row
+        """creates a new rdd where:
+
+        the first element of each row
         contains array of grouping key and event timestamp fields.
         Grouping key and event timestamp fields are used by
         partitioning and sorting function to partition the data
@@ -99,7 +101,9 @@ class GroupSortbyTimestamp(Grouping):
 
     @staticmethod
     def _get_group_first_last_quantity_udf(grouplistiter):
-        """Return stats that include first row key, first_event_timestamp,
+        """Return stats that include:
+
+        first row key, first_event_timestamp,
         first event quantity, last_event_timestamp and last event quantity
         """
         first_row = None
@@ -158,7 +162,9 @@ class GroupSortbyTimestamp(Grouping):
     def fetch_group_latest_oldest_quantity(record_store_df,
                                            transform_spec_df,
                                            groupby_columns_list):
-        """function to group record store data, sort by timestamp within group
+        """To group record store data
+
+        sort by timestamp within group
         and get first and last timestamp along with quantity within each group
 
         This function uses key-value pair rdd's groupBy function to do groupby

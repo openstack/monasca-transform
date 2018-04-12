@@ -59,7 +59,9 @@ class PreHourlyProcessorDataProvider(ProcessUtilDataProvider):
 
 
 class PreHourlyProcessor(Processor):
-    """Processor to process usage data published to metrics_pre_hourly topic a
+    """Publish metrics in kafka
+
+    Processor to process usage data published to metrics_pre_hourly topic a
     and publish final rolled up metrics to metrics topic in kafka.
     """
 
@@ -95,9 +97,7 @@ class PreHourlyProcessor(Processor):
 
     @staticmethod
     def get_app_name():
-        """get name of this application. Will be used to
-        store offsets in database
-        """
+        """get name of this application. Will be used to store offsets in database"""
         return "mon_metrics_kafka_pre_hourly"
 
     @staticmethod
@@ -113,9 +113,7 @@ class PreHourlyProcessor(Processor):
     def _get_offsets_from_kafka(brokers,
                                 topic,
                                 offset_time):
-        """get dict representing kafka
-        offsets.
-        """
+        """get dict representing kafka offsets."""
         # get client
         client = KafkaClient(brokers)
 
@@ -144,9 +142,7 @@ class PreHourlyProcessor(Processor):
 
     @staticmethod
     def _parse_saved_offsets(app_name, topic, saved_offset_spec):
-        """get dict representing saved
-        offsets.
-        """
+        """get dict representing saved offsets."""
         offset_dict = {}
         for key, value in saved_offset_spec.items():
             if key.startswith("%s_%s" % (app_name, topic)):
@@ -197,8 +193,7 @@ class PreHourlyProcessor(Processor):
                                topic,
                                app_name,
                                saved_offset_spec):
-        """get offset range from saved offset to latest.
-        """
+        """get offset range from saved offset to latest."""
         offset_range_list = []
 
         # https://cwiki.apache.org/confluence/display/KAFKA/
@@ -243,8 +238,9 @@ class PreHourlyProcessor(Processor):
 
     @staticmethod
     def get_processing_offset_range_list(processing_time):
-        """get offset range to fetch data from. The
-        range will last from the last saved offsets to current offsets
+        """Get offset range to fetch data from.
+
+        The range will last from the last saved offsets to current offsets
         available. If there are no last saved offsets available in the
         database the starting offsets will be set to the earliest
         available in kafka.
@@ -284,13 +280,13 @@ class PreHourlyProcessor(Processor):
 
     @staticmethod
     def get_offset_specs():
-        """get offset specifications.
-        """
+        """get offset specifications."""
         return simport.load(cfg.CONF.repositories.offsets)()
 
     @staticmethod
     def get_effective_offset_range_list(offset_range_list):
-        """get effective batch offset range.
+        """Get effective batch offset range.
+
         Effective batch offset range covers offsets starting
         from effective batch revision (defined by effective_batch_revision
         config property). By default this method will set the
@@ -432,8 +428,9 @@ class PreHourlyProcessor(Processor):
 
     @staticmethod
     def filter_out_records_not_in_current_batch(instance_usage_df):
-        """Filter out any records which don't pertain to the
-        current batch (i.e., records before or after the
+        """Filter out any records which don't pertain to the current batch
+
+        (i.e., records before or after the
         batch currently being processed).
         """
         # get the most recent batch time from the stored offsets
@@ -476,7 +473,9 @@ class PreHourlyProcessor(Processor):
 
     @staticmethod
     def process_instance_usage(transform_context, instance_usage_df):
-        """second stage aggregation. Aggregate instance usage rdd
+        """Second stage aggregation.
+
+        Aggregate instance usage rdd
         data and write results to metrics topic in kafka.
         """
 
@@ -525,8 +524,7 @@ class PreHourlyProcessor(Processor):
 
     @staticmethod
     def do_transform(instance_usage_df):
-        """start processing (aggregating) metrics
-        """
+        """start processing (aggregating) metrics"""
         #
         # look in instance_usage_df for list of metrics to be processed
         #
@@ -571,10 +569,11 @@ class PreHourlyProcessor(Processor):
 
     @staticmethod
     def run_processor(spark_context, processing_time):
-        """process data in metrics_pre_hourly queue, starting
-           from the last saved offsets, else start from earliest
-           offsets available
-           """
+        """Process data in metrics_pre_hourly queue
+
+        Starting from the last saved offsets, else start from earliest
+        offsets available
+        """
 
         offset_range_list = (
             PreHourlyProcessor.get_processing_offset_range_list(

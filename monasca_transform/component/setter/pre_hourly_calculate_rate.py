@@ -24,6 +24,7 @@ import json
 
 class PreHourlyCalculateRateException(Exception):
     """Exception thrown when doing pre-hourly rate calculations
+
     Attributes:
     value: string representing the error
     """

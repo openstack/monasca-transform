@@ -33,6 +33,7 @@ import json
 
 class FetchQuantityException(Exception):
     """Exception thrown when fetching quantity
+
     Attributes:
     value: string representing the error
     """
@@ -50,8 +51,7 @@ GroupedDataWithOperation = namedtuple("GroupedDataWithOperation",
 
 
 class GroupedDataWithOperation(GroupedDataWithOperation):
-    """A tuple which is a wrapper containing record store data
-    and the usage operation
+    """A tuple which is a wrapper containing record store data and the usage operation
 
     namdetuple contains:
 
@@ -76,8 +76,10 @@ class FetchQuantity(UsageComponent):
 
     @staticmethod
     def _get_latest_oldest_quantity(grouping_results_with_operation):
-        """get quantity for each group by performing the requested
-        usage operation and return a instance usage data.
+        """Method to return an instance usage data
+
+        Get quantity for each group by performing the requested
+        usage operation and return an instance usage data.
         """
 
         # row
@@ -337,10 +339,12 @@ class FetchQuantity(UsageComponent):
 
     @staticmethod
     def usage(transform_context, record_store_df):
-        """component which groups together record store records by
+        """Method to return the latest quantity as an instance usage dataframe:
+
+        It groups together record store records by
         provided group by columns list , sorts within the group by event
         timestamp field, applies group stats udf and returns the latest
-        quantity as a instance usage dataframe
+        quantity as an instance usage dataframe
         """
         transform_spec_df = transform_context.transform_spec_df_info
 
@@ -358,10 +362,12 @@ class FetchQuantity(UsageComponent):
     @staticmethod
     def usage_by_operation(transform_context, record_store_df,
                            usage_fetch_operation):
-        """component which groups together record store records by
+        """Returns the latest quantity as a instance usage dataframe
+
+        It groups together record store records by
         provided group by columns list , sorts within the group by event
         timestamp field, applies group stats udf and returns the latest
-        quantity as a instance usage dataframe
+        quantity as an instance usage dataframe
         """
         transform_spec_df = transform_context.transform_spec_df_info
 

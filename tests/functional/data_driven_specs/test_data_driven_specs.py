@@ -542,6 +542,7 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
                                event_type=None,
                                pre_transform_specs_data_frame=None):
         """get row for event type
+
         :rtype: Row
         """
         rows = pre_transform_specs_data_frame.filter(

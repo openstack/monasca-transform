@@ -20,8 +20,7 @@ RecordStoreWithGroupByBase = namedtuple("RecordStoreWithGroupBy",
 
 
 class RecordStoreWithGroupBy(RecordStoreWithGroupByBase):
-    """A tuple which is a wrapper containing record store data
-    and the group by columns
+    """A tuple which is a wrapper containing record store data and the group by columns
 
     namdetuple contains:
 
@@ -36,8 +35,7 @@ GroupingResultsBase = namedtuple("GroupingResults",
 
 
 class GroupingResults(GroupingResultsBase):
-    """A tuple which is a wrapper containing grouping key
-    and grouped result set
+    """A tuple which is a wrapper containing grouping key and grouped result set
 
     namdetuple contains:
 
@@ -52,7 +50,9 @@ class Grouping(object):
 
     @staticmethod
     def _parse_grouping_key(grouping_str):
-        """parse grouping key which in "^key1=value1^key2=value2..." format
+        """parse grouping key
+
+        which in "^key1=value1^key2=value2..." format
         into a dictionary of key value pairs
         """
         group_by_dict = {}

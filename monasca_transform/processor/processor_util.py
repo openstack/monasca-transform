@@ -40,6 +40,7 @@ class PreHourlyProcessorUtil(object):
     @staticmethod
     def is_time_to_run(check_date_time):
         """return True if its time to run this processor.
+
         It is time to run the processor if:
             The processor has no previous recorded run time.
             It is more than the configured 'late_metric_slack_time' (to allow

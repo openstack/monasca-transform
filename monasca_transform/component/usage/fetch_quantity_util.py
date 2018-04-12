@@ -28,6 +28,7 @@ import json
 
 class FetchQuantityUtilException(Exception):
     """Exception thrown when fetching quantity
+
     Attributes:
     value: string representing the error
     """
@@ -62,8 +63,9 @@ class FetchQuantityUtil(UsageComponent):
 
     @staticmethod
     def _format_quantity_util(row):
-        """calculate the utilized quantity based on idle percentage
-        quantity and convert to instance usage format
+        """Converts calculated utilized quantity to an instance usage format
+
+        Calculation based on idle percentage
         """
         #
         tenant_id = getattr(row, "tenant_id", "all")
@@ -141,7 +143,9 @@ class FetchQuantityUtil(UsageComponent):
 
     @staticmethod
     def usage(transform_context, record_store_df):
-        """component which groups together record store records by
+        """Method to return instance usage dataframe:
+
+        It groups together record store records by
         provided group by columns list, sorts within the group by event
         timestamp field, applies group stats udf and returns the latest
         quantity as a instance usage dataframe

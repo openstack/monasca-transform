@@ -53,8 +53,7 @@ class JSONOffsetSpecs(OffsetSpecs):
             log.info('No kafka offsets found at startup')
 
     def _save(self):
-        """get the specs of last run time of offset
-        """
+        """get the specs of last run time of offset"""
         log.info("Saving json offsets: %s", self._kafka_offsets)
 
         with open(self.kafka_offset_spec_file, 'w') as offset_file:

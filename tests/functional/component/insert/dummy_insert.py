@@ -19,9 +19,7 @@ from tests.functional.messaging.adapter import DummyAdapter
 
 
 class DummyInsert(InsertComponent):
-    """Insert component that writes metric data to
-    to kafka queue
-    """
+    """Insert component that writes metric data to kafka queue"""
 
     @staticmethod
     def insert(transform_context, instance_usage_df):

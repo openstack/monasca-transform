@@ -17,6 +17,7 @@ from pyspark import StorageLevel
 
 class InvalidCacheStorageLevelException(Exception):
     """Exception thrown when an invalid cache storage level is encountered
+
     Attributes:
     value: string representing the error
     """
@@ -33,9 +34,7 @@ class StorageUtils(object):
 
     @staticmethod
     def get_storage_level(storage_level_str):
-        """get pyspark storage level from storage level
-        string
-        """
+        """get pyspark storage level from storage level string"""
         if (storage_level_str == "DISK_ONLY"):
             return StorageLevel.DISK_ONLY
         elif (storage_level_str == "DISK_ONLY_2"):

@@ -18,9 +18,7 @@ from monasca_transform.messaging.adapter import KafkaMessageAdapter
 
 
 class KafkaInsert(InsertComponent):
-    """Insert component that writes instance usage data
-    to kafka queue
-    """
+    """Insert component that writes instance usage data to kafka queue"""
 
     @staticmethod
     def insert(transform_context, instance_usage_df):

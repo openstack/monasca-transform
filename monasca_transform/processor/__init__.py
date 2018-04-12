@@ -19,9 +19,7 @@ class Processor(object):
 
     @abc.abstractmethod
     def get_app_name(self):
-        """get name of this application. Will be used to
-        store offsets in database
-        """
+        """get name of this application. Will be used to store offsets in database"""
         raise NotImplementedError(
             "Class %s doesn't implement get_app_name()"
             % self.__class__.__name__)

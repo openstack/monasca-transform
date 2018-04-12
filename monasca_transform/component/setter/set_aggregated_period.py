@@ -23,6 +23,7 @@ import json
 
 class SetAggregatedPeriod(SetterComponent):
     """setter component that sets final aggregated metric name.
+
     aggregated metric name is available as a parameter 'aggregated_metric_name'
     in aggregation_params in metric processing driver table.
     """
@@ -80,9 +81,7 @@ class SetAggregatedPeriod(SetterComponent):
 
     @staticmethod
     def setter(transform_context, instance_usage_df):
-        """set the aggregated metric name field for elements in instance usage
-        rdd
-        """
+        """set the aggregated metric name field for elements in instance usage rdd"""
 
         transform_spec_df = transform_context.transform_spec_df_info
 

@@ -43,6 +43,7 @@ def main():
 
 def shutdown_all_threads_and_die():
     """Shut down all threads and exit process.
+
     Hit it with a hammer to kill all threads and die.
     """
     LOG = log.getLogger(__name__)
@@ -51,9 +52,7 @@ def shutdown_all_threads_and_die():
 
 
 def get_process(proc_name):
-    """Get process given  string in
-    process cmd line.
-    """
+    """Get process given  string in process cmd line."""
     LOG = log.getLogger(__name__)
     proc = None
     try:
@@ -91,8 +90,7 @@ def stop_spark_submit_process():
 
 
 class Transform(os_service.Service):
-    """Class used with Openstack service.
-    """
+    """Class used with Openstack service."""
 
     LOG = log.getLogger(__name__)
 
@@ -143,9 +141,7 @@ class TransformService(threading.Thread):
             CONF.service.election_polling_frequency))
 
     def check_if_still_leader(self):
-        """Return true if the this host is the
-        leader
-        """
+        """Return true if the this host is the leader"""
         leader = None
         try:
             leader = self.coordinator.get_leader(self.group).get()
@@ -289,8 +285,7 @@ class TransformService(threading.Thread):
 
 
 def main_service():
-    """Method to use with Openstack service.
-    """
+    """Method to use with Openstack service."""
     ConfigInitializer.basic_config()
     LogUtils.init_logger(__name__)
     launcher = os_service.ServiceLauncher(cfg.CONF)

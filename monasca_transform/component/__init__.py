@@ -31,8 +31,7 @@ InstanceUsageDataAggParamsBase = namedtuple('InstanceUsageDataAggParams',
 
 
 class InstanceUsageDataAggParams(InstanceUsageDataAggParamsBase):
-    """A tuple which is a wrapper containing the instance usage data
-    and aggregation params
+    """A tuple which is a wrapper containing the instance usage data and aggregation params
 
     namdetuple contains:
 

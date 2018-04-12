@@ -221,6 +221,7 @@ class MonMetricsKafkaProcessor(object):
     @staticmethod
     def process_metric(transform_context, record_store_df):
         """process (aggregate) metric data from record_store data
+
         All the parameters to drive processing should be available
         in transform_spec_df dataframe.
         """
@@ -231,8 +232,7 @@ class MonMetricsKafkaProcessor(object):
 
     @staticmethod
     def process_metrics(transform_context, record_store_df):
-        """start processing (aggregating) metrics
-        """
+        """start processing (aggregating) metrics"""
         #
         # look in record_store_df for list of metrics to be processed
         #
@@ -536,6 +536,7 @@ class MonMetricsKafkaProcessor(object):
     @staticmethod
     def transform_to_recordstore(kvs):
         """Transform metrics data from kafka to record store format.
+
         extracts, validates, filters, generates data from kakfa to only keep
         data that has to be aggregated. Generate data generates multiple
         records for for the same incoming metric if the metric has multiple

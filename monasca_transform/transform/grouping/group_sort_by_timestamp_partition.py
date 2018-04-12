@@ -26,9 +26,11 @@ class GroupSortbyTimestampPartition(Grouping):
 
     @staticmethod
     def _get_group_first_last_quantity_udf(partition_list_iter):
-        """user defined function to to through a list of partitions. Each
-        partition contains elements for a group. All the elements are sorted by
+        """User defined function to go through a list of partitions.
+
+        Each partition contains elements for a group. All the elements are sorted by
         timestamp.
+
         The stats include first row key, first_event_timestamp,
         fist event quantity, last_event_timestamp and last event quantity
         """
@@ -87,8 +89,11 @@ class GroupSortbyTimestampPartition(Grouping):
 
     @staticmethod
     def _prepare_for_group_by(record_store_with_group_by_rdd):
-        """creates a new rdd where the first element of each row
-        contains array of grouping key and event timestamp fields.
+        """Creates a new rdd where:
+
+        The first element of each row contains array of grouping
+        key and event timestamp fields.
+
         Grouping key and event timestamp fields are used by
         partitioning and sorting function to partition the data
         by grouping key and then sort the elements in a group by the
@@ -118,7 +123,9 @@ class GroupSortbyTimestampPartition(Grouping):
 
     @staticmethod
     def _get_partition_by_group(group_composite):
-        """get a hash of the grouping key, which is then used by partitioning
+        """Get a hash of the grouping key,
+
+        which is then used by partitioning
         function to get partition where the groups data should end up in.
         It uses hash % num_partitions to get partition
         """
@@ -133,8 +140,7 @@ class GroupSortbyTimestampPartition(Grouping):
 
     @staticmethod
     def _sort_by_timestamp(group_composite):
-        """get timestamp which will be used to sort grouped data
-        """
+        """get timestamp which will be used to sort grouped data"""
         event_timestamp_string = group_composite[1]
         return event_timestamp_string
 
@@ -142,9 +148,7 @@ class GroupSortbyTimestampPartition(Grouping):
     def _group_sort_by_timestamp_partition(record_store_df,
                                            group_by_columns_list,
                                            num_of_groups):
-        """component that does a group by and then sorts all
-        the items within the group by event timestamp.
-        """
+        """It does a group by and then sorts all the items within the group by event timestamp."""
         # convert the dataframe rdd to normal rdd and add the group by
         # column list
         record_store_with_group_by_rdd = record_store_df.rdd.\
@@ -174,6 +178,7 @@ class GroupSortbyTimestampPartition(Grouping):
     @staticmethod
     def _remove_none_filter(row):
         """remove any rows which have None as grouping key
+
         [GroupingResults(grouping_key="key1", results={})] rows get created
         when partition does not get any grouped data assigned to it
         """
@@ -185,22 +190,18 @@ class GroupSortbyTimestampPartition(Grouping):
                                         transform_spec_df,
                                         group_by_columns_list,
                                         num_of_groups):
-        """function to group record store data, sort by timestamp within group
+        """Function to group record store data
+
+        Sort by timestamp within group
         and get first and last timestamp along with quantity within each group
-
         To do group by it uses custom partitioning function which creates a new
-        partition
-        for each group and uses RDD's repartitionAndSortWithinPartitions
+        partition for each group and uses RDD's repartitionAndSortWithinPartitions
         function to do the grouping and sorting within the group.
-
         This is more scalable than just using RDD's group_by as using this
-        technique
-        group is not materialized into a list and stored in memory, but rather
-        it uses RDD's in built partitioning capability to do the sort
-
-        num_of_groups should be more than expected groups, otherwise the same
-        partition can get used for two groups which will cause incorrect
-        results.
+        technique group is not materialized into a list and stored in memory, but rather
+        it uses RDD's in built partitioning capability to do the sort num_of_groups should
+        be more than expected groups, otherwise the same
+        partition can get used for two groups which will cause incorrect results.
         """
 
         # group and order elements in group using repartition

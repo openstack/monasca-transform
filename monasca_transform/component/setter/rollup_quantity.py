@@ -26,6 +26,7 @@ import json
 
 class RollupQuantityException(Exception):
     """Exception thrown when doing quantity rollup
+
     Attributes:
     value: string representing the error
     """

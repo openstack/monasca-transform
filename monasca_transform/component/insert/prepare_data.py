@@ -16,9 +16,7 @@ from monasca_transform.component.insert import InsertComponent
 
 
 class PrepareData(InsertComponent):
-    """prepare for insert component validates instance usage
-    data before calling Insert component
-    """
+    """prepare for insert component validates instance usage data before calling Insert component"""
     @staticmethod
     def insert(transform_context, instance_usage_df):
         """write instance usage data to kafka"""

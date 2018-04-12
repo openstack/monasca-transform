@@ -41,8 +41,7 @@ class InsertComponent(Component):
 
     @staticmethod
     def _validate_metric(metric):
-        """validate monasca metric.
-        """
+        """validate monasca metric."""
         try:
             # validate metric part, without the wrapper
             metric_validator.validate(metric["metric"])
@@ -124,9 +123,7 @@ class InsertComponent(Component):
 
     @staticmethod
     def _get_metric(row, agg_params):
-        """write data to kafka. extracts and formats
-        metric data and write s the data to kafka
-        """
+        """write data to kafka. extracts and formats metric data and write s the data to kafka"""
         instance_usage_dict = {"tenant_id": row.tenant_id,
                                "user_id": row.user_id,
                                "resource_uuid": row.resource_uuid,
@@ -171,9 +168,7 @@ class InsertComponent(Component):
     @staticmethod
     def _get_instance_usage_pre_hourly(row,
                                        metric_id):
-        """write data to kafka. extracts and formats
-        metric data and writes the data to kafka
-        """
+        """write data to kafka. extracts and formats metric data and writes the data to kafka"""
         # retrieve the processing meta from the row
         processing_meta = row.processing_meta
         # add transform spec metric id to the processing meta
@@ -228,9 +223,7 @@ class InsertComponent(Component):
 
     @staticmethod
     def _write_metrics_from_partition(partlistiter):
-        """iterate through all rdd elements in partition
-           and write metrics to kafka
-           """
+        """iterate through all rdd elements in partition and write metrics to kafka"""
         for part in partlistiter:
             agg_params = part.agg_params
             row = part.instance_usage_data

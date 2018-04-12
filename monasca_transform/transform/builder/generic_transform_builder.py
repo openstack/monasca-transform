@@ -16,9 +16,10 @@ from monasca_transform.log_utils import LogUtils
 from stevedore import extension
 
 
-class GenericTransformBuilder (object):
-    """Build transformation pipeline based on
-    aggregation_pipeline spec in metric processing
+class GenericTransformBuilder(object):
+    """Build transformation pipeline
+
+    Based on aggregation_pipeline spec in metric processing
     configuration
     """
 
@@ -67,9 +68,8 @@ class GenericTransformBuilder (object):
 
     @staticmethod
     def _parse_transform_pipeline(transform_spec_df):
-        """parse aggregation pipeline from metric
-        processing configuration
-        """
+        """Parse aggregation pipeline from metric processing configuration"""
+
         # get aggregation pipeline df
         aggregation_pipeline_df = transform_spec_df\
             .select("aggregation_params_map.aggregation_pipeline")
@@ -95,8 +95,10 @@ class GenericTransformBuilder (object):
     @staticmethod
     def do_transform(transform_context,
                      record_store_df):
-        """Build a dynamic aggregation pipeline and call components to
-        process record store dataframe
+        """Method to return instance usage dataframe
+
+        Build a dynamic aggregation pipeline
+        and call components to process record store dataframe
         """
         transform_spec_df = transform_context.transform_spec_df_info
         (source,
