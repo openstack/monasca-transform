@@ -275,7 +275,6 @@ function install_monasca_transform {
     copy_monasca_transform_files
     create_monasca_transform_venv
 
-    sudo cp -f "${MONASCA_TRANSFORM_FILES}"/monasca-transform/monasca-transform.service /etc/systemd/system/.
     sudo cp -f "${MONASCA_TRANSFORM_FILES}"/monasca-transform/start-monasca-transform.sh /etc/monasca/transform/init/.
     sudo chmod +x /etc/monasca/transform/init/start-monasca-transform.sh
     sudo cp -f "${MONASCA_TRANSFORM_FILES}"/monasca-transform/service_runner.py /etc/monasca/transform/init/.
@@ -303,8 +302,7 @@ function get_id () {
 function ascertain_admin_project_id {
 
     source ~/devstack/openrc admin admin
-    export ADMIN_PROJECT_ID=$(get_id openstack project show admin)
-
+    export ADMIN_PROJECT_ID=$(get_id openstack project show mini-mon)
 }
 
 function copy_monasca_transform_files {
@@ -319,9 +317,12 @@ function copy_monasca_transform_files {
     cp -f "${MONASCA_TRANSFORM_FILES}"/monasca-transform/transform_specs.sql /opt/monasca/transform/lib/.
     cp -f "${MONASCA_TRANSFORM_FILES}"/monasca-transform/pre_transform_specs.sql /opt/monasca/transform/lib/.
     touch /var/log/monasca/transform/monasca-transform.log
-    # set passwords and other variables in configuration files
-    sudo sudo sed -i "s/brokers=192\.168\.15\.6:9092/brokers=${SERVICE_HOST}:9092/g" /etc/monasca-transform.conf
-    sudo sudo sed -i "s/password\s=\spassword/password = ${MONASCA_TRANSFORM_DB_PASSWORD}/g" /etc/monasca-transform.conf
+
+    # set variables in configuration files
+    iniset -sudo /etc/monasca-transform.conf database password "$MONASCA_TRANSFORM_DB_PASSWORD"
+
+    iniset -sudo /etc/monasca-transform.conf messaging brokers "$SERVICE_HOST:9092"
+    iniset -sudo /etc/monasca-transform.conf messaging publish_region "$REGION_NAME"
 }
 
 function create_monasca_transform_venv {
@@ -414,6 +415,15 @@ function extra_monasca_transform {
 
 function start_monasca_transform {
     run_process "monasca-transform" "/etc/monasca/transform/init/start-monasca-transform.sh"
+    # systemd unit file updates
+    local unitfile="$SYSTEMD_DIR/devstack@monasca-transform.service"
+    local after_service="devstack@zookeeper.service devstack@spark-master.service devstack@spark-worker.service"
+    iniset -sudo "$unitfile" "Unit" "After" "$after_service"
+    iniset -sudo "$unitfile" "Service" "Type" "simple"
+    iniset -sudo "$unitfile" "Service" "LimitNOFILE" "32768"
+    # reset  KillMode for monasca-transform, as spawns several child processes
+    iniset -sudo "$unitfile" "Service" "KillMode" "control-group"
+    sudo systemctl daemon-reload
 }
 
 # check for service enabled
