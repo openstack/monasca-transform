@@ -107,12 +107,15 @@ class FetchQuantityUtil(UsageComponent):
         record_count = getattr(row, "record_count",
                                Component.DEFAULT_UNAVAILABLE_VALUE)
 
-        # service id
-        service_group = Component.DEFAULT_UNAVAILABLE_VALUE
-        service_id = Component.DEFAULT_UNAVAILABLE_VALUE
-
         # aggregation period
         aggregation_period = Component.DEFAULT_UNAVAILABLE_VALUE
+
+        # get extra_data_map, if any
+        extra_data_map = getattr(row, "extra_data_map", {})
+        # filter out event_type
+        extra_data_map_filtered = \
+            {key: extra_data_map[key] for key in list(extra_data_map)
+             if key != 'event_type'}
 
         instance_usage_dict = {"tenant_id": tenant_id, "user_id": user_id,
                                "resource_uuid": resource_uuid,
@@ -130,12 +133,11 @@ class FetchQuantityUtil(UsageComponent):
                                "lastrecord_timestamp_string":
                                    lastrecord_timestamp_string,
                                "record_count": record_count,
-                               "service_group": service_group,
-                               "service_id": service_id,
                                "usage_date": usage_date,
                                "usage_hour": usage_hour,
                                "usage_minute": usage_minute,
-                               "aggregation_period": aggregation_period}
+                               "aggregation_period": aggregation_period,
+                               "extra_data_map": extra_data_map_filtered}
 
         instance_usage_data_json = json.dumps(instance_usage_dict)
 

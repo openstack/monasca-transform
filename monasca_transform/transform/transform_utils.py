@@ -20,6 +20,8 @@ from pyspark.sql.types import StringType
 from pyspark.sql.types import StructField
 from pyspark.sql.types import StructType
 
+from monasca_transform.component import Component
+
 
 class TransformUtils(object):
     """utility methods for different kinds of data."""
@@ -47,10 +49,8 @@ class InstanceUsageUtils(TransformUtils):
                    "geolocation", "region", "zone", "host", "project_id",
                    "aggregated_metric_name", "firstrecord_timestamp_string",
                    "lastrecord_timestamp_string",
-                   "service_group", "service_id",
                    "usage_date", "usage_hour", "usage_minute",
-                   "aggregation_period", "namespace", "pod_name", "app",
-                   "container_name", "interface", "deployment", "daemon_set"]
+                   "aggregation_period"]
 
         columns_struct_fields = [StructField(field_name, StringType(), True)
                                  for field_name in columns]
@@ -70,6 +70,12 @@ class InstanceUsageUtils(TransformUtils):
                                                          StringType(),
                                                          True),
                                                  True))
+
+        columns_struct_fields.append(StructField("extra_data_map",
+                                                 MapType(StringType(),
+                                                         StringType(),
+                                                         True),
+                                                 True))
         schema = StructType(columns_struct_fields)
 
         return schema
@@ -80,6 +86,103 @@ class InstanceUsageUtils(TransformUtils):
         schema = InstanceUsageUtils._get_instance_usage_schema()
         instance_usage_schema_df = sql_context.read.json(jsonrdd, schema)
         return instance_usage_schema_df
+
+    @staticmethod
+    def prepare_instance_usage_group_by_list(group_by_list):
+        """Prepare group by list.
+
+        If the group by list contains any instances of "dimensions#", "meta#" or "value_meta#" then
+        prepend the column value by "extra_data_map." since those columns are available in
+        extra_data_map column.
+
+        """
+        return [InstanceUsageUtils.prepare_group_by_item(item) for item in group_by_list]
+
+    @staticmethod
+    def prepare_group_by_item(item):
+        """Prepare group by list item.
+
+        Convert replaces any special "dimensions#", "meta#" or "value_meta#" occurrences into
+        spark sql syntax to retrieve data from extra_data_map column.
+
+        """
+        if (item.startswith("dimensions#") or
+                item.startswith("meta#") or
+                item.startswith("value_meta#")):
+            return ".".join(("extra_data_map", item))
+        else:
+            return item
+
+    @staticmethod
+    def prepare_extra_data_map(extra_data_map):
+        """Prepare extra data map.
+
+        Replace any occurances of "dimensions." or "meta." or "value_meta."
+        to "dimensions#", "meta#" or "value_meta#" in extra_data_map.
+
+        """
+        prepared_extra_data_map = {}
+        for column_name in list(extra_data_map):
+            column_value = extra_data_map[column_name]
+            if column_name.startswith("dimensions."):
+                column_name = column_name.replace("dimensions.", "dimensions#")
+            elif column_name.startswith("meta."):
+                column_name = column_name.replace("meta.", "meta#")
+            elif column_name.startswith("value_meta."):
+                column_name = column_name.replace("value_meta.", "value_meta#")
+            elif column_name.startswith("extra_data_map."):
+                column_name = column_name.replace("extra_data_map.", "")
+            prepared_extra_data_map[column_name] = column_value
+        return prepared_extra_data_map
+
+    @staticmethod
+    def grouped_data_to_map(row, group_by_columns_list):
+        """Iterate through group by column values from grouped data set and extract any values.
+
+        Return a dictionary which contains original group by columns name and value pairs, if they
+        are available from the grouped data set.
+
+        """
+        extra_data_map = getattr(row, "extra_data_map", {})
+        # add group by fields data to extra data map
+        for column_name in group_by_columns_list:
+            column_value = getattr(row, column_name, Component.
+                                   DEFAULT_UNAVAILABLE_VALUE)
+            if (column_value == Component.DEFAULT_UNAVAILABLE_VALUE
+                    and (column_name.startswith("dimensions.")
+                         or column_name.startswith("meta.")
+                         or column_name.startswith("value_meta.")
+                         or column_name.startswith("extra_data_map."))):
+                split_column_name = column_name.split(".", 1)[-1]
+                column_value = getattr(row, split_column_name, Component.
+                                       DEFAULT_UNAVAILABLE_VALUE)
+            extra_data_map[column_name] = column_value
+        return extra_data_map
+
+    @staticmethod
+    def extract_dimensions(instance_usage_dict, dimension_list):
+        """Extract dimensions from instance usage.
+
+        """
+        dimensions_part = {}
+        # extra_data_map
+        extra_data_map = instance_usage_dict.get("extra_data_map", {})
+
+        for dim in dimension_list:
+            value = instance_usage_dict.get(dim)
+            if value is None:
+                # lookup for value in extra_data_map
+                if len(list(extra_data_map)) > 0:
+                    value = extra_data_map.get(dim, "all")
+            if dim.startswith("dimensions#"):
+                dim = dim.replace("dimensions#", "")
+            elif dim.startswith("meta#"):
+                dim = dim.replace("meta#", "")
+            elif dim.startswith("value_meta#"):
+                dim = dim.replace("value_meta#", "")
+            dimensions_part[dim] = value
+
+        return dimensions_part
 
 
 class RecordStoreUtils(TransformUtils):
@@ -95,9 +198,7 @@ class RecordStoreUtils(TransformUtils):
                    "user_id", "region", "zone",
                    "host", "project_id", "service_group", "service_id",
                    "event_date", "event_hour", "event_minute",
-                   "event_second", "metric_group", "metric_id",
-                   "namespace", "pod_name", "app", "container_name",
-                   "interface", "deployment", "daemon_set"]
+                   "event_second", "metric_group", "metric_id"]
 
         columns_struct_fields = [StructField(field_name, StringType(), True)
                                  for field_name in columns]
@@ -109,6 +210,25 @@ class RecordStoreUtils(TransformUtils):
         columns_struct_fields.insert(0,
                                      StructField("event_quantity",
                                                  DoubleType(), True))
+
+        # map to metric meta
+        columns_struct_fields.append(StructField("meta",
+                                                 MapType(StringType(),
+                                                         StringType(),
+                                                         True),
+                                                 True))
+        # map to dimensions
+        columns_struct_fields.append(StructField("dimensions",
+                                                 MapType(StringType(),
+                                                         StringType(),
+                                                         True),
+                                                 True))
+        # map to value_meta
+        columns_struct_fields.append(StructField("value_meta",
+                                                 MapType(StringType(),
+                                                         StringType(),
+                                                         True),
+                                                 True))
 
         schema = StructType(columns_struct_fields)
 
@@ -126,6 +246,33 @@ class RecordStoreUtils(TransformUtils):
         schema = RecordStoreUtils._get_record_store_df_schema()
         record_store_df = sql_context.read.json(jsonpath, schema)
         return record_store_df
+
+    @staticmethod
+    def prepare_recordstore_group_by_list(group_by_list):
+        """Prepare record store group by list.
+
+        If the group by list contains any instances of "dimensions#", "meta#" or "value_meta#" then
+        convert into proper dotted notation. i.e. "dimensions.", "meta." and
+        "value_meta." to reference columns in record_store data.
+
+        """
+        return [RecordStoreUtils.prepare_group_by_item(item) for item in group_by_list]
+
+    @staticmethod
+    def prepare_group_by_item(item):
+        """Prepare record store item for group by.
+
+        Convert replaces any special "dimensions#", "meta#" or "value#meta" occurrences into
+        "dimensions.", "meta." and value_meta.".
+
+        """
+        if item.startswith("dimensions#"):
+            item = item.replace("dimensions#", "dimensions.")
+        elif item.startswith("meta#"):
+            item = item.replace("meta#", "meta.")
+        elif item.startswith("value_meta#"):
+            item = item.replace("value_meta#", "value_meta.")
+        return item
 
 
 class TransformSpecsUtils(TransformUtils):
@@ -219,50 +366,34 @@ class MonMetricUtils(TransformUtils):
     @staticmethod
     def _get_mon_metric_json_schema():
         """get the schema of the incoming monasca metric."""
-        dimensions = ["apache_host", "apache_port", "component",
-                      "consumer_group", "device", "hostname",
-                      "mode", "mount", "mount_point", "observer_host",
-                      "process_name", "project_id", "resource_id", "service",
-                      "test_type", "tenantId", "tenant_id", "topic", "url",
-                      "state", "state_description", "instanceId",
-                      "namespace", "pod_name", "app", "container_name",
-                      "interface", "deployment", "daemon_set"]
-
-        dimensions_struct_fields = [
-            StructField(field_name, StringType(), True)
-            for field_name in dimensions]
-
-        value_meta = ["host"]
-
-        value_meta_struct_fields = [
-            StructField(field_name, StringType(), True)
-            for field_name in value_meta]
 
         metric_struct_field = StructField(
             "metric",
             StructType([StructField("dimensions",
-                                    StructType(dimensions_struct_fields)),
+                                    MapType(StringType(),
+                                            StringType(),
+                                            True),
+                                    True),
                         StructField("value_meta",
-                                    StructType(value_meta_struct_fields)),
+                                    MapType(StringType(),
+                                            StringType(),
+                                            True),
+                                    True),
                         StructField("name", StringType(), True),
                         StructField("timestamp", StringType(), True),
                         StructField("value", StringType(), True)]), True)
 
-        meta_struct_field = StructField(
-            "meta",
-            StructType([StructField("timestamp", StringType(), True),
-                        StructField("region", StringType(), True),
-                        StructField("tenantId", StringType(), True),
-                        StructField("userId", StringType(), True),
-                        StructField("zone", StringType(), True),
-                        StructField("geolocation", StringType(), True)]))
+        meta_struct_field = StructField("meta",
+                                        MapType(StringType(),
+                                                StringType(),
+                                                True),
+                                        True)
 
         creation_time_struct_field = StructField("creation_time",
                                                  StringType(), True)
 
         schema = StructType([creation_time_struct_field,
                              meta_struct_field, metric_struct_field])
-
         return schema
 
     @staticmethod
@@ -322,6 +453,36 @@ class PreTransformSpecsUtils(TransformUtils):
         schema = PreTransformSpecsUtils._get_pre_transform_specs_df_schema()
         pre_transform_specs_df = sql_context.read.json(jsonpath, schema)
         return pre_transform_specs_df
+
+    @staticmethod
+    def prepare_required_raw_fields_list(group_by_list):
+        """Prepare required fields list.
+
+        If the group by list contains any instances of "dimensions#field", "meta#field" or
+        "value_meta#field" then convert them into metric.dimensions["field"] syntax.
+
+        """
+        return [PreTransformSpecsUtils.prepare_required_raw_item(item) for item in group_by_list]
+
+    @staticmethod
+    def prepare_required_raw_item(item):
+        """Prepare required field item.
+
+        Convert replaces any special "dimensions#", "meta#" or "value_meta" occurrences into
+        spark rdd syntax to fetch field value.
+
+        """
+        if item.startswith("dimensions#"):
+            field_name = item.replace("dimensions#", "")
+            return "metric.dimensions['%s']" % field_name
+        elif item.startswith("meta#"):
+            field_name = item.replace("meta#", "")
+            return "meta['%s']" % field_name
+        elif item.startswith("value_meta#"):
+            field_name = item.replace("value_meta#", "")
+            return "metric.value_meta['%s']" % field_name
+        else:
+            return item
 
 
 class GroupingResultsUtils(TransformUtils):

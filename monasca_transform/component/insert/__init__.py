@@ -19,6 +19,7 @@ from monasca_common.validation import metrics as metric_validator
 from monasca_transform.component import Component
 from monasca_transform.config.config_initializer import ConfigInitializer
 from monasca_transform.log_utils import LogUtils
+from monasca_transform.transform.transform_utils import InstanceUsageUtils
 
 from oslo_config import cfg
 
@@ -76,13 +77,12 @@ class InsertComponent(Component):
         current_epoch_seconds = time.time()
         current_epoch_milliseconds = current_epoch_seconds * 1000
 
+        log.debug(instance_usage_dict)
+
+        # extract dimensions
         dimension_list = agg_params["dimension_list"]
-        # build dimensions dynamically
-        dimensions_part = {}
-        for dim in dimension_list:
-            dimensions_part[dim] = \
-                instance_usage_dict.get(dim,
-                                        Component.DEFAULT_UNAVAILABLE_VALUE)
+        dimensions_part = InstanceUsageUtils.extract_dimensions(instance_usage_dict,
+                                                                dimension_list)
 
         meta_part = {}
 
@@ -112,12 +112,14 @@ class InsertComponent(Component):
                        "dimensions": dimensions_part,
                        "timestamp": int(current_epoch_milliseconds),
                        "value": instance_usage_dict.get(
-                       "quantity", 0.0),
+                           "quantity", 0.0),
                        "value_meta": value_meta_part}
 
         metric = {"metric": metric_part,
                   "meta": meta_part,
                   "creation_time": int(current_epoch_seconds)}
+
+        log.debug(metric)
 
         return metric
 
@@ -140,27 +142,13 @@ class InsertComponent(Component):
                                "lastrecord_timestamp_string":
                                    row.lastrecord_timestamp_string,
                                "record_count": row.record_count,
-                               "service_group": row.service_group,
-                               "service_id": row.service_id,
                                "usage_date": row.usage_date,
                                "usage_hour": row.usage_hour,
                                    "usage_minute": row.usage_minute,
                                "aggregation_period":
                                    row.aggregation_period,
-                               "namespace":
-                                   row.namespace,
-                               "pod_name":
-                                   row.pod_name,
-                               "app":
-                                   row.app,
-                               "container_name":
-                                   row.container_name,
-                               "interface":
-                                   row.interface,
-                               "deployment":
-                                   row.deployment,
-                               "daemon_set":
-                                   row.daemon_set}
+                               "extra_data_map":
+                                   row.extra_data_map}
         metric = InsertComponent._prepare_metric(instance_usage_dict,
                                                  agg_params)
         return metric
@@ -171,11 +159,12 @@ class InsertComponent(Component):
         """write data to kafka. extracts and formats metric data and writes the data to kafka"""
         # retrieve the processing meta from the row
         processing_meta = row.processing_meta
+
         # add transform spec metric id to the processing meta
         if processing_meta:
-                processing_meta["metric_id"] = metric_id
+            processing_meta["metric_id"] = metric_id
         else:
-                processing_meta = {"metric_id": metric_id}
+            processing_meta = {"metric_id": metric_id}
 
         instance_usage_dict = {"tenant_id": row.tenant_id,
                                "user_id": row.user_id,
@@ -197,28 +186,13 @@ class InsertComponent(Component):
                                "lastrecord_timestamp_unix":
                                    row.lastrecord_timestamp_unix,
                                "record_count": row.record_count,
-                               "service_group": row.service_group,
-                               "service_id": row.service_id,
                                "usage_date": row.usage_date,
                                "usage_hour": row.usage_hour,
                                "usage_minute": row.usage_minute,
                                "aggregation_period":
                                    row.aggregation_period,
                                "processing_meta": processing_meta,
-                               "namespace":
-                                   row.namespace,
-                               "pod_name":
-                                   row.pod_name,
-                               "app":
-                                   row.app,
-                               "container_name":
-                                   row.container_name,
-                               "interface":
-                                   row.interface,
-                               "deployment":
-                                   row.deployment,
-                               "daemon_set":
-                                   row.daemon_set}
+                               "extra_data_map": row.extra_data_map}
         return instance_usage_dict
 
     @staticmethod

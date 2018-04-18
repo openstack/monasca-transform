@@ -27,8 +27,7 @@ class ConfigInitializer(object):
         ConfigInitializer.load_stage_processors_options()
         ConfigInitializer.load_pre_hourly_processor_options()
         if not default_config_files:
-            default_config_files = ['/etc/monasca-transform.conf',
-                                    'etc/monasca-transform.conf']
+            default_config_files = ['/etc/monasca-transform.conf']
         cfg.CONF(args=[],
                  project='monasca_transform',
                  default_config_files=default_config_files)

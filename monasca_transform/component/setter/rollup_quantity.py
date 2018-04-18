@@ -110,6 +110,14 @@ class RollupQuantity(SetterComponent):
             except AttributeError:
                 processing_meta = {}
 
+            # create a column name, value pairs from grouped data
+            extra_data_map = InstanceUsageUtils.grouped_data_to_map(row,
+                                                                    setter_rollup_group_by_list)
+
+            # convert column names, so that values can be accessed by components
+            # later in the pipeline
+            extra_data_map = InstanceUsageUtils.prepare_extra_data_map(extra_data_map)
+
             # create a new instance usage dict
             instance_usage_dict = {"tenant_id": getattr(row, "tenant_id",
                                                         "all"),
@@ -117,20 +125,6 @@ class RollupQuantity(SetterComponent):
                                        getattr(row, "user_id", "all"),
                                    "resource_uuid":
                                        getattr(row, "resource_uuid", "all"),
-                                   "namespace":
-                                       getattr(row, "namespace", "all"),
-                                   "pod_name":
-                                       getattr(row, "pod_name", "all"),
-                                   "app":
-                                       getattr(row, "app", "all"),
-                                   "container_name":
-                                       getattr(row, "container_name", "all"),
-                                   "interface":
-                                       getattr(row, "interface", "all"),
-                                   "deployment":
-                                       getattr(row, "deployment", "all"),
-                                   "daemon_set":
-                                       getattr(row, "daemon_set", "all"),
                                    "geolocation":
                                        getattr(row, "geolocation", "all"),
                                    "region":
@@ -155,10 +149,6 @@ class RollupQuantity(SetterComponent):
                                    "lastrecord_timestamp_string":
                                        latest_record_timestamp_string,
                                    "record_count": record_count,
-                                   "service_group":
-                                       getattr(row, "service_group", "all"),
-                                   "service_id":
-                                       getattr(row, "service_id", "all"),
                                    "usage_date":
                                        getattr(row, "usage_date", "all"),
                                    "usage_hour":
@@ -168,7 +158,8 @@ class RollupQuantity(SetterComponent):
                                    "aggregation_period":
                                        getattr(row, "aggregation_period",
                                                "all"),
-                                   "processing_meta": processing_meta
+                                   "processing_meta": processing_meta,
+                                   "extra_data_map": extra_data_map
                                    }
 
             instance_usage_data_json = json.dumps(instance_usage_dict)
@@ -220,6 +211,10 @@ class RollupQuantity(SetterComponent):
         group_by_columns_list = \
             group_by_period_list + setter_rollup_group_by_list
 
+        # prepare for group by
+        group_by_columns_list = InstanceUsageUtils.prepare_instance_usage_group_by_list(
+            group_by_columns_list)
+
         # perform rollup operation
         instance_usage_json_rdd = RollupQuantity._rollup_quantity(
             instance_usage_df,
@@ -247,6 +242,10 @@ class RollupQuantity(SetterComponent):
         # group by columns list
         group_by_columns_list = group_by_period_list + \
             setter_rollup_group_by_list
+
+        # prepare for group by
+        group_by_columns_list = InstanceUsageUtils.prepare_instance_usage_group_by_list(
+            group_by_columns_list)
 
         # perform rollup operation
         instance_usage_json_rdd = RollupQuantity._rollup_quantity(
