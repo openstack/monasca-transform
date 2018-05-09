@@ -55,8 +55,7 @@ class TestVmCpuAllocatedAgg(SparkContextTest):
                                     "set_default_region_to":"W"},
          "event_type":"vcpus",
          "metric_id_list":["vcpus_project"],
-         "required_raw_fields_list":["creation_time"],
-         "service_id":"host_metrics"}"""
+         "required_raw_fields_list":["creation_time"]}"""
         return [json.loads(pre_transform_specs_json)]
 
     def get_transform_specs_json_by_project(self):
@@ -230,8 +229,7 @@ class TestVmCpuAllocatedAgg(SparkContextTest):
                                     "set_default_region_to":"W"},
          "event_type":"vcpus",
          "metric_id_list":["vcpus_all"],
-         "required_raw_fields_list":["creation_time"],
-         "service_id":"host_metrics"}"""
+         "required_raw_fields_list":["creation_time"]}"""
         return [json.loads(pre_transform_specs_json)]
 
     def get_transform_specs_json_by_all(self):
