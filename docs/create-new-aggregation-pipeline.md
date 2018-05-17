@@ -328,7 +328,7 @@ The metric we are interested in is
     "meta":{"region":"useast","tenantId":"df89c3db21954b08b0516b4b60b8baff"},"creation_time":1523455872}
     ```
 
-    As you can see monaca-transform created two new aggregated metrics with name
+    As you can see monasca-transform created two new aggregated metrics with name
     "monasca.collection_time_sec_host_agg" and "monasca.collection_time_sec_all_agg". "value_meta"
     section has three fields "firstrecord_timestamp" and "lastrecord_timestamp" and
     "record_count". These fields are for informational purposes only. It shows timestamp of the first metric,
