@@ -21,7 +21,6 @@ from pyspark.streaming import StreamingContext
 
 from pyspark.sql.functions import explode
 from pyspark.sql.functions import from_unixtime
-from pyspark.sql.functions import lit
 from pyspark.sql.functions import when
 from pyspark.sql import SQLContext
 
@@ -52,6 +51,7 @@ from monasca_transform.transform.storage_utils import \
     InvalidCacheStorageLevelException
 from monasca_transform.transform.storage_utils import StorageUtils
 from monasca_transform.transform.transform_utils import MonMetricUtils
+from monasca_transform.transform.transform_utils import PreTransformSpecsUtils
 from monasca_transform.transform import TransformContextUtils
 
 ConfigInitializer.basic_config()
@@ -177,8 +177,11 @@ class MonMetricsKafkaProcessor(object):
 
         required_fields = row.required_raw_fields_list
 
-        invalid_list = []
+        # prepare list of required fields, to a rdd syntax to retrieve value
+        required_fields = PreTransformSpecsUtils.prepare_required_raw_fields_list(
+            required_fields)
 
+        invalid_list = []
         for required_field in required_fields:
             required_field_value = None
 
@@ -188,35 +191,18 @@ class MonMetricsKafkaProcessor(object):
             except Exception:
                 pass
 
-            if (required_field_value is None or required_field_value == "" and
-                    row.metric is not None and
-                    row.metric.dimensions is not None):
-                # Look for the field in the dimensions layer of the row
-                try:
-                    required_field_value = eval(
-                        ".".join(("row.metric.dimensions", required_field)))
-                except Exception:
-                    pass
-
-            if (required_field_value is None or required_field_value == "" and
-                    row.meta is not None):
-                # Look for the field in the meta layer of the row
-                try:
-                    required_field_value = eval(
-                        ".".join(("row.meta", required_field)))
-                except Exception:
-                    pass
-
             if required_field_value is None \
                     or required_field_value == "":
-                invalid_list.append("invalid")
+                invalid_list.append((required_field,
+                                     required_field_value))
 
         if len(invalid_list) <= 0:
             return row
         else:
-            print("_validate_raw_mon_metrics : found invalid : ** %s: %s" % (
-                (".".join(("row", required_field))),
-                required_field_value))
+            for field_name, field_value in invalid_list:
+                MonMetricsKafkaProcessor.log_debug(
+                    "_validate_raw_mon_metrics : found invalid field : ** %s: %s" % (
+                        field_name, field_value))
 
     @staticmethod
     def process_metric(transform_context, record_store_df):
@@ -225,7 +211,6 @@ class MonMetricsKafkaProcessor(object):
         All the parameters to drive processing should be available
         in transform_spec_df dataframe.
         """
-
         # call processing chain
         return GenericTransformBuilder.do_transform(
             transform_context, record_store_df)
@@ -378,11 +363,6 @@ class MonMetricsKafkaProcessor(object):
                 gen_mon_metrics_df.event_type.alias("event_quantity_name"),
                 (gen_mon_metrics_df.metric.value / 1.0).alias(
                     "event_quantity"),
-                when(gen_mon_metrics_df.metric.dimensions.state != '',
-                     gen_mon_metrics_df.metric.dimensions.state).otherwise(
-                    'NA').alias("event_status"),
-                lit('1.0').alias('event_version'),
-                lit('metrics').alias("record_type"),
 
                 # resource_uuid
                 when(gen_mon_metrics_df.metric.dimensions.instanceId != '',
@@ -391,6 +371,7 @@ class MonMetricsKafkaProcessor(object):
                     gen_mon_metrics_df.metric.dimensions.resource_id).
                 otherwise('NA').alias("resource_uuid"),
 
+                # tenant_id
                 when(gen_mon_metrics_df.metric.dimensions.tenantId != '',
                      gen_mon_metrics_df.metric.dimensions.tenantId).when(
                     gen_mon_metrics_df.metric.dimensions.tenant_id != '',
@@ -399,46 +380,12 @@ class MonMetricsKafkaProcessor(object):
                     gen_mon_metrics_df.metric.dimensions.project_id).otherwise(
                     'NA').alias("tenant_id"),
 
-                when(gen_mon_metrics_df.metric.dimensions.mount != '',
-                     gen_mon_metrics_df.metric.dimensions.mount).otherwise(
-                    'NA').alias("mount"),
-
-                when(gen_mon_metrics_df.metric.dimensions.device != '',
-                     gen_mon_metrics_df.metric.dimensions.device).otherwise(
-                    'NA').alias("device"),
-
-                when(gen_mon_metrics_df.metric.dimensions.namespace != '',
-                     gen_mon_metrics_df.metric.dimensions.namespace).otherwise(
-                    'NA').alias("namespace"),
-
-                when(gen_mon_metrics_df.metric.dimensions.pod_name != '',
-                     gen_mon_metrics_df.metric.dimensions.pod_name).otherwise(
-                    'NA').alias("pod_name"),
-
-                when(gen_mon_metrics_df.metric.dimensions.container_name != '',
-                     gen_mon_metrics_df.metric.dimensions
-                     .container_name).otherwise('NA').alias("container_name"),
-
-                when(gen_mon_metrics_df.metric.dimensions.app != '',
-                     gen_mon_metrics_df.metric.dimensions.app).otherwise(
-                    'NA').alias("app"),
-
-                when(gen_mon_metrics_df.metric.dimensions.interface != '',
-                     gen_mon_metrics_df.metric.dimensions.interface).otherwise(
-                    'NA').alias("interface"),
-
-                when(gen_mon_metrics_df.metric.dimensions.deployment != '',
-                     gen_mon_metrics_df.metric.dimensions
-                     .deployment).otherwise('NA').alias("deployment"),
-
-                when(gen_mon_metrics_df.metric.dimensions.daemon_set != '',
-                     gen_mon_metrics_df.metric.dimensions
-                     .daemon_set).otherwise('NA').alias("daemon_set"),
-
+                # user_id
                 when(gen_mon_metrics_df.meta.userId != '',
                      gen_mon_metrics_df.meta.userId).otherwise('NA').alias(
                     "user_id"),
 
+                # region
                 when(gen_mon_metrics_df.meta.region != '',
                      gen_mon_metrics_df.meta.region).when(
                     gen_mon_metrics_df.event_processing_params
@@ -447,6 +394,7 @@ class MonMetricsKafkaProcessor(object):
                     .set_default_region_to).otherwise(
                     'NA').alias("region"),
 
+                # zone
                 when(gen_mon_metrics_df.meta.zone != '',
                      gen_mon_metrics_df.meta.zone).when(
                     gen_mon_metrics_df.event_processing_params
@@ -455,30 +403,36 @@ class MonMetricsKafkaProcessor(object):
                     .set_default_zone_to).otherwise(
                     'NA').alias("zone"),
 
+                # host
                 when(gen_mon_metrics_df.metric.dimensions.hostname != '',
                      gen_mon_metrics_df.metric.dimensions.hostname).when(
                     gen_mon_metrics_df.metric.value_meta.host != '',
                     gen_mon_metrics_df.metric.value_meta.host).otherwise(
                     'NA').alias("host"),
 
-                when(gen_mon_metrics_df.service_id != '',
-                     gen_mon_metrics_df.service_id).otherwise(
-                    'NA').alias("service_group"),
-
-                when(gen_mon_metrics_df.service_id != '',
-                     gen_mon_metrics_df.service_id).otherwise(
-                    'NA').alias("service_id"),
-
+                # event_date
                 from_unixtime(gen_mon_metrics_df.metric.timestamp / 1000,
                               'yyyy-MM-dd').alias("event_date"),
+                # event_hour
                 from_unixtime(gen_mon_metrics_df.metric.timestamp / 1000,
                               'HH').alias("event_hour"),
+                # event_minute
                 from_unixtime(gen_mon_metrics_df.metric.timestamp / 1000,
                               'mm').alias("event_minute"),
+                # event_second
                 from_unixtime(gen_mon_metrics_df.metric.timestamp / 1000,
                               'ss').alias("event_second"),
+
                 gen_mon_metrics_df.this_metric_id.alias("metric_group"),
-                gen_mon_metrics_df.this_metric_id.alias("metric_id"))
+
+                gen_mon_metrics_df.this_metric_id.alias("metric_id"),
+
+                # metric dimensions
+                gen_mon_metrics_df.meta.alias("meta"),
+                # metric dimensions
+                gen_mon_metrics_df.metric.dimensions.alias("dimensions"),
+                # metric value_meta
+                gen_mon_metrics_df.metric.value_meta.alias("value_meta"))
 
             #
             # get transform context

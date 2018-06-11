@@ -25,22 +25,6 @@ class GroupSortbyTimestamp(Grouping):
         # LOG.debug(logStr)
 
     @staticmethod
-    def _get_group_by_key(row_decorated):
-        """Build a group by key using the group by column list.
-
-        row_decorated: [[Rows(a=1, b=1, c=2, d=3)],[group_by_a,group_by_b]]
-        """
-        # LOG.debug(whoami(row_decorated))
-        # LOG.debug(row_decorated)
-
-        group_by_columns_list = row_decorated[1]
-        group_by_key = ""
-        for gcol in group_by_columns_list:
-            group_by_key = "^".join((group_by_key,
-                                     eval(".".join(("row", gcol)))))
-            return group_by_key
-
-    @staticmethod
     def _prepare_for_group_by(record_store_with_group_by_rdd):
         """creates a new rdd where:
 

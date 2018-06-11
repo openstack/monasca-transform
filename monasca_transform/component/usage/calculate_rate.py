@@ -128,14 +128,6 @@ class CalculateRate(UsageComponent):
                                    latest_dict["lastrecord_timestamp_string"],
                                "record_count": oldest_dict["record_count"] +
                                    latest_dict["record_count"],
-                               "service_group":
-                                   latest_dict.get("service_group",
-                                                   Component.
-                                                   DEFAULT_UNAVAILABLE_VALUE),
-                               "service_id":
-                                   latest_dict.get("service_id",
-                                                   Component.
-                                                   DEFAULT_UNAVAILABLE_VALUE),
                                "usage_date": latest_dict["usage_date"],
                                "usage_hour": latest_dict["usage_hour"],
                                "usage_minute": latest_dict["usage_minute"],

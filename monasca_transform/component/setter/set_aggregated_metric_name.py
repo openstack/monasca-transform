@@ -39,16 +39,12 @@ class SetAggregatedMetricName(SetterComponent):
         except AttributeError:
             processing_meta = {}
 
+        # get any extra data
+        extra_data_map = getattr(row, "extra_data_map", {})
+
         instance_usage_dict = {"tenant_id": row.tenant_id,
                                "user_id": row.user_id,
                                "resource_uuid": row.resource_uuid,
-                               "namespace": row.namespace,
-                               "pod_name": row.pod_name,
-                               "app": row.app,
-                               "container_name": row.container_name,
-                               "interface": row.interface,
-                               "deployment": row.deployment,
-                               "daemon_set": row.daemon_set,
                                "geolocation": row.geolocation,
                                "region": row.region,
                                "zone": row.zone,
@@ -66,13 +62,12 @@ class SetAggregatedMetricName(SetterComponent):
                                "lastrecord_timestamp_string":
                                    row.lastrecord_timestamp_string,
                                "record_count": row.record_count,
-                               "service_group": row.service_group,
-                               "service_id": row.service_id,
                                "usage_date": row.usage_date,
                                "usage_hour": row.usage_hour,
                                "usage_minute": row.usage_minute,
                                "aggregation_period": row.aggregation_period,
-                               "processing_meta": processing_meta}
+                               "processing_meta": processing_meta,
+                               "extra_data_map": extra_data_map}
 
         instance_usage_data_json = json.dumps(instance_usage_dict)
 

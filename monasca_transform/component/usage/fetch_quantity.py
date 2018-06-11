@@ -27,6 +27,7 @@ from monasca_transform.transform.grouping.group_sort_by_timestamp \
 from monasca_transform.transform.grouping.group_sort_by_timestamp_partition \
     import GroupSortbyTimestampPartition
 from monasca_transform.transform.transform_utils import InstanceUsageUtils
+from monasca_transform.transform.transform_utils import RecordStoreUtils
 
 import json
 
@@ -45,18 +46,20 @@ class FetchQuantityException(Exception):
         return repr(self.value)
 
 
-GroupedDataWithOperation = namedtuple("GroupedDataWithOperation",
-                                      ["grouped_data",
-                                       "usage_fetch_operation"])
+GroupedDataNamedTuple = namedtuple("GroupedDataWithOperation",
+                                   ["grouped_data",
+                                    "usage_fetch_operation",
+                                    "group_by_columns_list"])
 
 
-class GroupedDataWithOperation(GroupedDataWithOperation):
+class GroupedDataNamedTuple(GroupedDataNamedTuple):
     """A tuple which is a wrapper containing record store data and the usage operation
 
     namdetuple contains:
 
     grouped_data - grouped record store data
-    usage_fetch_operation - operation
+    usage_fetch_operation - operation to be performed on
+    grouped data group_by_columns_list - list of group by columns
     """
 
 
@@ -75,20 +78,22 @@ class FetchQuantity(UsageComponent):
             return False
 
     @staticmethod
-    def _get_latest_oldest_quantity(grouping_results_with_operation):
-        """Method to return an instance usage data
+    def _get_latest_oldest_quantity(grouped_data_named_tuple):
+        """Get quantity for each group.
 
-        Get quantity for each group by performing the requested
-        usage operation and return an instance usage data.
+        By performing the requested usage operation and return a instance usage data.
         """
-
         # row
-        grouping_results = grouping_results_with_operation.\
+        grouping_results = grouped_data_named_tuple.\
             grouped_data
 
         # usage fetch operation
-        usage_fetch_operation = grouping_results_with_operation.\
+        usage_fetch_operation = grouped_data_named_tuple.\
             usage_fetch_operation
+
+        # group_by_columns_list
+        group_by_columns_list = grouped_data_named_tuple.\
+            group_by_columns_list
 
         group_by_dict = grouping_results.grouping_key_dict
 
@@ -99,20 +104,6 @@ class FetchQuantity(UsageComponent):
                                           Component.DEFAULT_UNAVAILABLE_VALUE)
         user_id = group_by_dict.get("user_id",
                                     Component.DEFAULT_UNAVAILABLE_VALUE)
-        namespace = group_by_dict.get("namespace",
-                                      Component.DEFAULT_UNAVAILABLE_VALUE)
-        pod_name = group_by_dict.get("pod_name",
-                                     Component.DEFAULT_UNAVAILABLE_VALUE)
-        app = group_by_dict.get("app",
-                                Component.DEFAULT_UNAVAILABLE_VALUE)
-        container_name = group_by_dict.get("container_name",
-                                           Component.DEFAULT_UNAVAILABLE_VALUE)
-        interface = group_by_dict.get("interface",
-                                      Component.DEFAULT_UNAVAILABLE_VALUE)
-        deployment = group_by_dict.get("deployment",
-                                       Component.DEFAULT_UNAVAILABLE_VALUE)
-        daemon_set = group_by_dict.get("daemon_set",
-                                       Component.DEFAULT_UNAVAILABLE_VALUE)
 
         geolocation = group_by_dict.get("geolocation",
                                         Component.DEFAULT_UNAVAILABLE_VALUE)
@@ -148,10 +139,6 @@ class FetchQuantity(UsageComponent):
         lastrecord_timestamp_string = agg_stats["lastrecord_timestamp_string"]
         record_count = agg_stats["record_count"]
 
-        # service id
-        service_group = Component.DEFAULT_UNAVAILABLE_VALUE
-        service_id = Component.DEFAULT_UNAVAILABLE_VALUE
-
         # aggregation period
         aggregation_period = Component.DEFAULT_UNAVAILABLE_VALUE
 
@@ -159,15 +146,16 @@ class FetchQuantity(UsageComponent):
         event_type = group_by_dict.get("event_type",
                                        Component.DEFAULT_UNAVAILABLE_VALUE)
 
+        # add group by fields data to extra data map
+        # get existing extra_data_map if any
+        extra_data_map = group_by_dict.get("extra_data_map", {})
+        for column_name in group_by_columns_list:
+            column_value = group_by_dict.get(column_name, Component.
+                                             DEFAULT_UNAVAILABLE_VALUE)
+            extra_data_map[column_name] = column_value
+
         instance_usage_dict = {"tenant_id": tenant_id, "user_id": user_id,
                                "resource_uuid": resource_uuid,
-                               "namespace": namespace,
-                               "pod_name": pod_name,
-                               "app": app,
-                               "container_name": container_name,
-                               "interface": interface,
-                               "deployment": deployment,
-                               "daemon_set": daemon_set,
                                "geolocation": geolocation, "region": region,
                                "zone": zone, "host": host,
                                "aggregated_metric_name":
@@ -182,27 +170,31 @@ class FetchQuantity(UsageComponent):
                                "lastrecord_timestamp_string":
                                    lastrecord_timestamp_string,
                                "record_count": record_count,
-                               "service_group": service_group,
-                               "service_id": service_id,
                                "usage_date": usage_date,
                                "usage_hour": usage_hour,
                                "usage_minute": usage_minute,
                                "aggregation_period": aggregation_period,
-                               "processing_meta": {"event_type": event_type}
+                               "processing_meta": {"event_type": event_type},
+                               "extra_data_map": extra_data_map
                                }
         instance_usage_data_json = json.dumps(instance_usage_dict)
 
         return instance_usage_data_json
 
     @staticmethod
-    def _get_quantity(grouped_record_with_operation):
+    def _get_quantity(grouped_data_named_tuple):
 
         # row
-        row = grouped_record_with_operation.grouped_data
+        row = grouped_data_named_tuple.grouped_data
 
         # usage fetch operation
-        usage_fetch_operation = grouped_record_with_operation.\
+        usage_fetch_operation = grouped_data_named_tuple.\
             usage_fetch_operation
+
+        # group by columns list
+
+        group_by_columns_list = grouped_data_named_tuple.\
+            group_by_columns_list
 
         # first record timestamp # FIXME: beginning of epoch?
         earliest_record_timestamp_unix = getattr(
@@ -229,6 +221,14 @@ class FetchQuantity(UsageComponent):
         # from rolled up data
         select_quant_str = "".join((usage_fetch_operation, "(event_quantity)"))
         quantity = getattr(row, select_quant_str, 0.0)
+
+        # create a column name, value pairs from grouped data
+        extra_data_map = InstanceUsageUtils.grouped_data_to_map(row,
+                                                                group_by_columns_list)
+
+        # convert column names, so that values can be accessed by components
+        # later in the pipeline
+        extra_data_map = InstanceUsageUtils.prepare_extra_data_map(extra_data_map)
 
         #  create a new instance usage dict
         instance_usage_dict = {"tenant_id": getattr(row, "tenant_id",
@@ -262,34 +262,6 @@ class FetchQuantity(UsageComponent):
                                    getattr(row, "tenant_id",
                                            Component.
                                            DEFAULT_UNAVAILABLE_VALUE),
-                               "namespace":
-                                   getattr(row, "namespace",
-                                           Component.
-                                           DEFAULT_UNAVAILABLE_VALUE),
-                               "pod_name":
-                                   getattr(row, "pod_name",
-                                           Component.
-                                           DEFAULT_UNAVAILABLE_VALUE),
-                               "app":
-                                   getattr(row, "app",
-                                           Component.
-                                           DEFAULT_UNAVAILABLE_VALUE),
-                               "container_name":
-                                   getattr(row, "container_name",
-                                           Component.
-                                           DEFAULT_UNAVAILABLE_VALUE),
-                               "interface":
-                                   getattr(row, "interface",
-                                           Component.
-                                           DEFAULT_UNAVAILABLE_VALUE),
-                               "deployment":
-                                   getattr(row, "deployment",
-                                           Component.
-                                           DEFAULT_UNAVAILABLE_VALUE),
-                               "daemon_set":
-                                   getattr(row, "daemon_set",
-                                           Component.
-                                           DEFAULT_UNAVAILABLE_VALUE),
                                "aggregated_metric_name":
                                    getattr(row, "aggregated_metric_name",
                                            Component.
@@ -305,14 +277,6 @@ class FetchQuantity(UsageComponent):
                                "lastrecord_timestamp_string":
                                    latest_record_timestamp_string,
                                "record_count": record_count,
-                               "service_group":
-                                   getattr(row, "service_group",
-                                           Component.
-                                           DEFAULT_UNAVAILABLE_VALUE),
-                               "service_id":
-                                   getattr(row, "service_id",
-                                           Component.
-                                           DEFAULT_UNAVAILABLE_VALUE),
                                "usage_date":
                                    getattr(row, "event_date",
                                            Component.
@@ -331,7 +295,8 @@ class FetchQuantity(UsageComponent):
                                            DEFAULT_UNAVAILABLE_VALUE),
                                "processing_meta": {"event_type": getattr(
                                    row, "event_type",
-                                   Component.DEFAULT_UNAVAILABLE_VALUE)}
+                                   Component.DEFAULT_UNAVAILABLE_VALUE)},
+                               "extra_data_map": extra_data_map
                                }
 
         instance_usage_data_json = json.dumps(instance_usage_dict)
@@ -431,6 +396,10 @@ class FetchQuantity(UsageComponent):
         group_by_columns_list = group_by_period_list + \
             aggregation_group_by_list
 
+        # prepare group by columns list
+        group_by_columns_list = RecordStoreUtils.prepare_recordstore_group_by_list(
+            group_by_columns_list)
+
         instance_usage_json_rdd = None
         if (usage_fetch_operation == "latest" or
                 usage_fetch_operation == "oldest"):
@@ -466,14 +435,14 @@ class FetchQuantity(UsageComponent):
 
             grouped_data_rdd_with_operation = grouped_rows_rdd.map(
                 lambda x:
-                GroupedDataWithOperation(x,
-                                         str(usage_fetch_operation)))
+                GroupedDataNamedTuple(x,
+                                      str(usage_fetch_operation),
+                                      group_by_columns_list))
 
             instance_usage_json_rdd = \
                 grouped_data_rdd_with_operation.map(
                     FetchQuantity._get_latest_oldest_quantity)
         else:
-
             record_store_df_int = \
                 record_store_df.select(
                     record_store_df.event_timestamp_unix.alias(
@@ -488,14 +457,16 @@ class FetchQuantity(UsageComponent):
                 "event_timestamp_unix_for_min": "min",
                 "event_timestamp_unix_for_max": "max",
                 "event_timestamp_unix": "count"}
+
             # do a group by
             grouped_data = record_store_df_int.groupBy(*group_by_columns_list)
             grouped_record_store_df = grouped_data.agg(agg_operations_map)
 
             grouped_data_rdd_with_operation = grouped_record_store_df.rdd.map(
                 lambda x:
-                GroupedDataWithOperation(x,
-                                         str(usage_fetch_operation)))
+                GroupedDataNamedTuple(x,
+                                      str(usage_fetch_operation),
+                                      group_by_columns_list))
 
             instance_usage_json_rdd = grouped_data_rdd_with_operation.map(
                 FetchQuantity._get_quantity)

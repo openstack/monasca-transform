@@ -52,15 +52,12 @@ Example of a monasca metric:
 Data Frame Schema:
 
 | Column Name | Column Data Type | Description |
-| ----------- | ---------------- | ----------- |
+| :---------- | :--------------- | :---------- |
 | event_quantity | `pyspark.sql.types.DoubleType` | mapped to `metric.value`|
 | event_timestamp_unix | `pyspark.sql.types.DoubleType` | calculated as `metric.timestamp`/`1000` from source metric|
 | event_timestamp_string | `pyspark.sql.types.StringType` | mapped to `metric.timestamp` from the source metric|
 | event_type | `pyspark.sql.types.StringType` | placeholder for the future. mapped to `metric.name` from source metric|
 | event_quantity_name | `pyspark.sql.types.StringType` | mapped to `metric.name` from source metric|
-| event_status | `pyspark.sql.types.StringType` | placeholder for the future. Currently mapped to `metric.dimensions.state` from the source metric  |
-| event_version | `pyspark.sql.types.StringType` | placeholder for the future. Set to "1.0" |
-| record_type | `pyspark.sql.types.StringType` | placeholder for the future. Set to "metrics" |
 | resource_uuid | `pyspark.sql.types.StringType` | mapped to `metric.dimensions.instanceId` or `metric.dimensions.resource_id` from source metric  |
 | tenant_id | `pyspark.sql.types.StringType` | mapped to `metric.dimensions.tenant_id` or `metric.dimensions.tenantid` or `metric.dimensions.project_id`  |
 | user_id | `pyspark.sql.types.StringType` | mapped to `meta.userId` |
@@ -68,28 +65,19 @@ Data Frame Schema:
 | zone | `pyspark.sql.types.StringType` | placeholder for the future. mapped to `meta.zone`, defaults to `event_processing_params.set_default_zone_to` (`pre_transform_spec`) |
 | host | `pyspark.sql.types.StringType` | mapped to `metric.dimensions.hostname` or `metric.value_meta.host` |
 | project_id | `pyspark.sql.types.StringType` | mapped to metric tenant_id |
-| service_group | `pyspark.sql.types.StringType` | placeholder for the future. mapped to `service_id` in `pre_transform_spec` |
-| service_id | `pyspark.sql.types.StringType` | placeholder for the future. mapped to `service_id` in `pre_transform_spec` |
 | event_date | `pyspark.sql.types.StringType` | "YYYY-mm-dd". Extracted from `metric.timestamp` |
 | event_hour | `pyspark.sql.types.StringType` | "HH". Extracted from `metric.timestamp` |
 | event_minute | `pyspark.sql.types.StringType` | "MM". Extracted from `metric.timestamp` |
 | event_second | `pyspark.sql.types.StringType` | "SS". Extracted from `metric.timestamp` |
 | metric_group | `pyspark.sql.types.StringType` | identifier for transform spec group |
 | metric_id | `pyspark.sql.types.StringType` | identifier for transform spec |
-| namespace | `pyspark.sql.types.StringType` | mapped to `metric.dimensions.namespace` |
-| pod_name | `pyspark.sql.types.StringType` | mapped to `metric.dimensions.pod_name` |
-| app | `pyspark.sql.types.StringType` | mapped to `metric.dimensions.app` |
-| container_name | `pyspark.sql.types.StringType` | mapped to `metric.dimensions.container_name`|
-| interface | `pyspark.sql.types.StringType` | mapped to `metric.dimensions.interface` |
-| deployment | `pyspark.sql.types.StringType` | mapped to `metric.dimensions.deployment` |
-| daemon_set | `pyspark.sql.types.StringType` | mapped to `metric.dimensions.daemon_set` |
 
 ## Instance Usage Data Format ##
 
 Data Frame Schema:
 
 | Column Name | Column Data Type | Description |
-| ----------- | ---------------- | ----------- |
+| :---------- | :--------------- | :---------- |
 | tenant_id | `pyspark.sql.types.StringType` | project_id, defaults to `NA` |
 | user_id | `pyspark.sql.types.StringType` | user_id, defaults to `NA`|
 | resource_uuid | `pyspark.sql.types.StringType` | resource_id, defaults to `NA`|
@@ -101,24 +89,16 @@ Data Frame Schema:
 | aggregated_metric_name | `pyspark.sql.types.StringType` | aggregated metric name, defaults to `NA`|
 | firstrecord_timestamp_string | `pyspark.sql.types.StringType` | timestamp of the first metric used to derive this aggregated metric|
 | lastrecord_timestamp_string | `pyspark.sql.types.StringType` | timestamp of the last metric used to derive this aggregated metric|
-| service_group | `pyspark.sql.types.StringType` | placeholder for the future, defaults to `NA`|
-| service_id | `pyspark.sql.types.StringType` | placeholder for the future, defaults to `NA`|
 | usage_date | `pyspark.sql.types.StringType` | "YYYY-mm-dd" date|
 | usage_hour | `pyspark.sql.types.StringType` | "HH" hour|
 | usage_minute | `pyspark.sql.types.StringType` | "MM" minute|
 | aggregation_period | `pyspark.sql.types.StringType` | "hourly" or "minutely"  |
-| namespace | `pyspark.sql.types.StringType` | |
-| pod_name | `pyspark.sql.types.StringType` | |
-| app | `pyspark.sql.types.StringType` | |
-| container_name | `pyspark.sql.types.StringType` | |
-| interface | `pyspark.sql.types.StringType` | |
-| deployment | `pyspark.sql.types.StringType` | |
-| daemon_set | `pyspark.sql.types.StringType` | |
 | firstrecord_timestamp_unix | `pyspark.sql.types.DoubleType` | epoch timestamp of the first metric used to derive this aggregated metric |
 | lastrecord_timestamp_unix | `pyspark.sql.types.DoubleType` | epoch timestamp of the first metric used to derive this aggregated metric |
 | quantity | `pyspark.sql.types.DoubleType` | aggregated metric quantity |
 | record_count | `pyspark.sql.types.DoubleType` | number of source metrics that were used to derive this aggregated metric. For informational purposes only. |
-| processing_meta | `pyspark.sql.types.MapType(pyspark.sql.types.StringType, pyspark.sql.types.StringType, True)` | Key-Value pairs to store additional information, to aid processing|
+| processing_meta | `pyspark.sql.types.MapType(pyspark.sql.types.StringType, pyspark.sql.types.StringType, True)` | Key-Value pairs to store additional information, to aid processing |
+| extra_data_map | `pyspark.sql.types.MapType(pyspark.sql.types.StringType, pyspark.sql.types.StringType, True)` | Key-Value pairs to store group by column key value pair |
 
 ## References
 

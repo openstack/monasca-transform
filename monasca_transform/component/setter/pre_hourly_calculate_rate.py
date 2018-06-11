@@ -15,7 +15,6 @@
 from pyspark.sql import functions
 from pyspark.sql import SQLContext
 
-from monasca_transform.component import Component
 from monasca_transform.component.setter import SetterComponent
 from monasca_transform.transform.transform_utils import InstanceUsageUtils
 
@@ -60,11 +59,14 @@ class PreHourlyCalculateRate(SetterComponent):
 
             rate_percentage = 100 * (
                 (oldest_quantity - latest_quantity) / oldest_quantity)
+
+            # get any extra data
+            extra_data_map = getattr(sorted_oldest_ascending_df.collect()[0],
+                                     "extra_data_map", {})
         except Exception as e:
             raise PreHourlyCalculateRateException(
                 "Exception occurred in pre-hourly rate calculation. Error: %s"
                 % str(e))
-
         #  create a new instance usage dict
         instance_usage_dict = {"tenant_id":
                                latest_dict.get("tenant_id", "all"),
@@ -72,20 +74,6 @@ class PreHourlyCalculateRate(SetterComponent):
                                latest_dict.get("user_id", "all"),
                                "resource_uuid":
                                latest_dict.get("resource_uuid", "all"),
-                               "namespace":
-                                   latest_dict.get("namespace", "all"),
-                               "pod_name":
-                                   latest_dict.get("pod_name", "all"),
-                               "app":
-                                   latest_dict.get("app", "all"),
-                               "container_name":
-                                   latest_dict.get("container_name", "all"),
-                               "interface":
-                                   latest_dict.get("interface", "all"),
-                               "deployment":
-                                   latest_dict.get("deployment", "all"),
-                               "daemon_set":
-                                   latest_dict.get("daemon_set", "all"),
                                "geolocation":
                                latest_dict.get("geolocation", "all"),
                                "region":
@@ -109,19 +97,12 @@ class PreHourlyCalculateRate(SetterComponent):
                                latest_dict["lastrecord_timestamp_string"],
                                "record_count": oldest_dict["record_count"] +
                                latest_dict["record_count"],
-                               "service_group":
-                               latest_dict.get("service_group",
-                                               Component.
-                                               DEFAULT_UNAVAILABLE_VALUE),
-                               "service_id":
-                               latest_dict.get("service_id",
-                                               Component.
-                                               DEFAULT_UNAVAILABLE_VALUE),
                                "usage_date": latest_dict["usage_date"],
                                "usage_hour": latest_dict["usage_hour"],
                                "usage_minute": latest_dict["usage_minute"],
                                "aggregation_period":
-                               latest_dict["aggregation_period"]
+                               latest_dict["aggregation_period"],
+                               "extra_data_map": extra_data_map
                                }
 
         instance_usage_data_json = json.dumps(instance_usage_dict)
