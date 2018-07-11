@@ -74,7 +74,6 @@ stestr==2.0.0
 stevedore==1.20.0
 tabulate==0.8.2
 tenacity==4.9.0
-testrepository==0.0.18
 testtools==2.3.0
 tooz==1.58.0
 traceback2==1.4.0
