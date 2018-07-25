@@ -53,7 +53,8 @@ class TransformServiceTestBase(unittest.TestCase):
                 launcher = oslo_service.service.launch(
                     self.conf,
                     transform_service.Transform(),
-                    workers=1)
+                    workers=1,
+                    restart_method='mutate')
                 status = launcher.wait()
             except SystemExit as exc:
                 traceback.print_exc()
