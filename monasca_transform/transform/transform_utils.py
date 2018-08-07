@@ -104,7 +104,6 @@ class InstanceUsageUtils(TransformUtils):
 
         Convert replaces any special "dimensions#", "meta#" or "value_meta#" occurrences into
         spark sql syntax to retrieve data from extra_data_map column.
-
         """
         if (item.startswith("dimensions#") or
                 item.startswith("meta#") or
@@ -196,7 +195,7 @@ class RecordStoreUtils(TransformUtils):
                    "event_status", "event_version",
                    "record_type", "resource_uuid", "tenant_id",
                    "user_id", "region", "zone",
-                   "host", "project_id", "service_group", "service_id",
+                   "host", "project_id",
                    "event_date", "event_hour", "event_minute",
                    "event_second", "metric_group", "metric_id"]
 
@@ -251,9 +250,9 @@ class RecordStoreUtils(TransformUtils):
     def prepare_recordstore_group_by_list(group_by_list):
         """Prepare record store group by list.
 
-        If the group by list contains any instances of "dimensions#", "meta#" or "value_meta#" then
-        convert into proper dotted notation. i.e. "dimensions.", "meta." and
-        "value_meta." to reference columns in record_store data.
+        If the group by list contains any instances of "dimensions#", "meta#" or "value#meta" then
+        convert into proper dotted notation, since original raw "dimensions", "meta" and
+        "value_meta" are available in record_store data.
 
         """
         return [RecordStoreUtils.prepare_group_by_item(item) for item in group_by_list]
@@ -423,7 +422,6 @@ class PreTransformSpecsUtils(TransformUtils):
                                                ArrayType(StringType(),
                                                          containsNull=False),
                                                True)
-        service_id = StructField("service_id", StringType(), True)
 
         event_processing_params = \
             StructField("event_processing_params",
@@ -436,8 +434,7 @@ class PreTransformSpecsUtils(TransformUtils):
                                     ]), True)
 
         schema = StructType([event_processing_params, event_type,
-                             metric_id_list, required_raw_fields_list,
-                             service_id])
+                             metric_id_list, required_raw_fields_list])
 
         return schema
 

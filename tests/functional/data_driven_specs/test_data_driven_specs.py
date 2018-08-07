@@ -191,11 +191,6 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
                 "set_default_zone_to": "1",
                 "set_default_geolocation_to": "1",
                 "set_default_region_to": "W"})
-        self.check_value_field_for_row(
-            row=mem_usable_mb_row,
-            field_name='service_id',
-            expected_value='host_metrics'
-        )
 
         # mem.total_mb
         event_type = 'mem.total_mb'
@@ -219,11 +214,6 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
                 "set_default_zone_to": "1",
                 "set_default_geolocation_to": "1",
                 "set_default_region_to": "W"})
-        self.check_value_field_for_row(
-            row=mem_total_mb_row,
-            field_name='service_id',
-            expected_value='host_metrics'
-        )
 
         # vcpus
         event_type = 'vcpus'
@@ -248,11 +238,6 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
                 "set_default_zone_to": "1",
                 "set_default_geolocation_to": "1",
                 "set_default_region_to": "W"})
-        self.check_value_field_for_row(
-            row=vcpus_all_row,
-            field_name='service_id',
-            expected_value='host_metrics'
-        )
 
         # vm.mem.total_mb
         event_type = 'vm.mem.total_mb'
@@ -277,11 +262,6 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
                 "set_default_zone_to": "1",
                 "set_default_geolocation_to": "1",
                 "set_default_region_to": "W"})
-        self.check_value_field_for_row(
-            row=vm_mem_total_mb_all_row,
-            field_name='service_id',
-            expected_value='host_metrics'
-        )
 
         # vm.mem.used_mb
         event_type = 'vm.mem.used_mb'
@@ -306,11 +286,6 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
                 "set_default_zone_to": "1",
                 "set_default_geolocation_to": "1",
                 "set_default_region_to": "W"})
-        self.check_value_field_for_row(
-            row=vm_mem_total_mb_all_row,
-            field_name='service_id',
-            expected_value='host_metrics'
-        )
 
         # nova.vm.disk.total_allocated_gb
         event_type = 'nova.vm.disk.total_allocated_gb'
@@ -334,11 +309,6 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
                 "set_default_zone_to": "1",
                 "set_default_geolocation_to": "1",
                 "set_default_region_to": "W"})
-        self.check_value_field_for_row(
-            row=disk_total_alloc_row,
-            field_name='service_id',
-            expected_value='host_metrics'
-        )
 
         # vm.disk.allocation
         event_type = 'vm.disk.allocation'
@@ -363,11 +333,6 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
                 "set_default_zone_to": "1",
                 "set_default_geolocation_to": "1",
                 "set_default_region_to": "W"})
-        self.check_value_field_for_row(
-            row=vm_disk_allocation_all_row,
-            field_name='service_id',
-            expected_value='host_metrics'
-        )
 
         # vm.cpu.utilization_perc
         event_type = 'vm.cpu.utilization_perc'
@@ -391,11 +356,6 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
                 "set_default_zone_to": "1",
                 "set_default_geolocation_to": "1",
                 "set_default_region_to": "W"})
-        self.check_value_field_for_row(
-            row=vm_cpu_util_perc_row,
-            field_name='service_id',
-            expected_value='host_metrics'
-        )
 
         # swiftlm.diskusage.host.val.size
         event_type = 'swiftlm.diskusage.host.val.size'
@@ -419,11 +379,6 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
                 "set_default_zone_to": "1",
                 "set_default_geolocation_to": "1",
                 "set_default_region_to": "W"})
-        self.check_value_field_for_row(
-            row=swiftlm_diskusage_all_row,
-            field_name='service_id',
-            expected_value='host_metrics'
-        )
 
         # swiftlm.diskusage.host.val.avail
         event_type = 'swiftlm.diskusage.host.val.avail'
@@ -448,11 +403,6 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
                 "set_default_zone_to": "1",
                 "set_default_geolocation_to": "1",
                 "set_default_region_to": "W"})
-        self.check_value_field_for_row(
-            row=swiftlm_diskavail_all_row,
-            field_name='service_id',
-            expected_value='host_metrics'
-        )
 
         # nova.vm.cpu.total_allocated
         event_type = 'nova.vm.cpu.total_allocated'
@@ -476,11 +426,6 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
                 "set_default_zone_to": "1",
                 "set_default_geolocation_to": "1",
                 "set_default_region_to": "W"})
-        self.check_value_field_for_row(
-            row=nova_vm_cpu_total_all_row,
-            field_name='service_id',
-            expected_value='host_metrics'
-        )
 
         # nova.vm.mem.total_allocated_mb
         event_type = 'nova.vm.mem.total_allocated_mb'
@@ -504,11 +449,6 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
                 "set_default_zone_to": "1",
                 "set_default_geolocation_to": "1",
                 "set_default_region_to": "W"})
-        self.check_value_field_for_row(
-            row=nova_vm_mem_total_all_row,
-            field_name='service_id',
-            expected_value='host_metrics'
-        )
 
         # storage.objects.size
         event_type = 'storage.objects.size'
@@ -532,11 +472,6 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
                 "set_default_zone_to": "1",
                 "set_default_geolocation_to": "1",
                 "set_default_region_to": "W"})
-        self.check_value_field_for_row(
-            row=storage_objects_size_all_row,
-            field_name='service_id',
-            expected_value='host_metrics'
-        )
 
     def get_row_for_event_type(self,
                                event_type=None,

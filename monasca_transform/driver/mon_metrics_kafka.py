@@ -342,8 +342,7 @@ class MonMetricsKafkaProcessor(object):
                 validated_mon_metrics_df.event_processing_params,
                 validated_mon_metrics_df.event_type,
                 explode(validated_mon_metrics_df.metric_id_list).alias(
-                    "this_metric_id"),
-                validated_mon_metrics_df.service_id)
+                    "this_metric_id"))
 
             #
             # transform metrics data to record_store format
@@ -422,9 +421,9 @@ class MonMetricsKafkaProcessor(object):
                 # event_second
                 from_unixtime(gen_mon_metrics_df.metric.timestamp / 1000,
                               'ss').alias("event_second"),
-
+                # TODO(ashwin): rename to transform_spec_group
                 gen_mon_metrics_df.this_metric_id.alias("metric_group"),
-
+                # TODO(ashwin): rename to transform_spec_id
                 gen_mon_metrics_df.this_metric_id.alias("metric_id"),
 
                 # metric dimensions

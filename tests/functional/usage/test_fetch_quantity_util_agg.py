@@ -59,15 +59,13 @@ class TestFetchQuantityUtilAgg(SparkContextTest):
                                     "set_default_region_to":"W"},
          "event_type":"cpu.total_logical_cores",
          "metric_id_list":["cpu_util_all"],
-         "required_raw_fields_list":["creation_time"],
-         "service_id":"host_metrics"}""", """
+         "required_raw_fields_list":["creation_time"]}""", """
         {"event_processing_params":{"set_default_zone_to":"1",
                                     "set_default_geolocation_to":"1",
                                     "set_default_region_to":"W"},
          "event_type":"cpu.idle_perc",
          "metric_id_list":["cpu_util_all"],
-         "required_raw_fields_list":["creation_time"],
-         "service_id":"host_metrics"}"""]
+         "required_raw_fields_list":["creation_time"]}"""]
         pre_transform_specs_json_list = \
             [json.loads(pre_transform_spec)
              for pre_transform_spec in pre_transform_specs]

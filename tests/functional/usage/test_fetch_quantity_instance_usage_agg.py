@@ -61,8 +61,7 @@ class TestFetchQuantityInstanceUsageAgg(SparkContextTest):
                                     "set_default_region_to":"W"},
          "event_type":"mem.total_mb",
          "metric_id_list":["mem_total_all"],
-         "required_raw_fields_list":["creation_time"],
-         "service_id":"host_metrics"}"""
+         "required_raw_fields_list":["creation_time"]}"""
         return [json.loads(pre_transform_specs_json)]
 
     def get_transform_specs_json_by_operation(self,

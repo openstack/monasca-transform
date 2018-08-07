@@ -75,7 +75,6 @@ The metric we are interested in is
       "event_type":"monasca.collection_time_sec", <-- EDITED
       "metric_id_list":["monasca_collection_host"], <-- EDITED
       "required_raw_fields_list":["creation_time", "metric.dimensions.hostname"], <--EDITED
-      "service_id":"host_metrics"
     }
     ```
     Lets look at all the fields that were edited (Marked as `<-- EDITED` above):
@@ -91,13 +90,8 @@ The metric we are interested in is
     This should list fields in the incoming metrics that are required. Pre-processing will
     eliminate or remove metrics which have missing required fields, during validation.
 
-    **service_id**: set to "host_metrics"
-    This identifies the source service these metrics belong to. (To be removed)
-
     **Note:** "metric_id" is a misnomer, it is not really a metric identifier but rather identifier
-    for transformation spec. This will be changed to transform_spec_id in the future. Also
-    "service_id" should be set by the source that is generating the metric. This will be removed in
-    the future. (Please see Story [2001815](https://storyboard.openstack.org/#!/story/2001815))
+    for transformation spec. This will be changed to transform_spec_id in the future.
 
   * **Step 3**: Create a "transform_spec" to find maximum metric value for each host
 
@@ -241,7 +235,6 @@ The metric we are interested in is
       "event_type":"monasca.collection_time_sec",
       "metric_id_list":["monasca_collection_host", "monasca_collection_all"], <-- EDITED
       "required_raw_fields_list":["creation_time", "metric.dimensions.hostname"],
-      "service_id":"host_metrics"
     }
     ```
     Thus we were able to add additional transformation or aggregation pipeline to the same incoming
@@ -254,7 +247,7 @@ The metric we are interested in is
       and add following line.
 
       ```
-        {"event_processing_params":{"set_default_zone_to":"1","set_default_geolocation_to":"1","set_default_region_to":"W"},"event_type":"monasca.collection_time_sec","metric_id_list":["monasca_collection_host","monasca_collection_all"],"required_raw_fields_list":["creation_time"],"service_id":"host_metrics"}
+        {"event_processing_params":{"set_default_zone_to":"1","set_default_geolocation_to":"1","set_default_region_to":"W"},"event_type":"monasca.collection_time_sec","metric_id_list":["monasca_collection_host","monasca_collection_all"],"required_raw_fields_list":["creation_time"]}
       ```
 
       **Note:** Each line does not end with a comma (the file is not one big json document).
@@ -299,7 +292,7 @@ The metric we are interested in is
     "firstrecord_timestamp_unix":1523427604.208577,"project_id":"NA","lastrecord_timestamp_unix":1523428189.718174,
     "aggregation_period":"hourly","host":"NA","container_name":"NA","interface":"NA",
     "aggregated_metric_name":"monasca.collection_time_sec_all_agg","tenant_id":"NA","region":"NA",
-    "firstrecord_timestamp_string":"2018-04-11 06:20:04","service_id":"NA","quantity":0.0687000751}
+    "firstrecord_timestamp_string":"2018-04-11 06:20:04","quantity":0.0687000751}
 
     {"usage_hour":"06","geolocation":"NA","record_count":40.0,"app":"NA","deployment":"NA","resource_uuid":"NA",
     "pod_name":"NA","usage_minute":"NA","service_group":"NA","lastrecord_timestamp_string":"2018-04-11 06:29:49",
@@ -308,7 +301,7 @@ The metric we are interested in is
     "project_id":"NA","lastrecord_timestamp_unix":1523428189.718174,"aggregation_period":"hourly",
     "host":"devstack","container_name":"NA","interface":"NA",
     "aggregated_metric_name":"monasca.collection_time_sec_host_agg","tenant_id":"NA","region":"NA",
-    "firstrecord_timestamp_string":"2018-04-11 06:20:04","service_id":"NA","quantity":0.0687000751}
+    "firstrecord_timestamp_string":"2018-04-11 06:20:04","quantity":0.0687000751}
     ```
 
     Similarly, to verify if final aggregated metrics are being published by pre hourly processor,
