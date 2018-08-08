@@ -99,15 +99,6 @@ Original proposal: `Monasca/Transform-proposal`_
 
 Blueprint: `monasca-transform blueprint`_
 
-.. _Team and repository tags: https://governance.openstack.org/reference/tags/index.html
-.. _Monasca Transform: #monasca-transform
-.. _Use Cases handled by Monasca Transform: #use-cases-handled-by-monasca-transform
-.. _Operation: #operation
-.. _Architecture: #architecture
-.. _To set up the development environment: #to-set-up-the-development-environment
-.. _Generic aggregation components: #generic-aggregation-components
-.. _Create a new aggregation pipeline example: #create-a-new-aggregation-pipeline-example
-.. _Original proposal and blueprint: #original-proposal-and-blueprint
 .. _Apache Spark: http://spark.apache.org
 .. _generic-aggregation-components: docs/generic-aggregation-components.md
 .. _PySpark Python API: http://spark.apache.org/docs/latest/api/python/index.html
