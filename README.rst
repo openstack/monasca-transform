@@ -99,9 +99,9 @@ Original proposal: `Monasca/Transform-proposal`_
 
 Blueprint: `monasca-transform blueprint`_
 
-.. _Apache Spark: http://spark.apache.org
+.. _Apache Spark: https://spark.apache.org
 .. _generic-aggregation-components: docs/generic-aggregation-components.md
-.. _PySpark Python API: http://spark.apache.org/docs/latest/api/python/index.html
+.. _PySpark Python API: https://spark.apache.org/docs/latest/api/python/index.html
 .. _Monasca/Transform wiki: https://wiki.openstack.org/wiki/Monasca/Transform
 .. _DevStack: https://docs.openstack.org/devstack/latest/
 .. _README.md: devstack/README.md
