@@ -1,0 +1,17 @@
+- project:
+    templates:
+      - openstack-python-jobs
+      - check-requirements
+    check:
+      jobs:
+        - legacy-tempest-dsvm-monasca-transform-python-functional:
+            irrelevant-files:
+              - ^(test-|)requirements.txt$
+              - ^setup.cfg$
+    gate:
+      jobs:
+        - legacy-tempest-dsvm-monasca-transform-python-functional:
+            irrelevant-files:
+              - ^(test-|)requirements.txt$
+              - ^setup.cfg$
+
