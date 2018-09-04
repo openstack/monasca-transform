@@ -1,8 +1,8 @@
 Team and repository tags
 ========================
 
-.. image:: https://governance.openstack.org/badges/monasca-analytics.svg
-    :target: https://governance.openstack.org/reference/tags/index.html
+.. image:: https://governance.openstack.org/tc/badges/monasca-transform.svg
+    :target: https://governance.openstack.org/tc/reference/tags/index.html
 
 -  `Monasca Transform`_
 
