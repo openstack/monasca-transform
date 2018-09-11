@@ -288,7 +288,7 @@ def main_service():
     """Method to use with Openstack service."""
     ConfigInitializer.basic_config()
     LogUtils.init_logger(__name__)
-    launcher = os_service.ServiceLauncher(cfg.CONF)
+    launcher = os_service.ServiceLauncher(cfg.CONF, restart_method='mutate')
     launcher.launch_service(Transform())
     launcher.wait()
 
