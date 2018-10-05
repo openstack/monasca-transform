@@ -118,7 +118,7 @@ class MonMetricsKafkaProcessor(object):
                     # partition = saved_offset_spec[composite_key]
                     from_offsets[
                         TopicAndPartition(spec_topic, spec_partition)
-                    ] = long(spec_until_offset)
+                    ] = int(spec_until_offset)
 
             MonMetricsKafkaProcessor.log_debug(
                 "get_kafka_stream: calling createDirectStream :"
