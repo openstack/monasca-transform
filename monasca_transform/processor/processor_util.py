@@ -68,8 +68,8 @@ class PreHourlyProcessorUtil(object):
             last_processed_date = None
             last_processed_hour = None
 
-        if (check_hour == last_processed_hour
-                and last_processed_date == check_date):
+        if (check_hour == last_processed_hour and
+                last_processed_date == check_date):
             earliest_acceptable_run_date_time = (
                 top_of_the_hour_date_time +
                 datetime.timedelta(hours=1) +

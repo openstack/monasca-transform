@@ -147,11 +147,11 @@ class InstanceUsageUtils(TransformUtils):
         for column_name in group_by_columns_list:
             column_value = getattr(row, column_name, Component.
                                    DEFAULT_UNAVAILABLE_VALUE)
-            if (column_value == Component.DEFAULT_UNAVAILABLE_VALUE
-                    and (column_name.startswith("dimensions.")
-                         or column_name.startswith("meta.")
-                         or column_name.startswith("value_meta.")
-                         or column_name.startswith("extra_data_map."))):
+            if (column_value == Component.DEFAULT_UNAVAILABLE_VALUE and
+                    (column_name.startswith("dimensions.") or
+                     column_name.startswith("meta.") or
+                     column_name.startswith("value_meta.") or
+                     column_name.startswith("extra_data_map."))):
                 split_column_name = column_name.split(".", 1)[-1]
                 column_value = getattr(row, split_column_name, Component.
                                        DEFAULT_UNAVAILABLE_VALUE)
