@@ -46,11 +46,19 @@ class GroupSortbyTimestamp(Grouping):
         # key1=value1^key2=value2^...
         group_by_key_value = ""
         for gcol in group_by_columns_list:
+
+            if gcol.startswith('dimensions.'):
+                gcol = "dimensions['%s']" % (gcol.split('.')[-1])
+            elif gcol.startswith('meta.'):
+                gcol = "meta['%s']" % (gcol.split('.')[-1])
+            elif gcol.startswith('value_meta.'):
+                gcol = "value_meta['%s']" % (gcol.split('.')[-1])
+
+            gcolval = eval(".".join(("record_store_data",
+                                     gcol)))
             group_by_key_value = \
                 "^".join((group_by_key_value,
-                          "=".join((gcol,
-                                    eval(".".join(("record_store_data",
-                                                   gcol)))))))
+                          "=".join((gcol, gcolval))))
 
         # return a key-value rdd
         return [group_by_key_value, record_store_data]
