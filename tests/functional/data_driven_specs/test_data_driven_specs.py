@@ -229,7 +229,7 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
         self.check_list_field_for_row(
             row=vcpus_all_row,
             field_name='required_raw_fields_list',
-            expected_list=['creation_time', 'project_id', 'resource_id'],
+            expected_list=['creation_time', 'dimensions#project_id', 'dimensions#resource_id'],
         )
         self.check_dict_field_for_row(
             row=vcpus_all_row,
@@ -253,7 +253,7 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
         self.check_list_field_for_row(
             row=vm_mem_total_mb_all_row,
             field_name='required_raw_fields_list',
-            expected_list=['creation_time', 'tenantId', 'resource_id'],
+            expected_list=['creation_time', 'dimensions#tenant_id', 'dimensions#resource_id'],
         )
         self.check_dict_field_for_row(
             row=vm_mem_total_mb_all_row,
@@ -277,7 +277,7 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
         self.check_list_field_for_row(
             row=vm_mem_total_mb_all_row,
             field_name='required_raw_fields_list',
-            expected_list=['creation_time', 'tenantId', 'resource_id'],
+            expected_list=['creation_time', 'dimensions#tenant_id', 'dimensions#resource_id'],
         )
         self.check_dict_field_for_row(
             row=vm_mem_total_mb_all_row,
@@ -324,7 +324,7 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
         self.check_list_field_for_row(
             row=vm_disk_allocation_all_row,
             field_name='required_raw_fields_list',
-            expected_list=['creation_time', 'tenant_id', 'resource_id'],
+            expected_list=['creation_time', 'dimensions#tenant_id', 'dimensions#resource_id'],
         )
         self.check_dict_field_for_row(
             row=vm_disk_allocation_all_row,
@@ -347,7 +347,7 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
         self.check_list_field_for_row(
             row=vm_cpu_util_perc_row,
             field_name='required_raw_fields_list',
-            expected_list=['creation_time', 'tenant_id', 'resource_id'],
+            expected_list=['creation_time', 'dimensions#tenant_id', 'dimensions#resource_id'],
         )
         self.check_dict_field_for_row(
             row=vm_cpu_util_perc_row,
@@ -370,7 +370,7 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
         self.check_list_field_for_row(
             row=swiftlm_diskusage_all_row,
             field_name='required_raw_fields_list',
-            expected_list=['creation_time', 'hostname', 'dimensions#mount'],
+            expected_list=['creation_time', 'dimensions#hostname', 'dimensions#mount'],
         )
         self.check_dict_field_for_row(
             row=swiftlm_diskusage_all_row,
@@ -394,7 +394,7 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
         self.check_list_field_for_row(
             row=swiftlm_diskavail_all_row,
             field_name='required_raw_fields_list',
-            expected_list=['creation_time', 'hostname', 'dimensions#mount'],
+            expected_list=['creation_time', 'dimensions#hostname', 'dimensions#mount'],
         )
         self.check_dict_field_for_row(
             row=swiftlm_diskavail_all_row,
@@ -463,7 +463,7 @@ class TestDataDrivenSpecsRepo(SparkContextTest):
         self.check_list_field_for_row(
             row=storage_objects_size_all_row,
             field_name='required_raw_fields_list',
-            expected_list=['creation_time', 'project_id'],
+            expected_list=['creation_time', 'dimensions#project_id'],
         )
         self.check_dict_field_for_row(
             row=storage_objects_size_all_row,
