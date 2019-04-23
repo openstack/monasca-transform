@@ -53,7 +53,7 @@ and change the line
 
 to
 
-    enable_plugin monasca-transform https://git.openstack.org/openstack/monasca-transform
+    enable_plugin monasca-transform https://opendev.org/openstack/monasca-transform
 
 before running
 
