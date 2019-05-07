@@ -8,7 +8,7 @@ if [ -d devstack ]
 then
     echo devstack directory already cloned
 else
-    git clone https://git.openstack.org/openstack-dev/devstack
+    git clone https://opendev.org/openstack/devstack
 fi
 
 if [ -d monasca-transform ]

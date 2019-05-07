@@ -23,7 +23,7 @@
 # looks like
 #
 # [[local|localrc]]
-# enable_plugin monasca-transform https://git.openstack.org/openstack/monasca-transform
+# enable_plugin monasca-transform https://opendev.org/openstack/monasca-transform
 #
 # By default all Monasca services are started (see
 # devstack/settings). To disable a specific service use the
