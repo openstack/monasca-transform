@@ -4,23 +4,11 @@
       - check-requirements
       - openstack-cover-jobs
       - openstack-lower-constraints-jobs
-      - openstack-python-jobs
       - openstack-python3-ussuri-jobs
     check:
       jobs:
-        - legacy-tempest-dsvm-monasca-transform-python-functional:
-            irrelevant-files:
-              - ^(test-|)requirements.txt$
-              - ^setup.cfg$
         - legacy-tempest-dsvm-monasca-transform-python35-functional:
             voting: false
             irrelevant-files:
               - ^(test-|)requirements.txt$
               - ^setup.cfg$
-    gate:
-      jobs:
-        - legacy-tempest-dsvm-monasca-transform-python-functional:
-            irrelevant-files:
-              - ^(test-|)requirements.txt$
-              - ^setup.cfg$
-
