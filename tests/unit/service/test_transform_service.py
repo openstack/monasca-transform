@@ -12,22 +12,19 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import mock
-from mock import MagicMock
 import os
-
-from oslo_config import cfg
-import oslo_service
-
 import time
 import traceback
 import unittest
+from unittest import mock
+
+from oslo_config import cfg
+import oslo_service
+from tooz.drivers.zookeeper import KazooDriver
 
 from monasca_transform.config.config_initializer import ConfigInitializer
-
 from monasca_transform.service import transform_service
 
-from tooz.drivers.zookeeper import KazooDriver
 
 ConfigInitializer.basic_config(
     default_config_files=[
@@ -72,8 +69,8 @@ class TransformServiceTestBase(unittest.TestCase):
     def test_transform_service_heartbeat(self, coordinator):
 
         # mock coordinator
-        fake_kazoo_driver = MagicMock(name="MagicKazooDriver",
-                                      spec=KazooDriver)
+        fake_kazoo_driver = mock.MagicMock(name="MagicKazooDriver",
+                                           spec=KazooDriver)
         coordinator.return_value = fake_kazoo_driver
 
         # option1
@@ -98,8 +95,8 @@ class TransformServiceTestBase(unittest.TestCase):
                                               coordinator):
 
         # mock coordinator
-        fake_kazoo_driver = MagicMock(name="MagicKazooDriver",
-                                      spec=KazooDriver)
+        fake_kazoo_driver = mock.MagicMock(name="MagicKazooDriver",
+                                           spec=KazooDriver)
         fake_kazoo_driver.get_leader.get.return_value = "someotherhost"
         coordinator.return_value = fake_kazoo_driver
 
@@ -126,8 +123,8 @@ class TransformServiceTestBase(unittest.TestCase):
                                                spark_submit_call,
                                                coordinator):
         # mock coordinator
-        fake_kazoo_driver = MagicMock(name="MagicKazooDriver",
-                                      spec=KazooDriver)
+        fake_kazoo_driver = mock.MagicMock(name="MagicKazooDriver",
+                                           spec=KazooDriver)
         coordinator.return_value = fake_kazoo_driver
 
         # set up transform service
@@ -137,8 +134,8 @@ class TransformServiceTestBase(unittest.TestCase):
         # test previously running value
         self.assertFalse(serv_thread.previously_running)
 
-        fake_event = MagicMock(name="fake_event",
-                               spec='tooz.coordination.Event')
+        fake_event = mock.MagicMock(name="fake_event",
+                                    spec='tooz.coordination.Event')
 
         # call leader election function
         serv_thread.when_i_am_elected_leader(fake_event)

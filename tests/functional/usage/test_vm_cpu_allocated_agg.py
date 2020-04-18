@@ -13,8 +13,8 @@
 # under the License.
 import json
 import unittest
+from unittest import mock
 
-import mock
 from oslo_config import cfg
 from pyspark.streaming.kafka import OffsetRange
 

@@ -11,16 +11,15 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from collections import defaultdict
 import datetime
 import os
 import random
 import sys
 import unittest
+from unittest import mock
 import uuid
 
-from collections import defaultdict
-
-import mock
 from oslo_config import cfg
 from oslo_utils import uuidutils
 from pyspark.streaming.kafka import OffsetRange

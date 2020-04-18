@@ -12,8 +12,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 import unittest
+from unittest import mock
 
-import mock
 from oslo_config import cfg
 from pyspark.streaming.kafka import OffsetRange
 
