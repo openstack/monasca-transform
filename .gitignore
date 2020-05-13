@@ -6,3 +6,4 @@ tools/vagrant/.vagrant
 doc/build/*
 .stestr
 .tox
+*.pyc
