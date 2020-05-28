@@ -11,11 +11,10 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-import unittest
-
 from collections import defaultdict
-import mock
-from mock import MagicMock
+import unittest
+from unittest import mock
+
 from oslo_config import cfg
 from pyspark.streaming.kafka import OffsetRange
 
@@ -37,8 +36,8 @@ class SparkUnitTest(unittest.TestCase):
     def test_transform_to_recordstore(self):
         # simply verify that the transform method is called first, then
         # rdd to recordstore
-        kafka_stream = MagicMock(name='kafka_stream')
-        transformed_stream = MagicMock(name='transformed_stream')
+        kafka_stream = mock.MagicMock(name='kafka_stream')
+        transformed_stream = mock.MagicMock(name='transformed_stream')
         kafka_stream.transform.return_value = transformed_stream
         MonMetricsKafkaProcessor.transform_to_recordstore(
             kafka_stream)

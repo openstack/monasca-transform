@@ -11,22 +11,13 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
 import json
-import mock
-from oslo_config import cfg
 import unittest
+from unittest import mock
 
-
+from oslo_config import cfg
 from pyspark.streaming.kafka import OffsetRange
-
-from tests.functional.messaging.adapter import DummyAdapter
-from tests.functional.spark_context_test import SparkContextTest
-from tests.functional.test_resources.cpu_kafka_data.data_provider \
-    import DataProvider
-from tests.functional.test_resources.mock_component_manager \
-    import MockComponentManager
-from tests.functional.test_resources.mock_data_driven_specs_repo \
-    import MockDataDrivenSpecsRepo
 
 from monasca_transform.component.usage.fetch_quantity_util import \
     FetchQuantityUtilException
@@ -35,6 +26,14 @@ from monasca_transform.driver.mon_metrics_kafka \
     import MonMetricsKafkaProcessor
 from monasca_transform.transform import RddTransformContext
 from monasca_transform.transform import TransformContextUtils
+from tests.functional.messaging.adapter import DummyAdapter
+from tests.functional.spark_context_test import SparkContextTest
+from tests.functional.test_resources.cpu_kafka_data.data_provider \
+    import DataProvider
+from tests.functional.test_resources.mock_component_manager \
+    import MockComponentManager
+from tests.functional.test_resources.mock_data_driven_specs_repo \
+    import MockDataDrivenSpecsRepo
 
 
 class TestFetchQuantityUtilAgg(SparkContextTest):

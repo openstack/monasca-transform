@@ -13,17 +13,10 @@
 # under the License.
 import json
 import unittest
+from unittest import mock
 
-import mock
 from oslo_config import cfg
 from pyspark.streaming.kafka import OffsetRange
-from tests.functional.spark_context_test import SparkContextTest
-from tests.functional.test_resources.fetch_quantity_data.data_provider \
-    import DataProvider
-from tests.functional.test_resources.mock_component_manager \
-    import MockComponentManager
-from tests.functional.test_resources.mock_data_driven_specs_repo \
-    import MockDataDrivenSpecsRepo
 
 from monasca_transform.config.config_initializer import ConfigInitializer
 from monasca_transform.driver.mon_metrics_kafka \
@@ -31,6 +24,13 @@ from monasca_transform.driver.mon_metrics_kafka \
 from monasca_transform.transform import RddTransformContext
 from monasca_transform.transform import TransformContextUtils
 from tests.functional.messaging.adapter import DummyAdapter
+from tests.functional.spark_context_test import SparkContextTest
+from tests.functional.test_resources.fetch_quantity_data.data_provider \
+    import DataProvider
+from tests.functional.test_resources.mock_component_manager \
+    import MockComponentManager
+from tests.functional.test_resources.mock_data_driven_specs_repo \
+    import MockDataDrivenSpecsRepo
 
 
 class TestPodNetUsageAgg(SparkContextTest):
