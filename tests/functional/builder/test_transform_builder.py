@@ -84,4 +84,4 @@ class TransformBuilderTest(SparkContextTest):
                             'all', 12946.0,
                             'mem.total_mb_agg')]
 
-        self.assertItemsEqual(result_list, expected_result)
+        self.assertCountEqual(result_list, expected_result)

@@ -56,4 +56,4 @@ class UsageComponentTest(SparkContextTest):
         expected_result = [
             ('2016-02-08', '18', 'all', 'all', 12946.0)]
 
-        self.assertItemsEqual(result_list, expected_result)
+        self.assertCountEqual(result_list, expected_result)

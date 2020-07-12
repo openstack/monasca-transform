@@ -55,4 +55,4 @@ class UsageComponentTest(SparkContextTest):
             ('2016-02-08', '18', 'NA', 'mini-mon', 5969.0),
             ('2016-02-08', '18', 'NA', 'devstack', 6977.0)]
 
-        self.assertItemsEqual(result_list, expected_result)
+        self.assertCountEqual(result_list, expected_result)

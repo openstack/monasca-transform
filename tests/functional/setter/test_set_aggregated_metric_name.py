@@ -65,4 +65,4 @@ class SetAggregatedMetricNameTest(SparkContextTest):
         expected_result = [
             ('2016-02-08', '18', 'all', 'all', 12946.0, 'mem.total_mb_agg')]
 
-        self.assertItemsEqual(result_list, expected_result)
+        self.assertCountEqual(result_list, expected_result)
