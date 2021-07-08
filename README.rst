@@ -13,4 +13,4 @@ branches.
 
 For any further questions, please email
 openstack-discuss@lists.openstack.org or join #openstack-monasca on
-Freenode.
+OFTC.
